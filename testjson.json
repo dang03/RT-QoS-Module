@@ -1,0 +1,77 @@
+{
+  "directed": false, 
+  "graph": [], 
+  "nodes": [
+    {
+      "id": "s3"
+    }, 
+    {
+      "id": "s2"
+    }, 
+    {
+      "id": "s1"
+    }, 
+    {
+      "id": "s4"
+    }
+  ], 
+  "adjacency": [
+    [
+      {
+        "id": "s2", 
+        "weight2": 2, 
+        "key": "s2-s3", 
+        "weight1": 1.5
+      }, 
+      {
+        "id": "s1", 
+        "weight2": 3, 
+        "key": "s1-s3", 
+        "weight1": 1.0
+      }, 
+      {
+        "id": "s4", 
+        "weight2": 4, 
+        "key": "s3-s4", 
+        "weight1": 2.2
+      }
+    ], 
+    [
+      {
+        "id": "s3", 
+        "weight2": 2, 
+        "key": "s2-s3", 
+        "weight1": 1.5
+      }, 
+      {
+        "id": "s1", 
+        "weight2": 5, 
+        "key": "s1-s2", 
+        "weight1": 0.1
+      }
+    ], 
+    [
+      {
+        "id": "s3", 
+        "weight2": 3, 
+        "key": "s1-s3", 
+        "weight1": 1.0
+      }, 
+      {
+        "id": "s2", 
+        "weight2": 5, 
+        "key": "s1-s2", 
+        "weight1": 0.1
+      }
+    ], 
+    [
+      {
+        "id": "s3", 
+        "weight2": 4, 
+        "key": "s3-s4", 
+        "weight1": 2.2
+      }
+    ]
+  ], 
+  "multigraph": true
+}

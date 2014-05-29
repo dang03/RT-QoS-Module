@@ -1,0 +1,961 @@
+Python utilites
+
+ import arcpy,time, datetime
+
+ #class Geocode():
+ # def RunGeoCoding(self):
+ startTime = time.time()
+ print "geocoding started at", datetime.datetime.now()
+ # Set local variables:
+ address_table = r"UEMs with active permit etc 2013-1-11.TXT"
+ print "address table loaded"
+ address_locator = r"GIS Servers\arcgis on tasks.arcgisonline.com\Locators\TA_Address_NA_10.GeocodeServer"
+ print "address locator loaded"
+ geocode_result = r"D:\Documents\Eclipse workspaces\PATS\geocode active 4D addresses\src\output shape files\UEM_Go_ON_import_noProblem_2013_01_11.shp"
+ print "output file created, but not yet populated"
+
+ arcpy.GeocodeAddresses_geocoding(address_table, address_locator, "Street Address VISIBLE NONE;City CITY VISIBLE NONE;State State VISIBLE NONE;Zip Zip VISIBLE NONE", geocode_result, "STATIC")
+ duration=time.time()-startTime
+ print "done! I took ",duration/60," minutes to run"
+
+
+#############################################################################
+#Suma de multi-costes a un solo coste
+
+import networkx as nx
+# weighted MultiGraph
+M = nx.MultiGraph()
+M.add_edge(1,2,weight=7)
+M.add_edge(1,2,weight=19)
+M.add_edge(2,3,weight=42)
+
+# create weighted graph from M
+G = nx.Graph()
+for u,v,data in M.edges_iter(data=True):
+    w = data['weight']
+    if G.has_edge(u,v):
+        G[u][v]['weight'] += w
+    else:
+        G.add_edge(u, v, weight=w)
+
+print G.edges(data=True)
+# [(1, 2, {'weight': 26}), (2, 3, {'weight': 42})]
+
+##############################################################################
+QoS request
+
+# Create graph
+network_graph = nx.Graph()
+f_routes = open('routes-list.txt', 'rb')
+# Assign list items to variables
+for line in f_routes:
+    route_list = line.split(",")
+    orig = route_list[0]
+    dest = route_list[1]
+    distance = float(route_list[2])
+    # Add route as an edge to the graph
+    network_graph.add_edge(orig, dest, distance=(distance))
+
+###############################################################################
+Your code works fine here (although I suppose you want to use float dtype instead of integer one) with Python 2.7 and numpy 1.5.1:
+#!/usr/bin/env python
+import numpy
+
+y = numpy.genfromtxt('1400list.txt', delimiter='\t',dtype=[('A', 'S10'),
+('B', 'i8')])
+print y
+
+The output is:
+vicent@deckard:/tmp$ python prova.py
+[('string001', 124L) ('string002', 235L) ('string003', 552L)]
+vicent@deckard:/tmp$
+
+Please, make sure that you are using tabs instead of spaces in your data file.
+
+###############################################################################
+PortDownReconciliationTest.py
+#!/usr/bin/env python
+#Author: Jason Parraga, Marist College (Jason.Parraga1@marist.edu)
+'''' Warning: This test can be unreliable sometimes. Sometimes the test
+#suite will lag, causing flow expiration times to reach ~ 12 seconds.
+#When properly functioining the flows will be deleted in ~ 2 seconds. Then the
+following ping shows that the down link is avoided.  '''
+import bigtest.controller
+import bigtest
+import json
+import urllib
+import time
+
+
+env = bigtest.controller.TwoNodeTest()
+log = bigtest.log.info
+
+
+controllerNode = env.node1()
+mininetNodeCli = env.node2().cli()
+
+
+mininetNodeCli.runCmd("rm -f square.py")
+with open("bigtest/square.py", "r") as topofile:
+    for line in topofile:
+        mininetNodeCli.runCmd("echo \'%s\' >> square.py" % (line[:-1], ))
+
+
+# Startup the controller with the custom square topology
+mininetNodeCli.gotoMininetMode("--controller=remote --ip=%s --custom square.py --topo=square" % controllerNode.ipAddress())
+
+
+# Wait for network to converge (An attempt to mitigate unreliable results, see above)
+time.sleep(5)
+
+
+# Ping between the hosts to establish some temporary flows
+x = mininetNodeCli.runCmd("h5 ping -c1 h6")
+bigtest.Assert(" 0% packet loss" in x)
+
+
+# Verify that the traffic is using a direct route between switches 1,3
+command = "http://%s:8080/wm/core/switch/all/flow/json" % controllerNode.ipAddress()
+x = urllib.urlopen(command).read()
+# Only switches 1,3 should contain flows
+bigtest.Assert(not "\"00:00:00:00:00:00:00:01\":[]" in x
+               and not "\"00:00:00:00:00:00:00:03\":[]" in x
+               and "\"00:00:00:00:00:00:00:02\":[]" in x
+               and "\"00:00:00:00:00:00:00:04\":[]" in x)
+
+
+# Bring down the link between s1 and s3, triggering port down reconciliation
+x = mininetNodeCli.runCmd("link s1 s3 down")
+
+
+#Wait until any invalid flows are removed (Output Port 2 involves inter switch links, which should be deleted)
+timeToDeleteFlows = time.time()
+while("[{\"port\":2,\"maxLength\":-1,\"length\":8,\"type\":\"OUTPUT\",\"lengthU\":8}]" in urllib.urlopen(command).read()):
+    pass
+
+
+# Calculate the time it has taken for the invalid flows to be removed
+timeToDeleteFlows = time.time()-timeToDeleteFlows
+
+
+# Verify that the hosts can successfully ping now that the invalid flows are deleted
+x = mininetNodeCli.runCmd("h5 ping -c1 h6")
+bigtest.Assert(" 0% packet loss" in x)
+
+
+# Verify that the traffic is using an alternative route to route traffic around the link down
+command = "http://%s:8080/wm/core/switch/all/flow/json" % controllerNode.ipAddress()
+x = urllib.urlopen(command).read()
+# All switches should now contain flows, not just switches 1,3
+bigtest.Assert(not "\"00:00:00:00:00:00:00:01\":[]" in x
+                and not "\"00:00:00:00:00:00:00:03\":[]" in x
+                and not "\"00:00:00:00:00:00:00:02\":[]" in x
+                and not "\"00:00:00:00:00:00:00:04\":[]" in x)
+
+
+# Print the time it took to delete the invalid flows
+print "It took " + str(timeToDeleteFlows) + " seconds to delete the invalid flows";
+
+
+env.endTest()
+
+#####################################################################################
+scripts/pushIP.py
+########################################################
+#
+# Copyright (C) 2013 Luca Prete, Simone Visconti, Andrea Biancini, Fabio Farina - www.garr.it - Consortium GARR
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# author Luca Prete <luca.prete@garr.it>
+# author Andrea Biancini <andrea.biancini@garr.it>
+# author Fabio Farina <fabio.farina@garr.it>
+# author Simone Visconti<simone.visconti.89@gmail.com>
+#
+########################################################
+
+import httplib
+import json
+import ast
+import math
+import os
+import sys
+import argparse
+import time
+
+
+class StaticFlowIp(object):
+
+
+	def __init__(self, server):
+		self.server = server
+
+
+
+
+	def set(self, data):
+		ret = self.rest_call(data, "POST")
+		return ret[0] == 200
+
+
+
+
+
+
+	def rest_call(self, data, action):
+		path = "/wm/staticflowip/IP/json"
+		headers = {
+			"Content-type": "application/json",
+			"Accept": "application/json",
+			}
+		body = json.dumps(data)
+		conn = httplib.HTTPConnection(self.server, 8080)
+		conn.request(action, path, body, headers)
+		response = conn.getresponse()
+		ret = (response.status, response.reason, response.read())
+		print ret
+		conn.close()
+		return ret
+
+
+
+
+if os.path.exists('./circuits.json'):
+    circuitDb = open('./circuits.json','r')
+    lines = circuitDb.readlines()
+    circuitDb.close()
+else:
+    lines={}
+
+
+
+
+
+
+parser = argparse.ArgumentParser(description='Circuit Pusher')
+parser.add_argument('--src', dest='srcAddress', action='store', default='0.0.0.0', help='source address: if type=ip, A.B.C.D')
+parser.add_argument('--dst', dest='dstAddress', action='store', default='0.0.0.0', help='destination address: if type=ip, A.B.C.D')
+args = parser.parse_args()
+srcIP = args.srcAddress
+dstIP = args.dstAddress
+circuitDb = open('./circuits.json','a')
+datetime = time.asctime()
+circuitParams = {'IPSrc':args.srcAddress, 'IPDst':args.dstAddress, 'datetime':datetime}
+str = json.dumps(circuitParams)
+circuitDb.write(str+"\n")
+circuitDb.close()
+pusher = StaticFlowIp("127.0.0.1")
+row = "{'IPSrc':'%s','IPDst':'%s'}" % (args.srcAddress, args.dstAddress)
+pusher.set(ast.literal_eval(row))
+
+
+#################################################################################
+
+import simplejson as json
+import networkx as nx
+G = nx.DiGraph()
+# add nodes, edges, etc to G ...
+
+def save(G, fname):
+    json.dump(dict(nodes=[[n, G.node[n]] for n in G.nodes()],
+                   edges=[[u, v, G.edge[u][v]] for u,v in G.edges()]),
+              open(fname, 'w'), indent=2)
+
+def load(fname):
+    G = nx.DiGraph()
+    d = json.load(open(fname))
+    G.add_nodes_from(d['nodes'])
+    G.add_edges_from(d['edges'])
+    return G
+
+json.dumps(dict(nodes=graph.nodes(), edges=graph.edges()))
+#################################################################################
+import json
+import networkx as nx
+from networkx.readwrite import json_graph
+import httplib2
+
+# If I want to create node objects, but may not need to
+class Node(object):
+  def __init__(self, nodeId, nodeType):
+    self.nodeId = nodeId
+    self.nodeType = nodeType
+
+def node_decoder(obj):
+  if obj['__type__'] == 'Node':
+    return Node(obj['@id'], obj['@type'])
+  return obj
+
+baseUrl = 'http://10.55.17.20:8080/controller/nb/v2'
+containerName = 'default'
+
+h = httplib2.Http(".cache")
+h.add_credentials('admin', 'admin')
+
+def find_edge(edges, headNode, tailNode):
+  for edge in odlEdges:
+    if edge['edge']['headNodeConnector']['node']['@id'] == headNode and edge['edge']['tailNodeConnector']['node']['@id'] == tailNode:
+      return edge
+  return None
+
+def push_path(path, odlEdges, srcIP, dstIP, baseUrl):
+  for i, node in enumerate(path[1:-1]):
+    flowName = "fromIP" + srcIP[-1:] + "Po" + str(i)
+    print node
+    print shortest_path
+    #ingressEdge = next(edge for edge in odlEdges if edge['edge']['headNodeConnector']['node']['@id'] == shortest_path[i] and edge['edge']['tailNodeConnector']['node']['@id'] == node)
+    ingressEdge = find_edge(odlEdges, shortest_path[i], node)
+    egressEdge = find_edge(odlEdges, node, shortest_path[i+2])
+    #egressEdge = next(edge for edge in odlEdges if edge['edge']['headNodeConnector']['node']['@id'] == node and edge['edge']['tailNodeConnector']['node']['@id'] == shortest_path[i+2])
+    newFlow = build_flow_entry(flowName, ingressEdge, egressEdge, node, srcIP, dstIP)
+    switchType = newFlow['node']['@type']
+    postUrl = build_flow_url(baseUrl, 'default', switchType, node, flowName)
+    # post the flow to the controller
+    resp, content = post_dict(h, postUrl, newFlow)
+
+def build_flow_entry(flowName, ingressEdge, egressEdge, node, srcIP, dstIP):
+  # *** Example flow: newFlow = {"installInHw":"false","name":"test2","node":{"@id":"00:00:00:00:00:00:00:07","@type":"OF"},"ingressPort":"1","priority":"500","etherType":"0x800","nwSrc":"10.0.0.7","nwDst":"10.0.0.3","actions":"OUTPUT=2"}
+  #etherTypeIP = "0x800"
+  # Since I don't specify the EtherType, it looks like the IP field is ignored
+  # Alternatively I could add a second flow with 0x806 for ARP then 0x800 for IP
+  defaultPriority = "500"
+  newFlow = {"installInHw":"false"}
+  ingressPort = ingressEdge['edge']['tailNodeConnector']['@id']
+  egressPort = egressEdge['edge']['headNodeConnector']['@id']
+  switchType = egressEdge['edge']['headNodeConnector']['node']['@type']
+  newFlow.update({"name":flowName})
+  newFlow.update({"node":ingressEdge['edge']['tailNodeConnector']['node']})
+  newFlow.update({"ingressPort":ingressPort, "priority":defaultPriority})
+  newFlow.update({"nwSrc":srcIP, "nwDst":dstIP})  # This can probably be ignored for this example
+  newFlow.update({"actions":"OUTPUT=" + egressPort})
+  return newFlow
+
+def build_url(baseUrl, service, containerName):
+  postUrl = '/'.join([baseUrl, service, containerName])
+  return postUrl
+
+def build_flow_url(baseUrl, containerName, switchType, switchId, flowName):
+  postUrl = build_url(baseUrl, 'flow', containerName) + '/'.join(['', switchType, switchId, flowName])
+  return postUrl
+
+def post_dict(h, url, d):
+  resp, content = h.request(
+      uri = url,
+      method = 'POST',
+      headers={'Content-Type' : 'application/json'},
+      body=json.dumps(d),
+      )
+  return resp, content
+
+# Get all the edges/links
+resp, content = h.request(build_url(baseUrl, 'topology', containerName), "GET")
+edgeProperties = json.loads(content)
+odlEdges = edgeProperties['edgeProperties']
+# Get all the nodes/switches
+resp, content = h.request(build_url(baseUrl, 'switch', containerName) + '/nodes/', "GET")
+nodeProperties = json.loads(content)
+odlNodes = nodeProperties['nodeProperties']
+
+print json.dumps(odlEdges, indent = 2)
+# Put nodes and edges into a graph
+graph = nx.Graph()
+for node in odlNodes:
+  graph.add_node(node['node']['@id'])
+for edge in odlEdges:
+  e = (edge['edge']['headNodeConnector']['node']['@id'], edge['edge']['tailNodeConnector']['node']['@id'])
+  graph.add_edge(*e)
+print graph.edges()
+# Print out graph info as a sanity check
+print "shortest path from 3 to 7"
+shortest_path = nx.shortest_path(graph, "00:00:00:00:00:00:00:03", "00:00:00:00:00:00:00:07")
+print shortest_path
+srcIP = "10.0.0.1"
+dstIP = "10.0.0.8"
+push_path(shortest_path, odlEdges, srcIP, dstIP, baseUrl)
+# Do the same as above but for the reverse direction
+shortest_path.reverse()
+print shortest_path
+push_path(shortest_path, odlEdges, dstIP, srcIP, baseUrl)
+
+# Now we need to add the flows for the hosts
+
+node3FlowFromHost = {"installInHw":"false","name":"node3from","node":{"@id":"00:00:00:00:00:00:00:03","@type":"OF"},"ingressPort":"1","priority":"500","nwSrc":"10.0.0.1","actions":"OUTPUT=3"}
+node7FlowFromHost = {"installInHw":"false","name":"node7from","node":{"@id":"00:00:00:00:00:00:00:07","@type":"OF"},"ingressPort":"2","priority":"500","nwSrc":"10.0.0.8","actions":"OUTPUT=3"}
+node3FlowToHost = {"installInHw":"false","name":"node3to","node":{"@id":"00:00:00:00:00:00:00:03","@type":"OF"},"ingressPort":"3","priority":"500","nwDst":"10.0.0.1","actions":"OUTPUT=1"}
+node7FlowToHost = {"installInHw":"false","name":"node7to","node":{"@id":"00:00:00:00:00:00:00:07","@type":"OF"},"ingressPort":"3","priority":"500","nwDst":"10.0.0.8","actions":"OUTPUT=2"}
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:03", "node3from")
+resp, content = post_dict(h, postUrl, node3FlowFromHost)
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:07", "node7from")
+resp, content = post_dict(h, postUrl, node7FlowFromHost)
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:03", "node3to")
+resp, content = post_dict(h, postUrl, node3FlowToHost)
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:07", "node7to")
+resp, content = post_dict(h, postUrl, node7FlowToHost)
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+# add nodes, edges, etc to G ...
+# Creating graph
+G = nx.MultiGraph()
+G.add_node(1)
+G.add_nodes_from([2, 3])
+
+# Creating edges
+G.add_edge(1, 2)
+e = (2, 3)
+G.add_edge(*e)
+
+print(G.nodes())
+print(G.edges())
+
+F = nx.MultiGraph()
+F.add_nodes_from(['s1', 's2', 's3', 's4'])
+
+F.add_edge('s1', 's2', key='s1-s2', weight1=0.1, weight2=5)
+F.add_edge('s2', 's3', key='s2-s3', weight1=1.5, weight2=2)
+F.add_edge('s1', 's3', key='s1-s3', weight1=1.0, weight2=3)
+F.add_edge('s3', 's4', key='s3-s4', weight1=2.2, weight2=4)
+result = nx.shortest_path(F, 's2', 's4')  # Does not consider weights
+print(result)
+result2 = nx.dijkstra_path(F, 's2', 's4', 'weight1')
+print(result2)
+
+# JSON printing options
+def jdefault(o):
+    return o.__dict__
+
+
+nx.write_edgelist(F, 'testjson.txt', data=True)
+print('Edgelist: ')
+for line in nx.generate_edgelist(F, data=True):
+    print(line)
+print
+print('json dumps: ')
+print (json_graph.dumps(F))
+X = json_graph.adjacency_data(F)
+print
+print('json graph adjacency: ')
+print(X)
+print(":::::::::::::::::::::::::::\n")
+
+with open('testjson.json', 'wb') as fp:
+    json.dump(X, fp, indent=2)
+
+"""
+def save(G, fname):
+    json.dump(dict(nodes=[[n, G.node[n]] for n in G.nodes()],
+                   edges=[[u, v, G.edge[u][v]] for u, v in G.edges()]),
+              open(fname, 'w'), indent=2)
+
+
+# Loading edges from a file
+def load(fname):
+    G = nx.Graph()
+    d = json.load(open(fname))
+    G.add_nodes_from(d['nodes'])
+    G.add_edges_from(d['edges'])
+    return G
+
+save(G, "testjson.json")
+
+
+# Read a matrix from a file into python (no headers/row names)
+# scipy_sparse matrix format or numpy matrix/array
+#QoSConstraints = r"UNDEFINED"
+
+mat = [((0, 0), (10, 10), (5, 5), (0, 0)),
+       ((10, 10), (0, 0), (0, 0), (10, 10)),
+       ((5, 5), (0, 0), (0, 0), (5, 5)),
+       ((0, 0), (10, 10), (5, 5), (0, 0))]
+
+
+mat = [(0, 10, 5, 8),
+       (10, 0,  8, 10),
+       (5, 8, 0, 5),
+       (8, 10, 5, 0)]
+
+dt = np.dtype([('bandwidth', '<i4')]) #, ('utilization', '<i4')])
+
+
+
+# Read external variable
+# Read a matrix from a file into python (no headers/row names)
+# scipy_sparse matrix format or numpy matrix/array
+
+TopologyGraph = np.array(mat)
+#r"Topology.txt"
+
+
+np.matrix([[(1.0, 2), (9.0, 8)],
+                          [(6.0, 4), (2.0, 6)]], dtype=dt)
+
+
+"""
+"""
+data = json_graph.node_link_data(F)
+print(data)
+print(json.dumps(data, default=jdefault))
+"""
+
+"""
+json_string = '{"requestID": "0001", "ip-src": "10.0.0.1", "ip-dst": "10.0.0.4", "bandwidth": 5.0 }'
+print(json.loads(json_string))
+with open('QoS_Request.json', 'wb') as fp:
+    json.dump(json_string, fp, indent=2)
+"""
+"""
+#Multi-constraint weights sum
+# weighted MultiGraph "KITE"
+M = nx.MultiGraph()
+M.add_edge(1, 2, weight=7)
+M.add_edge(1, 2, weight=19)
+M.add_edge(2, 3, weight=12)
+M.add_edge(2, 3, weight=10)
+M.add_edge(1, 3, weight=12)
+M.add_edge(4, 6, weight=3)
+M.add_edge(3, 6, weight=11)
+M.add_edge(1, 5, weight=5)
+M.add_edge(2, 5, weight=18)
+M.add_edge(3, 5, weight=19)
+#nx.draw(M)
+#plt.draw()
+#plt.savefig("/home/i2cat/Documents/test.png")
+
+
+#M = write_edgelist(TopologyGraph)
+# create weighted graph from M
+M = nx.from_numpy_matrix(TopologyGraph)
+
+
+G = nx.Graph()
+for u, v, data in M.edges_iter(data=True):
+    w = data['weight']
+    if G.has_edge(u, v):
+        G[u][v]['weight'] += w
+    else:
+        G.add_edge(u, v, bandwidth=w)
+
+print("Topology loaded link-state:")
+print(G.edges(data=True))
+
+elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] > 5.0]
+esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] <= 5.0]
+
+pos = nx.spring_layout(G) # positions for all nodes
+
+# nodes
+nx.draw_networkx_nodes(G, pos, node_size=700)
+#nx.draw_networkx_labels(G, pos)
+
+# edges
+nx.draw_networkx_edges(G, pos, edgelist=elarge, width=6)
+nx.draw_networkx_edges(G, pos, edgelist=esmall, width=6, alpha=0.5, edge_color='b', style='dashed')
+
+# labels
+nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
+
+plt.axis('off')
+plt.savefig("/home/i2cat/Documents/test.png") # save as png
+plt.show() # display
+
+
+# Remove edges - Links that does not meet bandwidth request
+for u, v, data in G.edges_iter(data=True):
+    if data['bandwidth'] <= 5.0:
+        G.remove_edge(u, v)
+
+H = nx.MultiGraph(G)
+print("Step 1 Topology Result:")
+print(H.edges(data=True))
+
+if True:
+    pass
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""
+
+
+
+# If I want to create node objects, but may not need to
+class Node(object):
+      def __init__(self, nodeId, nodeType):
+        self.nodeId = nodeId
+        self.nodeType = nodeType
+
+
+def node_decoder(obj):
+    if obj['__type__'] == 'Node':
+        return Node(obj['@id'], obj['@type'])
+    return obj
+
+
+def find_edge(edges, headNode, tailNode):
+    for edge in odlEdges:
+        if edge['edge']['headNodeConnector']['node']['@id'] == headNode and edge['edge']['tailNodeConnector']['node']['@id'] == tailNode:
+        return edge
+    return None
+"""
+
+
+"""
+resp, content = h.request(build_url(baseUrl, 'topology', containerName), "GET")
+edgeProperties = json.loads(content)
+odlEdges = edgeProperties['edgeProperties']
+# Get all the nodes/switches
+resp, content = h.request(build_url(baseUrl, 'switch', containerName) + '/nodes/', "GET")
+nodeProperties = json.loads(content)
+odlNodes = nodeProperties['nodeProperties']
+
+print json.dumps(odlEdges, indent = 2)
+# Put nodes and edges into a graph
+graph = nx.Graph()
+for node in odlNodes:
+  graph.add_node(node['node']['@id'])
+for edge in odlEdges:
+  e = (edge['edge']['headNodeConnector']['node']['@id'], edge['edge']['tailNodeConnector']['node']['@id'])
+  graph.add_edge(*e)
+print graph.edges()
+# Print out graph info as a sanity check
+print "shortest path from 3 to 7"
+shortest_path = nx.shortest_path(graph, "00:00:00:00:00:00:00:03", "00:00:00:00:00:00:00:07")
+print shortest_path
+srcIP = "10.0.0.1"
+dstIP = "10.0.0.8"
+push_path(shortest_path, odlEdges, srcIP, dstIP, baseUrl)
+# Do the same as above but for the reverse direction
+shortest_path.reverse()
+print shortest_path
+push_path(shortest_path, odlEdges, dstIP, srcIP, baseUrl)
+
+# Now we need to add the flows for the hosts
+
+node3FlowFromHost = {"installInHw":"false","name":"node3from","node":{"@id":"00:00:00:00:00:00:00:03","@type":"OF"},"ingressPort":"1","priority":"500","nwSrc":"10.0.0.1","actions":"OUTPUT=3"}
+node7FlowFromHost = {"installInHw":"false","name":"node7from","node":{"@id":"00:00:00:00:00:00:00:07","@type":"OF"},"ingressPort":"2","priority":"500","nwSrc":"10.0.0.8","actions":"OUTPUT=3"}
+node3FlowToHost = {"installInHw":"false","name":"node3to","node":{"@id":"00:00:00:00:00:00:00:03","@type":"OF"},"ingressPort":"3","priority":"500","nwDst":"10.0.0.1","actions":"OUTPUT=1"}
+node7FlowToHost = {"installInHw":"false","name":"node7to","node":{"@id":"00:00:00:00:00:00:00:07","@type":"OF"},"ingressPort":"3","priority":"500","nwDst":"10.0.0.8","actions":"OUTPUT=2"}
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:03", "node3from")
+resp, content = post_dict(h, postUrl, node3FlowFromHost)
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:07", "node7from")
+resp, content = post_dict(h, postUrl, node7FlowFromHost)
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:03", "node3to")
+resp, content = post_dict(h, postUrl, node3FlowToHost)
+postUrl = build_flow_url(baseUrl, 'default', "OF", "00:00:00:00:00:00:00:07", "node7to")
+resp, content = post_dict(h, postUrl, node7FlowToHost)
+"""
+"""
+print "Creating circuit:"
+print "from source device at switch %s port %s" % (srcSwitch,srcPort)
+print "to destination device at switch %s port %s"% (dstSwitch,dstPort)
+
+
+"""
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Topology: step2
+
+[
+    {
+        "src-switch":"00:00:00:00:00:00:00:04",
+        "src-port":3,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:06",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:04",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:05",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.5,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:05",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:04",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.5,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:07",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:06",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:06",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:04",
+        "dst-port":3,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:07",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:05",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":11.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:05",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:07",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":11.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:06",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:07",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:08",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:04",
+        "dst-port":4,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":12.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:04",
+        "src-port":4,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:08",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":12.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:08",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:07",
+        "dst-port":4,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":12.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:07",
+        "src-port":4,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:08",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":12.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    }
+]
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+Queues not working
+[
+    {
+        "src-switch":"00:00:00:00:00:00:00:05",
+        "src-port":3,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:06",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":4.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:06",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:05",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":4.5,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:05",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:07",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":20.5,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:07",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:05",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":20.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:06",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:08",
+        "dst-port":3,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":14.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:08",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:06",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":14.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:07",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:08",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":28.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:08",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:07",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":28.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:05",
+        "src-port":1,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:08",
+        "dst-port":4,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":11.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:08",
+        "src-port":4,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:05",
+        "dst-port":1,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":11.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:07",
+        "src-port":2,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:06",
+        "dst-port":4,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    },
+    {
+        "src-switch":"00:00:00:00:00:00:00:06",
+        "src-port":4,
+        "src-port-state":0,
+        "dst-switch":"00:00:00:00:00:00:00:07",
+        "dst-port":2,
+        "dst-port-state":0,
+        "type":"internal",
+        "bandwidth":10.0,
+        "delay": 0.5,
+        "packet-loss": 8
+    }
+]
