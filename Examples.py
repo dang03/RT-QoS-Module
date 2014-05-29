@@ -60,6 +60,7 @@ print(lines)
 # load qos request ID to compare with qosDb and check its availability
 
 reqID = None
+reqAlarm = None     # Check if request is a re-route / duplicated request
 reqBand = None
 reqDelay = None     # Data gathering not yet implemented
 reqPacketLoss = None

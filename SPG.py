@@ -25,7 +25,12 @@ import sys
 from PathDrawer import to_edge_path
 from fractions import Fraction
 from collections import defaultdict
+import MCP
 
+# main vars
+delta_sec = 2        # seconds to delay in time.sleep
+check_freq = 10     # seconds to check requests
+k_sel = 3            # selected k path
 
 
 # def startTime
@@ -46,10 +51,12 @@ controllerRestIp = args.controllerRestIp
 class mcolors:
     OKGREEN = '\033[92m'
     FAIL = '\033[91m'
+    ENDC = '\033[0m'
 
     def disable(self):
         self.OKGREEN = ''
         self.FAIL = ''
+        self.ENDC = ''
 
 # first check if a local db file exists, which needs to be updated after add/delete
 if os.path.exists('./qosDb.json'):
@@ -67,6 +74,7 @@ print(lines)
 # load qos request ID to compare with qosDb and check its availability
 
 reqID = None
+reqAlarm = None     # Check if request is a re-route / duplicated request
 reqBand = None
 reqDelay = None     # Data gathering not yet implemented
 reqPacketLoss = None
@@ -81,12 +89,16 @@ with open('./qosDb.json') as qosDb:
         with open("QoS_Request.json") as qosRequest:
             reqData = json.load(qosRequest)
             reqID = reqData['requestID']
+            reqAlarm = reqData['alarm']
             print "QoS Request ID: %s\n" % reqID
         if dataID == reqID:
-            print mcolors.FAIL + "QoS Request ID: %s already exists. Use new ID to create.\n" % reqID
-            duration = time.time()-startTime
-            print "SPG End Time: ", duration, " seconds"
-            sys.exit()
+            if reqAlarm == 0:
+                print mcolors.FAIL + "QoS Request ID: %s already exists. A new ID is required to initialize.\n" % reqID
+                duration = time.time()-startTime
+                print "SPG End Time: ", duration, " seconds"
+                sys.exit()
+    if reqAlarm != 0:
+        print mcolors.OKGREEN + "QoS Request Alarm: %s re-route requested\n" % reqID, mcolors.ENDC
 
     with open("QoS_Request.json") as qosRequest:
         reqData = json.load(qosRequest)
@@ -228,7 +240,6 @@ print G.edges(data=True)
 """
 
 ################################################################################
-# Path Pusher: send one flow mod per pair of APs in route
 # SPG algorithm Step 1: search and delete those links not meeting QoS constraints
 # Remove edges - Links that does not satisfy bandwidth constraints are removed from the graph
 
@@ -259,12 +270,13 @@ plt.show()  # display
 # src and dst path check - Check path connection between src and dst
 
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
+
 if isPath:
-    print "Searching best path available...\n"
+    print mcolors.OKGREEN+"Searching best path available...\n"+mcolors.ENDC
 
 
 else:
-    print "ERROR!!! No path available\n"
+    print mcolors.FAIL+"Failure: No path available\n"+mcolors.ENDC
     sys.exit()
 
 
@@ -275,15 +287,17 @@ if isPath and k > 1:
 # Single constraint request; suitable bandwidth requested
    # Calculate maximum bandwidth per link,
 """
-maxLength = None
-M = nx.MultiGraph()
-for (u, v, d) in G.edges(data=True):
-           if d['bandwidth'] >= maxLength:
-               maxLength = d['bandwidth']
-               if (u, v) not in maxPath:
-                   maxPath.append((u, v))
-M.add_edges_from(maxPath)
-hasPath = nx.has_path(M, srcSwitch, dstSwitch)
+
+res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'weight')
+print "res", res
+print "cos_res", cos_res
+
+path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'weight'))
+print path
+
+ultimate_cost, ultimate_path = maxLength_path(M, res, 'weight')
+print "path", ultimate_path
+print "cost", ultimate_cost
 """
 
 M = nx.MultiGraph(G)
@@ -336,14 +350,6 @@ plt.show()  # display
 
 
 
-
-
-
-
-
-
-# Multi-constraint path finder; find a feasible path satisfying multiple constraints
-# Additive weights: find requested constraints and add them to the graph
 ################################################################################
 # Multi-constraint path finder; find a feasible path satisfying multiple constraints
 # Additive weights: find requested constraints and add them to the graph
@@ -393,7 +399,7 @@ packetLossPaths = None
 
 print isPath
 if isPath:
-    print "Searching feasible paths available...\n"
+    print mcolors.OKGREEN+"Searching feasible paths available...\n"+mcolors.ENDC
     delayPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'delay')])
     packetLossPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'packetLoss')])
 
@@ -402,12 +408,13 @@ if isPath:
 
 
 else:
-    print mcolors.FAIL + "ERROR!!! No path available\n"
+    print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
     sys.exit()
 
 
 #################################################################################
-# Path Pusher: send one flow mod per pair of APs in route
+#
+# Path Pusher: send one flow mod per pair of Access Point in path
 # using StaticFlowPusher rest API
 
         # IMPORTANT NOTE: current Floodlight StaticflowEntryPusher
