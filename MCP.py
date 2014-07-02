@@ -236,7 +236,7 @@ ultimate_path, ultimate_cost = maxLength_path(H, res, 'cost')
 print "path", ultimate_path
 print "cost", ultimate_cost, "\n"
 
-ulti_path, ulti_cost = path_select(res, cos_res, 1)
+ulti_path, ulti_cost = path_select(res, cos_res, 4)
 print "path", ulti_path
 print "cost", ulti_cost
 
