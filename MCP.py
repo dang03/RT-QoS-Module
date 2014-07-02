@@ -26,6 +26,7 @@ def path_length(graph, path, weight=None):
                 # no weight attribute, then edge counter
                 pathLength += 1
                 print "COSTE2:", pathLength
+
         print graph.has_edge(path[i], path[i+1])
     print "COSTE3:", pathLength
     return pathLength
@@ -44,8 +45,20 @@ def has_loop(rootPath, spurPath):
 # path selector from k-path list
 
 def path_select(res, cos_res, kPath):
-    path = res[kPath]
-    pathCost = cos_res[kPath]
+    kRange = range(len(res))
+    kCheck = len(res)
+    print "rango:", kRange
+    print "check:", kCheck
+    print "k:", kPath
+    if kPath <= 0 or kPath > kCheck:
+        print "ERROR: Invalid k value"
+        path = None
+        pathCost = None
+
+
+    else:
+        path = res[kPath-1]
+        pathCost = cos_res[kPath-1]
 
     return path, pathCost
 
