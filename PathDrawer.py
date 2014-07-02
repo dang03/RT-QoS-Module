@@ -1,26 +1,16 @@
 """
 **********
 PathDrawer
-**********
 
 Draw multiple paths in a graph. Uses matplotlib (pylab).
-
 The path corners are rounded with the help of cube Bezier curves.
-
-If two or more paths traverse the same edge, they are automatically shifted to make them all visible. 
+If two or more paths traverse the same edge, they are automatically shifted to make them all visible.
 
 
 References:
  - matplotlib:     http://matplotlib.sourceforge.net/
  - Bezier curves:  http://matplotlib.sourceforge.net/api/path_api.html
- 
-"""
-
-__author__ = """Maciej Kurant (maciej.kurant@epfl.ch)"""
-#    Copyright (C) 2008 by
-#    Maciej Kurant <maciej.kurant@epfl.ch>
-#    Distributed under the terms of the GNU Lesser General Public License
-#    http://www.gnu.org/copyleft/lesser.html
+ """
 
 __all__ = ['is_valid_edge_path',
            'is_valid_node_path',

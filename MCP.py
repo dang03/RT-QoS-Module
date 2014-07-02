@@ -5,21 +5,32 @@ __author__ = 'Dani'
 
 import networkx as nx
 
+
+
+# returns a path length, as hop count
 def path_length(graph, path, weight=None):
     pathLength = 0
-    for i in range(len(path)):
-        if i > 0:
-            if graph.has_edge(path[i - 1], path[i]):
-                edge = graph.get_edge_data(path[i - 1], path[i])
-                #print "edge", edge[0]
-                try:
-                    pathLength += edge[0][weight]
-                except:
-                    # no weight attribute, then edge counter
-                    pathLength += 1
 
+    for i in range(len(path)-1):
+        print "edge1:", path[i]
+        print "edge2:", path[i+1]
+        print graph.has_edge(path[i], path[i+1])
+        if graph.has_edge(path[i], path[i+1]) or graph.has_edge(path[i+1], path[i]):
+
+            edge = graph.get_edge_data(path[i], path[i+1])
+            print "edge:", edge
+            try:
+                pathLength += edge[0][weight]
+                print "COSTE1:", pathLength
+            except:
+                # no weight attribute, then edge counter
+                pathLength += 1
+                print "COSTE2:", pathLength
+        print graph.has_edge(path[i], path[i+1])
+    print "COSTE3:", pathLength
     return pathLength
 
+# detect loops on a graph
 def has_loop(rootPath, spurPath):
     loop = False
     for x in rootPath:
@@ -30,6 +41,28 @@ def has_loop(rootPath, spurPath):
                 loop = True
     return loop
 
+# path selector from k-path list
+
+def path_select(res, cos_res, kPath):
+    path = res[kPath]
+    pathCost = cos_res[kPath]
+
+    return path, pathCost
+
+
+
+
+
+
+
+
+"""
+Adaptation to NetworkX Yen's K-shortest-paths
+FINAL VERSION:
+num_k: number of solutions
+weights: cost to compute
+
+"""
 def yen_networkx(graph, source, target, num_k, weights):
     import Queue
 
@@ -108,11 +141,18 @@ def maxLength_path(graph, path, weight):
     totalCost = 0
     maximumPath = None
     for i in range(len(path)):
-        Cost = path_length(graph, path[i], weight)
+        print "CAMINACO:", path[i]
+        parsed_path = path[i]
+        print "CAMINOPARSE:", parsed_path
+
+        print "-------------------"
+        Cost = path_length(graph, parsed_path, weight)
+        print "-------------------"
         if Cost > totalCost:
             totalCost = Cost
+            print "COSTACO:", totalCost
             maximumPath = path[i]
-    return totalCost,  maximumPath
+    return maximumPath, totalCost
 
 
 def longestPath(graph, source, target, weight):
@@ -149,8 +189,9 @@ def longestPath(graph, source, target, weight):
     print "MAXA IS=", maxa
     return maxa
 
-
-
+"""
+---------------------------------------
+"""
 
 M = nx.MultiGraph()
 
@@ -167,16 +208,26 @@ M.add_edge('00:00:02', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 M.add_edge('00:00:03', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=19, cost=3)
 
 
+H = nx.MultiGraph(M)
 res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'cost')
 print "res", res
 print "cos_res", cos_res
 
+"""
 path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))
 print path
+"""
 
-ultimate_cost, ultimate_path = maxLength_path(M, res, 'cost')
+
+ultimate_path, ultimate_cost = maxLength_path(H, res, 'cost')
 print "path", ultimate_path
-print "cost", ultimate_cost
+print "cost", ultimate_cost, "\n"
+
+ulti_path, ulti_cost = path_select(res, cos_res, 1)
+print "path", ulti_path
+print "cost", ulti_cost
+
+
 
 """
 camino = ['00:00:01']
