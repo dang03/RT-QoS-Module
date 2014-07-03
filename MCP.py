@@ -4,7 +4,7 @@
 __author__ = 'Dani'
 
 import networkx as nx
-
+import json
 
 
 # returns a path length, as hop count
@@ -16,11 +16,14 @@ def path_length(graph, path, weight=None):
         print "edge2:", path[i+1]
         print graph.has_edge(path[i], path[i+1])
         if graph.has_edge(path[i], path[i+1]) or graph.has_edge(path[i+1], path[i]):
-# problem here with ID of edge
+
             edge = graph.get_edge_data(path[i], path[i+1])
             print "edge:", edge
+            edge = edge.items()[0]
+            print edge
             try:
-                pathLength += edge[0][weight]
+                new_length = edge[1][weight]
+                pathLength += new_length
                 print "COSTE1:", pathLength
             except:
                 # no weight attribute, then edge counter
@@ -89,6 +92,7 @@ def yen_networkx(graph, source, target, num_k, weights):
     B = Queue.PriorityQueue()
 
     for k in range(1, num_k):
+        print "K!!!", k
         # The spur node ranges from first node to next to last node in shortest path
         for i in range(len(A[k-1])-1):
             # Spur node is retrieved from previous k-shortest path, k -1
@@ -97,6 +101,9 @@ def yen_networkx(graph, source, target, num_k, weights):
             # Sequence of nodes from source to spur node of previous k-shortest path
             rootPath = A[k-1][:i]
             print "ROOTPATH", rootPath
+
+            for u, v, edata in graph.edges(data=True):
+                print u, v, edata
 
             # Store removed edges
             removedEdges = []
@@ -114,14 +121,24 @@ def yen_networkx(graph, source, target, num_k, weights):
                         if edge is None or len(edge) == 0:
                             continue    # deleted edge
 
-                        edge = edge.items()[0]
+                        edge = edge.items() #[0]
                         print "EDGE-ZERO", edge
                         removedEdges.append((path[i], path[i+1], edge))
                         graph.remove_edge(path[i], path[i+1])
+                        graph.remove_edge(path[i], path[i+1])
+                        print "REMOVED?", graph.get_edge_data(path[i], path[i+1])
 
             # calculate the spur path from spur node to the sink
-            spurPath = list(nx.all_shortest_paths(graph, spurNode, target, weight=weights))[0]
-            print "spur", spurPath
+            print "spurnode", spurNode
+            print "target", target
+            for u, v, edata in graph.edges(data=True):
+                print u, v, edata
+
+            try:
+                spurPath = list(nx.all_shortest_paths(graph, spurNode, target, weight=weights))[0]
+                print "spur", spurPath
+            except:
+                spurPath = []
 
             if len(spurPath) > 0:
                 # Complete path is made up from root path and spur path
@@ -130,21 +147,34 @@ def yen_networkx(graph, source, target, num_k, weights):
                     continue
                 totalPath = rootPath + spurPath
                 print "total", totalPath
+                print "WEIGHT", weights
                 totalPathCost = path_length(graph, totalPath, weights)
                 # add the potential k-shortest path to the heap
                 B.put((totalPathCost, totalPath))
 
             # add back the edges that were removed from the graph
-            for removedEdge in removedEdges:
-                print removedEdge
-                node_start, node_end, data = removedEdge
-                print node_start
-                print node_end
-                key, attributes = data
-                print key
-                print attributes
-                graph.add_edge(node_start, node_end, key=key, **attributes)
+            for u, v, edata in graph.edges(data=True):
+                print u, v, edata
+            print "printremoved", removedEdges
 
+            for removedEdge in removedEdges:
+                print "REMOVE", removedEdge
+                node_start, node_end, data = removedEdge
+                print "node start", node_start
+                print "node end", node_end
+                print "data", data
+                data1, data2 = data
+                print data1
+                print data2
+                key, attributes = data1
+                print "GRAFO", graph.get_edge_data(node_start, node_end)
+                graph.add_edge(node_start, node_end, key=key, **attributes)
+                print "GRAFO2", graph.get_edge_data(node_start, node_end)
+                key, attributes = data2
+                graph.add_edge(node_start, node_end, key=key, **attributes)
+                print "GRAFO3", graph.get_edge_data(node_start, node_end)
+                print range(1, num_k)
+                print "K!!!", k
 
         # Sort the potential k-shortest paths by cost
         # B is already sorted

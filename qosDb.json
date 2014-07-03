@@ -7,3 +7,6 @@
 {"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "test", "datetime": "Thu Jul  3 11:37:55 2014"}
 {"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "test", "datetime": "Thu Jul  3 11:43:10 2014"}
 {"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "test", "datetime": "Thu Jul  3 11:44:31 2014"}
+{"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "test", "datetime": "Fri Jul  4 01:31:55 2014"}
+{"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "test", "datetime": "Fri Jul  4 01:38:45 2014"}
+{"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "test", "datetime": "Fri Jul  4 01:43:00 2014"}

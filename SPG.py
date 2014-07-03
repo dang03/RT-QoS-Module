@@ -80,7 +80,7 @@ reqDelay = None     # Data gathering not yet implemented
 reqPacketLoss = None
 reqJitter = None    # Not used, QoS parameter to consider
 reqCost = None      # Not used, QoS link average state
-k = 0               # Number of constraints used to calculate a path
+k = 0               # To stack number of constraints used to calculate a path
 with open('./qosDb.json') as qosDb:
     for line in qosDb:
         data = json.loads(line)
@@ -274,7 +274,7 @@ plt.show()  # display
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
 if isPath:
-    print mcolors.OKGREEN+"Searching best path available...\n"+mcolors.ENDC
+    print mcolors.OKGREEN+"Searching best path available... [Bandwidth constraint]\n"+mcolors.ENDC
 
 
 else:
@@ -283,6 +283,7 @@ else:
 
 
 if isPath and k > 1:
+
     print "Step 2: MCP process"
 
 #else:
@@ -315,15 +316,15 @@ print "QoS path = %s\n" % maxPath
 
 
 M = nx.MultiGraph(G)
-kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 4, 'bandwidth')
+kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 2, 'bandwidth')
 
 print "QoS k paths = %s\n" % kPaths
-print "QoS k lengths = %\n" % kLengths
+print "QoS k lengths = %s\n" % kLengths
 
-maxPath, length = path_select(kPaths, kLengths, 4)
+maxPath, length = path_select(kPaths, kLengths, 2)
 
 print "QoS path = %s\n" % maxPath
-print "QoS length = %\n" % length
+print "QoS length = %s\n" % length
 
 
 
@@ -418,7 +419,7 @@ packetLossPaths = None
 
 print isPath
 if isPath:
-    print mcolors.OKGREEN+"Searching feasible paths available...\n"+mcolors.ENDC
+    print mcolors.OKGREEN+"Searching feasible paths available...[MCP NOT AVAILABLE]\n"+mcolors.ENDC
     delayPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'delay')])
     packetLossPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'packetLoss')])
 
