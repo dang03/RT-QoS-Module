@@ -25,7 +25,7 @@ import sys
 from PathDrawer import to_edge_path
 from fractions import Fraction
 from collections import defaultdict
-import MCP
+from MCP import yen_networkx, path_select, path_length
 
 # main vars
 delta_sec = 2        # seconds to delay in time.sleep
@@ -300,6 +300,7 @@ print "path", ultimate_path
 print "cost", ultimate_cost
 """
 
+"""
 M = nx.MultiGraph(G)
 for (u, v, d) in M.edges(data=True):
     d['bandwidth'] = Fraction.from_float(1/d['bandwidth'])
@@ -308,6 +309,21 @@ for (u, v, d) in M.edges(data=True):
 print M.edges(data=True)
 length, maxPath = nx.bidirectional_dijkstra(M, srcSwitch, dstSwitch, weight='bandwidth')
 print "QoS path = %s\n" % maxPath
+"""
+
+M = nx.MultiGraph(G)
+kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 4, 'bandwidth')
+
+print "QoS k paths = %s\n" % kPaths
+print "QoS k lengths = %\n" % kLengths
+
+maxPath, length = path_select(kPaths, kLengths, 4)
+
+print "QoS path = %s\n" % maxPath
+print "QoS length = %\n" % length
+
+
+
 
 # labels
 hostList = [srcSwitch, dstSwitch]

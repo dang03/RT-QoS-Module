@@ -106,11 +106,14 @@ def yen_networkx(graph, source, target, num_k, weights):
                         # remove links that are part of the previous shortest path which share the same root path
                         edge = graph.get_edge_data(path[i], path[i+1])
                         print "EDGE", edge
+
                         print "PATH!", path[i]
                         print "PATH!+1", path[i+1]
+
                         if edge is None or len(edge) == 0:
                             continue    # deleted edge
                         edge = edge[0]
+                        print "EDGE-ZERO", edge
                         removedEdges.append((path[i], path[i+1], edge))
                         graph.remove_edge(path[i], path[i+1])
 
@@ -154,16 +157,16 @@ def maxLength_path(graph, path, weight):
     totalCost = 0
     maximumPath = None
     for i in range(len(path)):
-        print "CAMINACO:", path[i]
+        print "paths:", path[i]
         parsed_path = path[i]
-        print "CAMINOPARSE:", parsed_path
+        print "pathPARSE:", parsed_path
 
         print "-------------------"
         Cost = path_length(graph, parsed_path, weight)
         print "-------------------"
         if Cost > totalCost:
             totalCost = Cost
-            print "COSTACO:", totalCost
+            print "Total:", totalCost
             maximumPath = path[i]
     return maximumPath, totalCost
 
@@ -226,6 +229,11 @@ res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'cost')
 print "res", res
 print "cos_res", cos_res
 
+
+N = nx.MultiGraph(M)
+res, cos_res = yen_networkx(N, '00:00:01', '00:00:03', 4, 'weight')
+print "res2", res
+print "cos_res2", cos_res
 """
 path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))
 print path
@@ -242,10 +250,3 @@ print "cost", ulti_cost
 
 
 
-"""
-camino = ['00:00:01']
-cgraph = nx.Graph(M)
-for node in cgraph.nodes_iter():
-        cgraph.add_node(node, visited='0')
-longestPath(cgraph, '00:00:01', '00:00:06', 'weight')
-"""
