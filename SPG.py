@@ -210,8 +210,10 @@ with open("topology.json") as topologyData:
                 topoDstSwitch = parsedData[i]['dst-switch']
                 edgeBand = parsedData[i]['bandwidth']
                 if G.has_edge(topoSrcSwitch, topoDstSwitch):
+
                     G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, bandwidth=edgeBand)
                 print "edge: %s - %s, bandwidth: %s, key: %s" % (topoSrcSwitch, topoDstSwitch, edgeBand, topoSrcSwitch+topoDstSwitch)
+
 
 eOK = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] > reqBand]
 eFail = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] <= reqBand]
@@ -310,6 +312,7 @@ print M.edges(data=True)
 length, maxPath = nx.bidirectional_dijkstra(M, srcSwitch, dstSwitch, weight='bandwidth')
 print "QoS path = %s\n" % maxPath
 """
+
 
 M = nx.MultiGraph(G)
 kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 4, 'bandwidth')

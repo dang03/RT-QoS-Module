@@ -105,6 +105,7 @@ def yen_networkx(graph, source, target, num_k, weights):
                     if len(path) - 1 > i and rootPath == path[:i]:
                         # remove links that are part of the previous shortest path which share the same root path
                         edge = graph.get_edge_data(path[i], path[i+1])
+
                         print "EDGE", edge
 
                         print "PATH!", path[i]
@@ -112,7 +113,8 @@ def yen_networkx(graph, source, target, num_k, weights):
 
                         if edge is None or len(edge) == 0:
                             continue    # deleted edge
-                        edge = edge[0]
+
+                        edge = edge.items()[0]
                         print "EDGE-ZERO", edge
                         removedEdges.append((path[i], path[i+1], edge))
                         graph.remove_edge(path[i], path[i+1])
@@ -134,20 +136,30 @@ def yen_networkx(graph, source, target, num_k, weights):
 
             # add back the edges that were removed from the graph
             for removedEdge in removedEdges:
-                node_start, node_end, attributes = removedEdge
-                graph.add_edge(node_start, node_end, **attributes)
+                print removedEdge
+                node_start, node_end, data = removedEdge
+                print node_start
+                print node_end
+                key, attributes = data
+                print key
+                print attributes
+                graph.add_edge(node_start, node_end, key=key, **attributes)
 
 
         # Sort the potential k-shortest paths by cost
         # B is already sorted
         # Add the lowest cost path that becomes the k-shortest path
         while True:
+
             cost_, path_ = B.get()
+            print cost_, path_
+
             if path_ not in A:
                 # Found new path to add
                 A.append(path_)
                 A_costs.append(cost_)
                 break
+
 
     return A, A_costs
 
@@ -209,6 +221,7 @@ def longestPath(graph, source, target, weight):
 ---------------------------------------
 """
 
+"""
 M = nx.MultiGraph()
 
 M.add_edge('00:00:01', '00:00:02', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=7, cost=3)
@@ -223,6 +236,7 @@ M.add_edge('00:00:01', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 M.add_edge('00:00:02', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=18, cost=2)
 M.add_edge('00:00:03', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=19, cost=3)
 
+print M.edges()
 
 H = nx.MultiGraph(M)
 res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'cost')
@@ -235,10 +249,11 @@ res, cos_res = yen_networkx(N, '00:00:01', '00:00:03', 4, 'weight')
 print "res2", res
 print "cos_res2", cos_res
 """
+"""
 path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))
 print path
 """
-
+"""
 
 ultimate_path, ultimate_cost = maxLength_path(H, res, 'cost')
 print "path", ultimate_path
@@ -248,5 +263,5 @@ ulti_path, ulti_cost = path_select(res, cos_res, 4)
 print "path", ulti_path
 print "cost", ulti_cost
 
-
+"""
 
