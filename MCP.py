@@ -16,7 +16,7 @@ def path_length(graph, path, weight=None):
         print "edge2:", path[i+1]
         print graph.has_edge(path[i], path[i+1])
         if graph.has_edge(path[i], path[i+1]) or graph.has_edge(path[i+1], path[i]):
-
+# problem here 
             edge = graph.get_edge_data(path[i], path[i+1])
             print "edge:", edge
             try:
