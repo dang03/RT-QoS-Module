@@ -130,9 +130,10 @@ with open("QoS_Request.json") as qosRequest:
 
 command = "curl -s http://%s/wm/device/?ipv4=%s" % (args.controllerRestIp, srcAddress)
 result = os.popen(command).read()
-parsedResult = json.loads(result)
-print command+"\n"
 try:
+    parsedResult = json.loads(result)
+    print command+"\n"
+
     srcSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
     srcPort = parsedResult[0]['attachmentPoint'][0]['port']
 
