@@ -2,7 +2,8 @@
 # encoding: utf-8
 
 """
-Suitable Path Process: main application implementing QoS Algorithm
+Path Computation Process: main application implementing QoS Algorithm for NCL integration
+Pathfinder modified code
 
 """
 __author__ = 'Daniel'
@@ -219,7 +220,7 @@ with open("topology.json") as topologyData:
 eOK = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] > reqBand]
 eFail = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] <= reqBand]
 
-
+"""
 # labels
 hostList = [srcSwitch, dstSwitch]
 edgeLabels = {}
@@ -238,7 +239,7 @@ nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
 plt.axis('off')
 plt.savefig("/home/i2cat/Documents/test.png")   # save as png
 plt.show()  # display
-
+"""
 print G.edges(data=True)
 
 
@@ -250,6 +251,7 @@ for u, v, data in G.edges_iter(data=True):
     if data['bandwidth'] <= reqBand:
         G.remove_edge(u, v)
 
+"""
 # labels
 hostList = [srcSwitch, dstSwitch]
 edgeLabels = {}
@@ -266,7 +268,7 @@ nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
 plt.axis('off')
 plt.savefig("/home/i2cat/Documents/test.png")   # save as png
 plt.show()  # display
-
+"""
 
 ################################################################################
 # SPG algorithm Step 2: search all suitable paths meeting QoS constraints
@@ -350,7 +352,7 @@ for (u, v) in G.edges():
     if u in maxPath and v in maxPath:
             print (u, v)
 """
-
+"""
 pos = nx.spring_layout(G)    # positions for all nodes
 nx.draw_networkx_nodes(G, pos, node_size=700)
 nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
@@ -366,7 +368,7 @@ nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
 plt.axis('off')
 plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
 plt.show()  # display
-
+"""
 
 
 
@@ -637,15 +639,7 @@ to_serial = qosPath
 serial = json.dumps(to_serial)
 pathRes.write(serial+"\n")
 
-"""
-command = "curl -s http://%s/wm/topology/route/%s/%s/%s/%s/json" % (controllerRestIp, srcSwitch, srcPort, dstSwitch, dstPort)
-result = os.popen(command).read()
-parsedResult = json.loads(result)
 
-print command+"\n"
-print result+"\n"
-qResult = os.popen(queueString).read()
-"""
 
 ################################################################################
 # store created circuit attributes in local ./qosDb.json
