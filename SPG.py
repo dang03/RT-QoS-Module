@@ -600,7 +600,7 @@ for midSwitch, midPorts in midSwitches.iteritems():
 
 queueDb = open('./queueDb.txt', 'a')
 print "config string:", configString
-queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=100000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=10000000 other-config:priority=100" % configString
+queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=30000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=30000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=20000000 other-config:priority=8" % configString
 qResult = os.popen(queueString).read()
 print "queue string:", queueString
 print "qResult:", qResult
