@@ -251,15 +251,17 @@ def longestPath(graph, source, target, weight):
 ---------------------------------------
 """
 
-"""
+
 M = nx.MultiGraph()
 
-M.add_edge('00:00:01', '00:00:02', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=7, cost=3)
-M.add_edge('00:00:01', '00:00:04', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=19, cost=4)
-M.add_edge('00:00:01', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=24, cost=2)
-M.add_edge('00:00:02', '00:00:03', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=12, cost=5)
-M.add_edge('00:00:02', '00:00:04', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=10, cost=4)
-M.add_edge('00:00:01', '00:00:03', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=12, cost=1)
+M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=3)
+M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
+M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=2)
+M.add_edge('00:00:06', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=5)
+M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
+M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=1)
+
+"""
 M.add_edge('00:00:04', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=3, cost=2)
 M.add_edge('00:00:03', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=3)
 M.add_edge('00:00:01', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=5, cost=4)
