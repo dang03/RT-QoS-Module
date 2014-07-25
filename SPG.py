@@ -317,7 +317,7 @@ print "QoS path = %s\n" % maxPath
 
 
 M = nx.MultiGraph(G)
-kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 2, 'bandwidth')
+kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 4, 'bandwidth')
 
 print "QoS k paths = %s\n" % kPaths
 print "QoS k lengths = %s\n" % kLengths

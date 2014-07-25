@@ -92,23 +92,25 @@ def yen_networkx(graph, source, target, num_k, weights):
     B = Queue.PriorityQueue()
 
     for k in range(1, num_k):
-        print "K!!!", k
+        print "Kini!!!", k
         # The spur node ranges from first node to next to last node in shortest path
         for i in range(len(A[k-1])-1):
+            loop = False
             # Spur node is retrieved from previous k-shortest path, k -1
             spurNode = A[k-1][i]
             print "SPURNODE", spurNode
             # Sequence of nodes from source to spur node of previous k-shortest path
             rootPath = A[k-1][:i]
             print "ROOTPATH", rootPath
-
+            """
             for u, v, edata in graph.edges(data=True):
                 print u, v, edata
-
+            """
             # Store removed edges
             removedEdges = []
 
             for path in A:
+                    print "for path in A", A
                     if len(path) - 1 > i and rootPath == path[:i]:
                         # remove links that are part of the previous shortest path which share the same root path
                         edge = graph.get_edge_data(path[i], path[i+1])
@@ -119,16 +121,20 @@ def yen_networkx(graph, source, target, num_k, weights):
                         print "PATH!+1", path[i+1]
 
                         if edge is None or len(edge) == 0:
+                            print "deleted edge"
                             continue    # deleted edge
 
                         edge = edge.items() #[0]
-                        print "EDGE-ZERO", edge
+                        print "EDGE-DEL", (path[i], path[i+1], edge)
                         removedEdges.append((path[i], path[i+1], edge))
                         graph.remove_edge(path[i], path[i+1])
-                        graph.remove_edge(path[i], path[i+1])
-                        print "REMOVED?", graph.get_edge_data(path[i], path[i+1])
+                        try:
+                            graph.remove_edge(path[i], path[i+1])
+                        except:
+                            print "REMOVED", graph.get_edge_data(path[i], path[i+1])
 
             # calculate the spur path from spur node to the sink
+            print "removedEdges", removedEdges
             print "spurnode", spurNode
             print "target", target
             for u, v, edata in graph.edges(data=True):
@@ -144,6 +150,8 @@ def yen_networkx(graph, source, target, num_k, weights):
                 # Complete path is made up from root path and spur path
                 no_valid = has_loop(rootPath, spurPath)
                 if no_valid:
+                    print "HAS_LOOP"
+                    loop= True
                     continue
                 totalPath = rootPath + spurPath
                 print "total", totalPath
@@ -174,15 +182,19 @@ def yen_networkx(graph, source, target, num_k, weights):
                 graph.add_edge(node_start, node_end, key=key, **attributes)
                 print "GRAFO3", graph.get_edge_data(node_start, node_end)
                 print range(1, num_k)
-                print "K!!!", k
+                print "added!!!"
 
         # Sort the potential k-shortest paths by cost
         # B is already sorted
         # Add the lowest cost path that becomes the k-shortest path
         while True:
 
-            cost_, path_ = B.get()
-            print cost_, path_
+            try:
+                cost_, path_ = B.get_nowait()
+            except:
+                break
+
+            print  cost_, path_
 
             if path_ not in A:
                 # Found new path to add
@@ -255,11 +267,17 @@ def longestPath(graph, source, target, weight):
 M = nx.MultiGraph()
 
 M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=3)
+M.add_edge('00:00:06', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=3)
 M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
+M.add_edge('00:00:07', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
 M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=2)
+M.add_edge('00:00:08', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=2)
 M.add_edge('00:00:06', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=5)
+M.add_edge('00:00:07', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=5)
 M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
+M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
 M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=1)
+M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=1)
 
 """
 M.add_edge('00:00:04', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=3, cost=2)
@@ -267,15 +285,19 @@ M.add_edge('00:00:03', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 M.add_edge('00:00:01', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=5, cost=4)
 M.add_edge('00:00:02', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=18, cost=2)
 M.add_edge('00:00:03', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=19, cost=3)
-
+"""
 print M.edges()
 
 H = nx.MultiGraph(M)
-res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'cost')
+"""
+for path in nx.all_simple_paths(H, '00:00:05', '00:00:06'):
+    print (path)
+"""
+res, cos_res = yen_networkx(M, '00:00:05', '00:00:06', 4, 'weight')
 print "res", res
 print "cos_res", cos_res
 
-
+"""
 N = nx.MultiGraph(M)
 res, cos_res = yen_networkx(N, '00:00:01', '00:00:03', 4, 'weight')
 print "res2", res
