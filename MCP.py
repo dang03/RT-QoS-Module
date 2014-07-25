@@ -4,6 +4,7 @@
 __author__ = 'Dani'
 
 import networkx as nx
+from PathDrawer import to_edge_path, to_node_path
 import json
 
 
@@ -225,11 +226,27 @@ def maxLength_path(graph, path, weight):
     return maximumPath, totalCost
 
 
-def longestPath(graph, source, target, weight):
+def longestPath(graph, source, target, weight, visited=None):
+    """
+    Requires global list for visited nodes
+    """
     dist = 0
     maxa = 0
 
-    graph.add_node(source, visited='1')
+    print source
+    if not visited:
+        print "vacia"
+        visited=[]
+        visited.append(source)
+        print visited
+
+    else:
+        visited.append(source)
+        print "OHHHHHH", visited
+        print "stops"
+
+
+    print "visitaos", visited
     print "NODE DATA", graph.nodes(data=True)
     node_edges = graph.edges(source, data=True)
     print "NODE EDGES", node_edges
@@ -238,26 +255,24 @@ def longestPath(graph, source, target, weight):
         endNode = edge[1]
         print "endNode", endNode
 
-        if graph.node[endNode]['visited'] == '0':
-            if endNode == target:
-                dist = edge[2][weight]
-                print "dist", dist
-                if dist > maxa:
-                    maxa = dist
 
+        if endNode not in visited:
+            print "no visitao"
 
-            else:
-                print "entra!", edge[2][weight]
-                dist = edge[2][weight] + longestPath(graph, endNode, target, weight)
-                print "dist", dist
-                if dist > maxa:
-                    maxa = dist
+            print "entra!", edge[2][weight]
+            dist = edge[2][weight] + longestPath(graph, endNode, target, weight, visited)
+            print "dist", dist
+            if dist > maxa:
+                maxa = dist
 
 
 
-    graph.add_node(source, visited='0')
+    visited.remove(source)
     print "MAXA IS=", maxa
     return maxa
+
+
+
 
 """
 ---------------------------------------
@@ -289,14 +304,35 @@ M.add_edge('00:00:03', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 print M.edges()
 
 H = nx.MultiGraph(M)
-"""
-for path in nx.all_simple_paths(H, '00:00:05', '00:00:06'):
-    print (path)
-"""
+
+
 res, cos_res = yen_networkx(M, '00:00:05', '00:00:06', 4, 'weight')
 print "res", res
 print "cos_res", cos_res
 
+
+visited=[]
+lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
+print lonpa
+
+
+for path in nx.all_simple_paths(H, '00:00:05', '00:00:06'):
+    totalidad = 0
+    edgePath = to_edge_path(path, H)
+    for edge in edgePath:
+        edge1, edge2 = edge
+        print edge1, edge2
+
+        edgeData= H.get_edge_data(edge1, edge2)
+        sedgeData = edgeData.items()[0]
+
+        try:
+            new_length = edge[1]['weight']
+            totalidad += new_length
+            print "TOTALIDAD", totalidad
+
+        except:
+            print "ERROR!"
 """
 N = nx.MultiGraph(M)
 res, cos_res = yen_networkx(N, '00:00:01', '00:00:03', 4, 'weight')
@@ -307,15 +343,16 @@ print "cos_res2", cos_res
 path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))
 print path
 """
-"""
 
-ultimate_path, ultimate_cost = maxLength_path(H, res, 'cost')
+"""
+ultimate_path, ultimate_cost = maxLength_path(H, res, 'weight')
 print "path", ultimate_path
 print "cost", ultimate_cost, "\n"
+"""
 
+"""
 ulti_path, ulti_cost = path_select(res, cos_res, 4)
 print "path", ulti_path
 print "cost", ulti_cost
-
 """
 
