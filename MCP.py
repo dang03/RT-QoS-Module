@@ -21,13 +21,13 @@ Returns the total cost of an end-to-end path
 def path_length(graph, path, weight=None):
     pathLength = 0
 
-    for i in range(len(path)-1):
+    for i in range(len(path) - 1):
         print "edge1:", path[i]
-        print "edge2:", path[i+1]
-        print graph.has_edge(path[i], path[i+1])
-        if graph.has_edge(path[i], path[i+1]) or graph.has_edge(path[i+1], path[i]):
+        print "edge2:", path[i + 1]
+        print graph.has_edge(path[i], path[i + 1])
+        if graph.has_edge(path[i], path[i + 1]) or graph.has_edge(path[i + 1], path[i]):
 
-            edge = graph.get_edge_data(path[i], path[i+1])
+            edge = graph.get_edge_data(path[i], path[i + 1])
             print "edge:", edge
             edge = edge.items()[0]
             print edge
@@ -40,9 +40,10 @@ def path_length(graph, path, weight=None):
                 pathLength += 1
                 print "COSTE2:", pathLength
 
-        print graph.has_edge(path[i], path[i+1])
+        print graph.has_edge(path[i], path[i + 1])
     print "COSTE3:", pathLength
     return pathLength
+
 
 """
 Function used for loop detection in AKSP and AKLP graph algorithms
@@ -64,6 +65,8 @@ def has_loop(rootPath, spurPath):
 """
 Comment
 """
+
+
 def path_select(res, cos_res, kPath):
     kRange = range(len(res))
     kCheck = len(res)
@@ -77,11 +80,10 @@ def path_select(res, cos_res, kPath):
 
 
     else:
-        path = res[kPath-1]
-        pathCost = cos_res[kPath-1]
+        path = res[kPath - 1]
+        pathCost = cos_res[kPath - 1]
 
     return path, pathCost
-
 
 
 """
@@ -91,6 +93,8 @@ num_k: number of solutions to find (iteration of returned path)
 weights: edge cost to compute
 
 """
+
+
 def AkSP(graph, source, target, num_k, weights):
     import Queue
 
@@ -106,13 +110,13 @@ def AkSP(graph, source, target, num_k, weights):
     for k in range(1, num_k):
         print "Kini!!!", k
         # The spur node ranges from first node to next to last node in shortest path
-        for i in range(len(A[k-1])-1):
+        for i in range(len(A[k - 1]) - 1):
             loop = False
             # Spur node is retrieved from previous k-shortest path, k -1
-            spurNode = A[k-1][i]
+            spurNode = A[k - 1][i]
             print "SPURNODE", spurNode
             # Sequence of nodes from source to spur node of previous k-shortest path
-            rootPath = A[k-1][:i]
+            rootPath = A[k - 1][:i]
             print "ROOTPATH", rootPath
             """
             for u, v, edata in graph.edges(data=True):
@@ -122,28 +126,28 @@ def AkSP(graph, source, target, num_k, weights):
             removedEdges = []
 
             for path in A:
-                    print "for path in A", A
-                    if len(path) - 1 > i and rootPath == path[:i]:
-                        # remove links that are part of the previous shortest path which share the same root path
-                        edge = graph.get_edge_data(path[i], path[i+1])
+                print "for path in A", A
+                if len(path) - 1 > i and rootPath == path[:i]:
+                    # remove links that are part of the previous shortest path which share the same root path
+                    edge = graph.get_edge_data(path[i], path[i + 1])
 
-                        print "EDGE", edge
+                    print "EDGE", edge
 
-                        print "PATH!", path[i]
-                        print "PATH!+1", path[i+1]
+                    print "PATH!", path[i]
+                    print "PATH!+1", path[i + 1]
 
-                        if edge is None or len(edge) == 0:
-                            print "deleted edge"
-                            continue    # deleted edge
+                    if edge is None or len(edge) == 0:
+                        print "deleted edge"
+                        continue  # deleted edge
 
-                        edge = edge.items() #[0]
-                        print "EDGE-DEL", (path[i], path[i+1], edge)
-                        removedEdges.append((path[i], path[i+1], edge))
-                        graph.remove_edge(path[i], path[i+1])
-                        try:
-                            graph.remove_edge(path[i], path[i+1])
-                        except:
-                            print "REMOVED", graph.get_edge_data(path[i], path[i+1])
+                    edge = edge.items()  # [0]
+                    print "EDGE-DEL", (path[i], path[i + 1], edge)
+                    removedEdges.append((path[i], path[i + 1], edge))
+                    graph.remove_edge(path[i], path[i + 1])
+                    try:
+                        graph.remove_edge(path[i], path[i + 1])
+                    except:
+                        print "REMOVED", graph.get_edge_data(path[i], path[i + 1])
 
             # calculate the spur path from spur node to the sink
             print "removedEdges", removedEdges
@@ -163,7 +167,7 @@ def AkSP(graph, source, target, num_k, weights):
                 no_valid = has_loop(rootPath, spurPath)
                 if no_valid:
                     print "HAS_LOOP"
-                    loop= True
+                    loop = True
                     continue
                 totalPath = rootPath + spurPath
                 print "total", totalPath
@@ -217,10 +221,72 @@ def AkSP(graph, source, target, num_k, weights):
     return A, A_costs
 
 
+"""
+AKLP Algorithm: NetworkX K-longest-paths computation algorithm
+FINAL VERSION:
+num_k: number of solutions to find (iteration of returned path)
+weights: edge cost to compute
 
-def AkLP(graph, source, target, weight):
+"""
+
+
+def AkLP(graph, source, target, num_k, weight):
     maxPath = None
     maxCost = 0
+    maxAux = 0
+
+    import Queue
+
+    # Initialize heap to store potential Kth shortest path
+    A_costs = []
+    B = []
+
+    # shortest path from source to destination
+    A = list(nx.all_simple_paths(graph, source, target))  # [0]]
+
+    print "A", A
+
+    i = 0
+    for path in A:
+        print "path1", path
+
+        print "INDEX", [A.index(path)]
+        cost = path_length(graph, A[A.index(path)], weight)
+        print "cost", cost
+
+        if cost > maxAux:
+            maxAux = cost
+            A_costs.insert(i, maxAux)
+            print "maxAUX", maxAux
+
+            i += 1
+            print i
+            B.append(path)
+
+
+    print "RANGO", len(B)
+    if len(B) <= num_k:
+        print "Bfinal", B
+        print "Afinal", A_costs
+        return A_costs, B
+
+    else:
+        while len(B) > num_k:
+            print "A-costs", A_costs
+            print "B", B
+            B.pop(0)
+            A_costs.pop(0)
+        print "Bfinal", B
+        print "Afinal", A_costs
+        return B, A_costs
+
+
+
+def ALP(graph, source, target, weight):
+    maxPath = None
+    maxCost = 0
+
+
     for path in nx.all_simple_paths(graph, source, target):
         totalAux = 0
 
@@ -244,7 +310,9 @@ def AkLP(graph, source, target, weight):
             except:
                 print "ERROR!"
 
+
     print "TOTAL", maxCost
+    maxPath = to_node_path(maxPath)
     print "PATH", maxPath
     return maxPath, maxCost
 
@@ -278,7 +346,7 @@ def longestPath(graph, source, target, weight, visited=None):
     print source
     if not visited:
         print "vacia"
-        visited=[]
+        visited = []
         visited.append(source)
         print visited
 
@@ -286,7 +354,6 @@ def longestPath(graph, source, target, weight, visited=None):
         visited.append(source)
         print "visited", visited
         print "stops"
-
 
     print "visitaos", visited
     print "NODE DATA", graph.nodes(data=True)
@@ -297,7 +364,6 @@ def longestPath(graph, source, target, weight, visited=None):
         endNode = edge[1]
         print "endNode", endNode
 
-
         if endNode not in visited:
             print "no visitao"
 
@@ -307,13 +373,9 @@ def longestPath(graph, source, target, weight, visited=None):
             if dist > maxa:
                 maxa = dist
 
-
-
     visited.remove(source)
     print "MAXA IS=", maxa
     return maxa
-
-
 
 
 """
@@ -321,7 +383,6 @@ def longestPath(graph, source, target, weight, visited=None):
 $$$TEST ZONE$$$
 ------------------------------------------------------------------------------
 """
-
 
 M = nx.MultiGraph()
 
@@ -355,14 +416,26 @@ print "res", res
 print "cos_res", cos_res
 """
 
+"""
 visited=[]
 lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
 print "longest", lonpa
+"""
 
 """
-camino, coste = AkLP(M, '00:00:05', '00:00:06', 'weight')
-print "RESULTAO", camino, coste
+camino, coste = AkLP(M, '00:00:05', '00:00:06', 1, 'weight')
+print "RESULTAO", camino
+print "RESULTAO", coste
 """
+camino, coste = ALP(M, '00:00:05', '00:00:06', 'weight')
+print "RESULTAO", camino
+print "RESULTAO", coste
+
+
+
+
+
+
 
 """
 N = nx.MultiGraph(M)
@@ -370,6 +443,7 @@ res, cos_res = yen_networkx(N, '00:00:01', '00:00:03', 4, 'weight')
 print "res2", res
 print "cos_res2", cos_res
 """
+
 """
 path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))
 print path
