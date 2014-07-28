@@ -268,7 +268,7 @@ def AkLP(graph, source, target, num_k, weight):
     if len(B) <= num_k:
         print "Bfinal", B
         print "Afinal", A_costs
-        return A_costs, B
+        return B, A_costs
 
     else:
         while len(B) > num_k:
@@ -422,15 +422,17 @@ lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
 print "longest", lonpa
 """
 
-"""
-camino, coste = AkLP(M, '00:00:05', '00:00:06', 1, 'weight')
+
+camino, coste = AkLP(M, '00:00:05', '00:00:06', 2, 'weight')
 print "RESULTAO", camino
 print "RESULTAO", coste
+
+
 """
 camino, coste = ALP(M, '00:00:05', '00:00:06', 'weight')
 print "RESULTAO", camino
 print "RESULTAO", coste
-
+"""
 
 
 

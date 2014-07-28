@@ -315,9 +315,13 @@ length, maxPath = nx.bidirectional_dijkstra(M, srcSwitch, dstSwitch, weight='ban
 print "QoS path = %s\n" % maxPath
 """
 
+"""
+CODE PART for Path computation algorithms: here can be applied various algorithms from
+MCP.py file, such AkLP algorithm for k-longest-paths or ALP for longest path computation
+"""
 
 M = nx.MultiGraph(G)
-kPaths, kLengths = AkSP(M, srcSwitch, dstSwitch, 4, 'bandwidth')
+kPaths, kLengths = AkLP(M, srcSwitch, dstSwitch, 4, 'bandwidth')
 
 print "QoS k paths = %s\n" % kPaths
 print "QoS k lengths = %s\n" % kLengths
