@@ -25,7 +25,7 @@ import sys
 from PathDrawer import to_edge_path
 from fractions import Fraction
 from collections import defaultdict
-from MCP import yen_networkx, path_select, path_length
+from MCP import AkSP, AkLP, path_select, path_length
 
 # main vars
 delta_sec = 2        # seconds to delay in time.sleep
@@ -317,7 +317,7 @@ print "QoS path = %s\n" % maxPath
 
 
 M = nx.MultiGraph(G)
-kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 4, 'bandwidth')
+kPaths, kLengths = AkSP(M, srcSwitch, dstSwitch, 4, 'bandwidth')
 
 print "QoS k paths = %s\n" % kPaths
 print "QoS k lengths = %s\n" % kLengths

@@ -3,12 +3,21 @@
 
 __author__ = 'Dani'
 
+"""
+Critical functions and computation algorithms for Pathfinder main process
+Functions and algorithms are NetworkX graph based
+"""
+
 import networkx as nx
 from PathDrawer import to_edge_path, to_node_path
 import json
 
 
-# returns a path length, as hop count
+"""
+Algorithm for edge cost computation - critical for AKSP and AKLP algorithms
+Returns the total cost of an end-to-end path
+"""
+# returns a path length, such as hop count
 def path_length(graph, path, weight=None):
     pathLength = 0
 
@@ -35,6 +44,9 @@ def path_length(graph, path, weight=None):
     print "COSTE3:", pathLength
     return pathLength
 
+"""
+Function used for loop detection in AKSP and AKLP graph algorithms
+"""
 # detect loops on a graph
 def has_loop(rootPath, spurPath):
     loop = False
@@ -48,6 +60,10 @@ def has_loop(rootPath, spurPath):
 
 # path selector from k-path list
 
+
+"""
+Comment
+"""
 def path_select(res, cos_res, kPath):
     kRange = range(len(res))
     kCheck = len(res)
@@ -68,19 +84,14 @@ def path_select(res, cos_res, kPath):
 
 
 
-
-
-
-
-
 """
-Adaptation to NetworkX Yen's K-shortest-paths
+AKSP Algorithm: Adaptation to NetworkX of Yen's K-shortest-paths
 FINAL VERSION:
-num_k: number of solutions
-weights: cost to compute
+num_k: number of solutions to find (iteration of returned path)
+weights: edge cost to compute
 
 """
-def yen_networkx(graph, source, target, num_k, weights):
+def AkSP(graph, source, target, num_k, weights):
     import Queue
 
     # shortest path from source to destination
@@ -195,7 +206,7 @@ def yen_networkx(graph, source, target, num_k, weights):
             except:
                 break
 
-            print  cost_, path_
+            print cost_, path_
 
             if path_ not in A:
                 # Found new path to add
@@ -203,8 +214,39 @@ def yen_networkx(graph, source, target, num_k, weights):
                 A_costs.append(cost_)
                 break
 
-
     return A, A_costs
+
+
+
+def AkLP(graph, source, target, weight):
+    maxPath = None
+    maxCost = 0
+    for path in nx.all_simple_paths(graph, source, target):
+        totalAux = 0
+
+        edgePath = to_edge_path(path, H)
+        print "PATH", edgePath
+        for edge in edgePath:
+            edge1, edge2 = edge
+            print edge1, edge2
+
+            edgeData = H.get_edge_data(edge1, edge2)
+            sedgeData = edgeData.items()[0]
+            print "SEDGE", sedgeData
+
+            try:
+                new_length = sedgeData[1][weight]
+                totalAux += new_length
+                print "TOTALAUX", totalAux
+                if totalAux > maxCost:
+                    maxCost = totalAux
+                    maxPath = edgePath
+            except:
+                print "ERROR!"
+
+    print "TOTAL", maxCost
+    print "PATH", maxPath
+    return maxPath, maxCost
 
 
 
@@ -242,7 +284,7 @@ def longestPath(graph, source, target, weight, visited=None):
 
     else:
         visited.append(source)
-        print "OHHHHHH", visited
+        print "visited", visited
         print "stops"
 
 
@@ -275,7 +317,9 @@ def longestPath(graph, source, target, weight, visited=None):
 
 
 """
----------------------------------------
+------------------------------------------------------------------------------
+$$$TEST ZONE$$$
+------------------------------------------------------------------------------
 """
 
 
@@ -305,34 +349,21 @@ print M.edges()
 
 H = nx.MultiGraph(M)
 
-
-res, cos_res = yen_networkx(M, '00:00:05', '00:00:06', 4, 'weight')
+"""
+res, cos_res = AkSP(M, '00:00:05', '00:00:06', 4, 'weight')
 print "res", res
 print "cos_res", cos_res
-
+"""
 
 visited=[]
 lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
-print lonpa
+print "longest", lonpa
 
+"""
+camino, coste = AkLP(M, '00:00:05', '00:00:06', 'weight')
+print "RESULTAO", camino, coste
+"""
 
-for path in nx.all_simple_paths(H, '00:00:05', '00:00:06'):
-    totalidad = 0
-    edgePath = to_edge_path(path, H)
-    for edge in edgePath:
-        edge1, edge2 = edge
-        print edge1, edge2
-
-        edgeData= H.get_edge_data(edge1, edge2)
-        sedgeData = edgeData.items()[0]
-
-        try:
-            new_length = edge[1]['weight']
-            totalidad += new_length
-            print "TOTALIDAD", totalidad
-
-        except:
-            print "ERROR!"
 """
 N = nx.MultiGraph(M)
 res, cos_res = yen_networkx(N, '00:00:01', '00:00:03', 4, 'weight')
