@@ -221,6 +221,9 @@ def AkSP(graph, source, target, num_k, weights):
     return A, A_costs
 
 
+
+
+
 """
 AKLP Algorithm: NetworkX K-longest-paths computation algorithm
 FINAL VERSION:
@@ -386,18 +389,18 @@ $$$TEST ZONE$$$
 
 M = nx.MultiGraph()
 
-M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=3)
-M.add_edge('00:00:06', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=3)
-M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
-M.add_edge('00:00:07', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
-M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=2)
-M.add_edge('00:00:08', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=2)
-M.add_edge('00:00:06', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=5)
-M.add_edge('00:00:07', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=5)
-M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
-M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=4)
-M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=1)
-M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=1)
+M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=0.7)
+M.add_edge('00:00:06', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=0.7)
+M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.3)
+M.add_edge('00:00:07', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.3)
+M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.3)
+M.add_edge('00:00:08', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.3)
+M.add_edge('00:00:06', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.9)
+M.add_edge('00:00:07', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.9)
+M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.4)
+M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.4)
+M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.2)
+M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.2)
 
 """
 M.add_edge('00:00:04', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=3, cost=2)
@@ -410,11 +413,11 @@ print M.edges()
 
 H = nx.MultiGraph(M)
 
-"""
-res, cos_res = AkSP(M, '00:00:05', '00:00:06', 4, 'weight')
+
+res, cos_res = AkSP(M, '00:00:05', '00:00:06', 5, 'cost')
 print "res", res
 print "cos_res", cos_res
-"""
+
 
 """
 visited=[]
@@ -422,11 +425,11 @@ lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
 print "longest", lonpa
 """
 
-
+"""
 camino, coste = AkLP(M, '00:00:05', '00:00:06', 2, 'weight')
 print "RESULTAO", camino
 print "RESULTAO", coste
-
+"""
 
 """
 camino, coste = ALP(M, '00:00:05', '00:00:06', 'weight')
