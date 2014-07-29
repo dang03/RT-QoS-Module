@@ -11,6 +11,7 @@ Functions and algorithms are NetworkX graph based
 import networkx as nx
 from PathDrawer import to_edge_path, to_node_path
 import json
+import random
 
 
 """
@@ -402,6 +403,59 @@ def longestPath(graph, source, target, weight, visited=None):
     return maxa
 
 
+
+"""
+MCP edge stats Aggregator Function for multiple constraints graph and QoS requests
+"""
+
+def stAggregate (graph):
+    newGraph = nx.MultiGraph()
+
+    for edge in nx.edges_iter(graph):
+        print 'EDGE', edge
+        edge1, edge2 = edge
+        total = 0
+
+        try:
+            delay = graph[edge1][edge2][0]['delay']
+            print 'delay', delay
+            total =+ delay
+        except:
+            continue
+
+        try:
+            jitter = graph[edge1][edge2][0]['jitter']
+            print 'jitter', jitter
+            total =+ jitter
+        except:
+            pass
+
+        try:
+            ploss = graph[edge1][edge2][0]['packet-loss']
+            print 'packet-loss', ploss
+        except:
+            pass
+
+        try:
+            bandwidth = graph[edge1][edge2][0]['bandwidth']
+            print 'bandwidth', bandwidth
+            total = total / bandwidth
+        except:
+            pass
+
+        print "Total", total
+        newGraph.add_edge(edge1, edge2, total=total)
+
+    for link in newGraph.edges_iter(data=True):
+        print "newGraph.edge", link
+
+    for node in newGraph.nodes_iter(data=True):
+        print "newGraph.node", node
+
+    return newGraph
+
+
+
 """
 ------------------------------------------------------------------------------
 $$$TEST ZONE$$$
@@ -430,67 +484,40 @@ M.add_edge('00:00:01', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 M.add_edge('00:00:02', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=18, cost=2)
 M.add_edge('00:00:03', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=19, cost=3)
 """
+"""
 print M.edges()
-
+"""
 H = nx.MultiGraph(M)
 
-
 """
-def MCP Aggregator Function
-"""
+agGraph = stAggregate(M)
 
-newGraph =nx.MultiGraph()
-for edge in nx.edges_iter(M):
-    print 'EDGE', edge
-    edge1, edge2 = edge
-    total = 0
-
-    try:
-        delay = M[edge1][edge2][0]['delay']
-        print 'delay', delay
-        total =+ delay
-    except:
-        continue
-
-    try:
-        jitter = M[edge1][edge2][0]['jitter']
-        print 'jitter', jitter
-        total =+ jitter
-    except:
-        pass
-
-    try:
-        ploss = M[edge1][edge2][0]['packet-loss']
-        print 'packet-loss', ploss
-    except:
-        pass
-
-    try:
-        bandwidth = M[edge1][edge2][0]['bandwidth']
-        print 'bandwidth', bandwidth
-        total = total / bandwidth
-    except:
-        pass
-
-    print "Total", total
-    newGraph.add_edge(edge1, edge2, total=total)
-
-for link in newGraph.edges_iter(data=True):
-    print "newGraph.link", link
-
-for node in newGraph.nodes_iter(data=True):
-    print "newGraph.node", node
-
-
-
-res, cos_res = AkSP(newGraph, '00:00:05', '00:00:06', 3, 'total')
+res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 3, 'total')
 print "res", res
 print "cos_res", cos_res
+"""
+
+A = nx.complete_graph(200)
+
+for edge in A.edges_iter(data=True):
+    edge1, edge2, nfo = edge
+    bnd = random.randrange(1, 50)
+    dly = random.randrange(1, 10)
+    jtr = random.randrange(1, 5)
+    pls = random.randrange(0, 100)
+    A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
 
 
+agGraph = stAggregate(A)
 
+for edge in agGraph.edges_iter(data=True):
+    print "aggregated", edge
 
-
+"""
+res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 3, 'total')
+print "res", res
+print "cos_res", cos_res
+"""
 
 
 """
