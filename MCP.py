@@ -434,16 +434,12 @@ print M.edges()
 
 H = nx.MultiGraph(M)
 
-"""
-res, cos_res = AkSP(M, '00:00:05', '00:00:06', 3, 'delay')
-print "res", res
-print "cos_res", cos_res
-"""
-
 
 """
 def MCP Aggregator Function
 """
+
+newGraph =nx.MultiGraph()
 for edge in nx.edges_iter(M):
     print 'EDGE', edge
     edge1, edge2 = edge
@@ -477,12 +473,19 @@ for edge in nx.edges_iter(M):
         pass
 
     print "Total", total
+    newGraph.add_edge(edge1, edge2, total=total)
+
+for link in newGraph.edges_iter(data=True):
+    print "newGraph.link", link
+
+for node in newGraph.nodes_iter(data=True):
+    print "newGraph.node", node
 
 
 
-
-
-
+res, cos_res = AkSP(newGraph, '00:00:05', '00:00:06', 3, 'total')
+print "res", res
+print "cos_res", cos_res
 
 
 
