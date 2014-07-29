@@ -108,97 +108,118 @@ def AkSP(graph, source, target, num_k, weights):
     B = Queue.PriorityQueue()
 
     for k in range(1, num_k):
+        print range(1, num_k)
         print "Kini!!!", k
         # The spur node ranges from first node to next to last node in shortest path
-        for i in range(len(A[k - 1]) - 1):
-            loop = False
-            # Spur node is retrieved from previous k-shortest path, k -1
-            spurNode = A[k - 1][i]
-            print "SPURNODE", spurNode
-            # Sequence of nodes from source to spur node of previous k-shortest path
-            rootPath = A[k - 1][:i]
-            print "ROOTPATH", rootPath
-            """
-            for u, v, edata in graph.edges(data=True):
-                print u, v, edata
-            """
-            # Store removed edges
-            removedEdges = []
+        try:
+            for i in range(len(A[k - 1]) - 1):
 
-            for path in A:
-                print "for path in A", A
-                if len(path) - 1 > i and rootPath == path[:i]:
-                    # remove links that are part of the previous shortest path which share the same root path
-                    edge = graph.get_edge_data(path[i], path[i + 1])
+                loop = False
+                # Spur node is retrieved from previous k-shortest path, k -1
+                spurNode = A[k - 1][i]
+                print "SPURNODE", spurNode
+                # Sequence of nodes from source to spur node of previous k-shortest path
+                rootPath = A[k - 1][:i]
+                print "ROOTPATH", rootPath
+                """
+                for u, v, edata in graph.edges(data=True):
+                    print u, v, edata
+                """
+                # Store removed edges
+                removedEdges = []
 
-                    print "EDGE", edge
+                for path in A:
+                    print "for path in A", A
+                    if len(path) - 1 > i and rootPath == path[:i]:
+                        # remove links that are part of the previous shortest path which share the same root path
+                        edge = graph.get_edge_data(path[i], path[i + 1])
 
-                    print "PATH!", path[i]
-                    print "PATH!+1", path[i + 1]
+                        print "EDGE", edge
 
-                    if edge is None or len(edge) == 0:
-                        print "deleted edge"
-                        continue  # deleted edge
+                        print "PATH!", path[i]
+                        print "PATH!+1", path[i + 1]
 
-                    edge = edge.items()  # [0]
-                    print "EDGE-DEL", (path[i], path[i + 1], edge)
-                    removedEdges.append((path[i], path[i + 1], edge))
-                    graph.remove_edge(path[i], path[i + 1])
-                    try:
+                        if edge is None or len(edge) == 0:
+                            print "deleted edge"
+                            continue  # deleted edge
+
+                        edge = edge.items()  # [0]
+                        print "EDGE-DEL", (path[i], path[i + 1], edge)
+                        removedEdges.append((path[i], path[i + 1], edge))
                         graph.remove_edge(path[i], path[i + 1])
-                    except:
-                        print "REMOVED", graph.get_edge_data(path[i], path[i + 1])
+                        try:
+                            graph.remove_edge(path[i], path[i + 1])
+                        except:
+                            print "REMOVED", graph.get_edge_data(path[i], path[i + 1])
 
-            # calculate the spur path from spur node to the sink
-            print "removedEdges", removedEdges
-            print "spurnode", spurNode
-            print "target", target
-            for u, v, edata in graph.edges(data=True):
-                print u, v, edata
+                # calculate the spur path from spur node to the sink
+                print "removedEdges", removedEdges
+                print "spurnode", spurNode
+                print "target", target
+                for u, v, edata in graph.edges(data=True):
+                    print u, v, edata
 
-            try:
-                spurPath = list(nx.all_shortest_paths(graph, spurNode, target, weight=weights))[0]
-                print "spur", spurPath
-            except:
-                spurPath = []
+                try:
+                    spurPath = list(nx.all_shortest_paths(graph, spurNode, target, weight=weights))[0]
+                    print "spur", spurPath
+                except:
+                    spurPath = []
 
-            if len(spurPath) > 0:
-                # Complete path is made up from root path and spur path
-                no_valid = has_loop(rootPath, spurPath)
-                if no_valid:
-                    print "HAS_LOOP"
-                    loop = True
-                    continue
-                totalPath = rootPath + spurPath
-                print "total", totalPath
-                print "WEIGHT", weights
-                totalPathCost = path_length(graph, totalPath, weights)
-                # add the potential k-shortest path to the heap
-                B.put((totalPathCost, totalPath))
+                if len(spurPath) > 0:
+                    # Complete path is made up from root path and spur path
+                    no_valid = has_loop(rootPath, spurPath)
+                    if no_valid:
+                        print "HAS_LOOP"
+                        loop = True
+                        continue
+                    totalPath = rootPath + spurPath
+                    print "total", totalPath
+                    print "WEIGHT", weights
+                    totalPathCost = path_length(graph, totalPath, weights)
+                    # add the potential k-shortest path to the heap
+                    B.put((totalPathCost, totalPath))
 
-            # add back the edges that were removed from the graph
-            for u, v, edata in graph.edges(data=True):
-                print u, v, edata
-            print "printremoved", removedEdges
+                # add back the edges that were removed from the graph
+                for u, v, edata in graph.edges(data=True):
+                    print u, v, edata
+                print "printremoved", removedEdges
 
-            for removedEdge in removedEdges:
-                print "REMOVE", removedEdge
-                node_start, node_end, data = removedEdge
-                print "node start", node_start
-                print "node end", node_end
-                print "data", data
-                data1, data2 = data
-                print data1
-                print data2
-                key, attributes = data1
-                print "GRAFO", graph.get_edge_data(node_start, node_end)
-                graph.add_edge(node_start, node_end, key=key, **attributes)
-                print "GRAFO2", graph.get_edge_data(node_start, node_end)
-                key, attributes = data2
-                graph.add_edge(node_start, node_end, key=key, **attributes)
-                print "GRAFO3", graph.get_edge_data(node_start, node_end)
-                print range(1, num_k)
-                print "added!!!"
+                for removedEdge in removedEdges:
+                    print "REMOVE", removedEdge
+                    node_start, node_end, data = removedEdge
+                    print "node start", node_start
+                    print "node end", node_end
+                    print "data", data
+                    data1, data2 = data
+                    print data1
+                    print data2
+                    key, attributes = data1
+                    print "GRAFO", graph.get_edge_data(node_start, node_end)
+                    graph.add_edge(node_start, node_end, key=key, **attributes)
+                    print "GRAFO2", graph.get_edge_data(node_start, node_end)
+                    key, attributes = data2
+                    graph.add_edge(node_start, node_end, key=key, **attributes)
+                    print "GRAFO3", graph.get_edge_data(node_start, node_end)
+                    print range(1, num_k)
+                    print "added!!!"
+
+        except:
+            while True:
+
+                try:
+                    cost_, path_ = B.get_nowait()
+                except:
+                    break
+
+                print cost_, path_
+
+                if path_ not in A:
+                    # Found new path to add
+                    A.append(path_)
+                    A_costs.append(cost_)
+                    break
+
+            return A, A_costs
 
         # Sort the potential k-shortest paths by cost
         # B is already sorted
@@ -389,18 +410,18 @@ $$$TEST ZONE$$$
 
 M = nx.MultiGraph()
 
-M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=0.7)
-M.add_edge('00:00:06', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=4, cost=0.7)
-M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.3)
-M.add_edge('00:00:07', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.3)
-M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.3)
-M.add_edge('00:00:08', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.3)
-M.add_edge('00:00:06', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.9)
-M.add_edge('00:00:07', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=11, cost=0.9)
-M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.4)
-M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.4)
-M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.2)
-M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=30, cost=0.2)
+M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
+M.add_edge('00:00:07', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
+M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
+M.add_edge('00:00:08', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
+M.add_edge('00:00:06', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.9, jitter=0.8, loss=40)
+M.add_edge('00:00:07', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.9, jitter=0.8, loss=40)
+M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
+M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
+M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
+M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 
 """
 M.add_edge('00:00:04', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=3, cost=2)
@@ -413,10 +434,60 @@ print M.edges()
 
 H = nx.MultiGraph(M)
 
-
-res, cos_res = AkSP(M, '00:00:05', '00:00:06', 5, 'cost')
+"""
+res, cos_res = AkSP(M, '00:00:05', '00:00:06', 3, 'delay')
 print "res", res
 print "cos_res", cos_res
+"""
+
+
+"""
+def MCP Aggregator Function
+"""
+for edge in nx.edges_iter(M):
+    print 'EDGE', edge
+    edge1, edge2 = edge
+    total = 0
+
+    try:
+        delay = M[edge1][edge2][0]['delay']
+        print 'delay', delay
+        total =+ delay
+    except:
+        continue
+
+    try:
+        jitter = M[edge1][edge2][0]['jitter']
+        print 'jitter', jitter
+        total =+ jitter
+    except:
+        pass
+
+    try:
+        ploss = M[edge1][edge2][0]['packet-loss']
+        print 'packet-loss', ploss
+    except:
+        pass
+
+    try:
+        bandwidth = M[edge1][edge2][0]['bandwidth']
+        print 'bandwidth', bandwidth
+        total = total / bandwidth
+    except:
+        pass
+
+    print "Total", total
+
+
+
+
+
+
+
+
+
+
+
 
 
 """
@@ -432,7 +503,7 @@ print "RESULTAO", coste
 """
 
 """
-camino, coste = ALP(M, '00:00:05', '00:00:06', 'weight')
+camino, coste = ALP(M, '00:00:05', '00:00:06', 'delay')
 print "RESULTAO", camino
 print "RESULTAO", coste
 """
