@@ -456,8 +456,10 @@ def stAggregate (graph):
 
     return newGraph
 
-
-def stAggregatev2 (graph):
+"""
+MCP Aggregation function only for testing purposes
+"""
+def stAggregate_test(graph):
     newGraph = nx.MultiGraph()
 
     for edge in nx.edges_iter(graph):
@@ -545,7 +547,7 @@ print "res", res
 print "cos_res", cos_res
 """
 
-A = nx.complete_graph(50)
+A = nx.sedgewick_maze_graph()
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
@@ -556,13 +558,13 @@ for edge in A.edges_iter(data=True):
     A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
 
 
-agGraph = stAggregatev2(A)
+agGraph = stAggregate_test(A)
 
 for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 
 
-res, cos_res = AkSP(agGraph, random.randrange(1, 30), 48, 3, 'total')
+res, cos_res = AkSP(agGraph, random.randrange(1, 2), random.randrange(3, 7), 2, 'total')
 print "res", res
 print "cos_res", cos_res
 
@@ -580,7 +582,7 @@ print eFail
 
 
 pos = nx.spring_layout(agGraph)    # positions for all nodes
-nx.draw_networkx_nodes(agGraph, pos, node_size=700)
+nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
 nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_color='y', node_shape='s')
 
 nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
