@@ -12,6 +12,7 @@ import networkx as nx
 from PathDrawer import to_edge_path, to_node_path
 import json
 import random
+import matplotlib.pyplot as plt
 
 
 """
@@ -96,7 +97,8 @@ weights: edge cost to compute
 """
 
 
-def AkSP(graph, source, target, num_k, weights):
+def AkSP(grapho, source, target, num_k, weights):
+    graph = nx.MultiGraph(grapho)
     import Queue
 
     # shortest path from source to destination
@@ -419,14 +421,14 @@ def stAggregate (graph):
         try:
             delay = graph[edge1][edge2][0]['delay']
             print 'delay', delay
-            total =+ delay
+            total += delay
         except:
             continue
 
         try:
             jitter = graph[edge1][edge2][0]['jitter']
             print 'jitter', jitter
-            total =+ jitter
+            total += jitter
         except:
             pass
 
@@ -454,6 +456,52 @@ def stAggregate (graph):
 
     return newGraph
 
+
+def stAggregatev2 (graph):
+    newGraph = nx.MultiGraph()
+
+    for edge in nx.edges_iter(graph):
+        print 'EDGE', edge
+        edge1, edge2 = edge
+        total = 0
+
+        try:
+            delay = graph[edge1][edge2]['delay']
+            print 'delay', delay
+            total += delay
+        except:
+            continue
+
+        try:
+            jitter = graph[edge1][edge2]['jitter']
+            print 'jitter', jitter
+            total += jitter
+        except:
+            pass
+
+        try:
+            ploss = graph[edge1][edge2]['packet-loss']
+            print 'packet-loss', ploss
+        except:
+            pass
+
+        try:
+            bandwidth = graph[edge1][edge2]['bandwidth']
+            print 'bandwidth', bandwidth
+            total = total / bandwidth
+        except:
+            pass
+
+        print "Total", total
+        newGraph.add_edge(edge1, edge2, total=total)
+
+    for link in newGraph.edges_iter(data=True):
+        print "newGraph.edge", link
+
+    for node in newGraph.nodes_iter(data=True):
+        print "newGraph.node", node
+
+    return newGraph
 
 
 """
@@ -492,32 +540,59 @@ H = nx.MultiGraph(M)
 """
 agGraph = stAggregate(M)
 
-res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 3, 'total')
+res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 5, 'total')
 print "res", res
 print "cos_res", cos_res
 """
 
-A = nx.complete_graph(200)
+A = nx.complete_graph(50)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
     bnd = random.randrange(1, 50)
-    dly = random.randrange(1, 10)
-    jtr = random.randrange(1, 5)
+    dly = random.uniform(1, 10)
+    jtr = random.uniform(1, 5)
     pls = random.randrange(0, 100)
     A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
 
 
-agGraph = stAggregate(A)
+agGraph = stAggregatev2(A)
 
 for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 
-"""
-res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 3, 'total')
+
+res, cos_res = AkSP(agGraph, random.randrange(1, 30), 48, 3, 'total')
 print "res", res
 print "cos_res", cos_res
-"""
+
+maxPath, length = path_select(res, cos_res, 1)
+print maxPath
+for i in range(len(maxPath)-1):
+    print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
+maxPathList = to_edge_path(maxPath)
+
+print maxPath
+print maxPathList
+eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
+
+print eFail
+
+
+pos = nx.spring_layout(agGraph)    # positions for all nodes
+nx.draw_networkx_nodes(agGraph, pos, node_size=700)
+nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_color='y', node_shape='s')
+
+nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
+nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
+
+
+nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+
+
+plt.axis('off')
+plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
+plt.show()  # display
 
 
 """
