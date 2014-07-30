@@ -484,6 +484,10 @@ def stAggregate_test(graph):
         try:
             ploss = graph[edge1][edge2]['packet-loss']
             print 'packet-loss', ploss
+            if ploss == 0:
+                ploss = 1
+
+            total = total * ploss
         except:
             pass
 
