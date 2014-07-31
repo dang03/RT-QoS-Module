@@ -409,38 +409,51 @@ def longestPath(graph, source, target, weight, visited=None):
 """
 MCP edge stats Aggregator Function for multiple constraints graph and QoS requests
 """
-
+[0]
 def stAggregate (graph):
     newGraph = nx.MultiGraph()
 
     for edge in nx.edges_iter(graph):
         print 'EDGE', edge
         edge1, edge2 = edge
-        total = 0
+        total = 1
 
         try:
             delay = graph[edge1][edge2][0]['delay']
             print 'delay', delay
-            total += delay
+            if delay == 0:
+                delay = 1
+
+            total = total * delay
         except:
             continue
 
         try:
             jitter = graph[edge1][edge2][0]['jitter']
             print 'jitter', jitter
-            total += jitter
+            if jitter == 0:
+                jitter = 1
+
+            total = total * jitter
         except:
             pass
 
         try:
             ploss = graph[edge1][edge2][0]['packet-loss']
             print 'packet-loss', ploss
+            if ploss == 0:
+                ploss = 1
+
+            total = total * ploss
         except:
             pass
 
         try:
             bandwidth = graph[edge1][edge2][0]['bandwidth']
             print 'bandwidth', bandwidth
+            if bandwidth == 0:
+                bandwidth = 1
+
             total = total / bandwidth
         except:
             pass
@@ -465,19 +478,25 @@ def stAggregate_test(graph):
     for edge in nx.edges_iter(graph):
         print 'EDGE', edge
         edge1, edge2 = edge
-        total = 0
+        total = 1
 
         try:
             delay = graph[edge1][edge2]['delay']
             print 'delay', delay
-            total += delay
+            if delay == 0:
+                delay = 1
+
+            total = total * delay
         except:
             continue
 
         try:
             jitter = graph[edge1][edge2]['jitter']
             print 'jitter', jitter
-            total += jitter
+            if jitter == 0:
+                jitter = 1
+
+            total = total * jitter
         except:
             pass
 
@@ -494,6 +513,9 @@ def stAggregate_test(graph):
         try:
             bandwidth = graph[edge1][edge2]['bandwidth']
             print 'bandwidth', bandwidth
+            if bandwidth == 0:
+                bandwidth = 1
+
             total = total / bandwidth
         except:
             pass
@@ -543,14 +565,15 @@ print M.edges()
 """
 H = nx.MultiGraph(M)
 
-"""
+
 agGraph = stAggregate(M)
 
 res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 5, 'total')
 print "res", res
 print "cos_res", cos_res
-"""
 
+
+"""
 A = nx.sedgewick_maze_graph()
 
 for edge in A.edges_iter(data=True):
@@ -571,7 +594,7 @@ for edge in agGraph.edges_iter(data=True):
 res, cos_res = AkSP(agGraph, random.randrange(1, 2), random.randrange(3, 7), 2, 'total')
 print "res", res
 print "cos_res", cos_res
-
+"""
 maxPath, length = path_select(res, cos_res, 1)
 print maxPath
 for i in range(len(maxPath)-1):
