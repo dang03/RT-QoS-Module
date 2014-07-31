@@ -565,13 +565,13 @@ print M.edges()
 """
 H = nx.MultiGraph(M)
 
-
+"""
 agGraph = stAggregate(M)
 
 res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 5, 'total')
 print "res", res
 print "cos_res", cos_res
-
+"""
 
 """
 A = nx.sedgewick_maze_graph()
@@ -595,33 +595,7 @@ res, cos_res = AkSP(agGraph, random.randrange(1, 2), random.randrange(3, 7), 2, 
 print "res", res
 print "cos_res", cos_res
 """
-maxPath, length = path_select(res, cos_res, 1)
-print maxPath
-for i in range(len(maxPath)-1):
-    print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
-maxPathList = to_edge_path(maxPath)
 
-print maxPath
-print maxPathList
-eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
-
-print eFail
-
-
-pos = nx.spring_layout(agGraph)    # positions for all nodes
-nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
-nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_color='y', node_shape='s')
-
-nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
-nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
-
-
-nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
-
-
-plt.axis('off')
-plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
-plt.show()  # display
 
 
 """
@@ -630,6 +604,10 @@ lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
 print "longest", lonpa
 """
 
+res, cos_res = AkSP(M, '00:00:05', '00:00:06', 3, 'delay')
+print "res", res
+print "cos_res", cos_res
+
 """
 camino, coste = AkLP(M, '00:00:05', '00:00:06', 2, 'weight')
 print "RESULTAO", camino
@@ -637,22 +615,11 @@ print "RESULTAO", coste
 """
 
 """
-camino, coste = ALP(M, '00:00:05', '00:00:06', 'delay')
-print "RESULTAO", camino
-print "RESULTAO", coste
+res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
+print "path", res
+print "cost", cos_res
 """
 
-
-
-
-
-
-"""
-N = nx.MultiGraph(M)
-res, cos_res = yen_networkx(N, '00:00:01', '00:00:03', 4, 'weight')
-print "res2", res
-print "cos_res2", cos_res
-"""
 
 """
 path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))
@@ -671,3 +638,35 @@ print "path", ulti_path
 print "cost", ulti_cost
 """
 
+
+def plot_path(agGraph, maxPath):
+    print maxPath
+    for i in range(len(maxPath)-1):
+        print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
+    maxPathList = to_edge_path(maxPath)
+    print maxPathList
+    eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
+
+    print eFail
+
+
+    pos = nx.spring_layout(agGraph)    # positions for all nodes
+    nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
+    nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_color='y', node_shape='s')
+
+    nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
+    nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
+
+
+    nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+
+
+    plt.axis('off')
+    plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
+    plt.show()  # display
+
+
+maxPath, length = path_select(res, cos_res, 1)
+print maxPath
+
+plot_path(M, res)
