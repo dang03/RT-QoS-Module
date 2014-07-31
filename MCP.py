@@ -572,7 +572,7 @@ print "cos_res", cos_res
 """
 
 
-A = nx.complete_graph(20)
+A = nx.complete_graph(8)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
@@ -589,7 +589,7 @@ for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 
 
-res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(3, 7), 2, 'total')
+res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(3, 5), 2, 'total')
 print "res", res
 print "cos_res", cos_res
 
