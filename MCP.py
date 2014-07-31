@@ -262,7 +262,6 @@ def AkLP(graph, source, target, num_k, weight):
     maxCost = 0
     maxAux = 0
 
-    import Queue
 
     # Initialize heap to store potential Kth shortest path
     A_costs = []
@@ -409,8 +408,7 @@ def longestPath(graph, source, target, weight, visited=None):
 """
 MCP edge stats Aggregator Function for multiple constraints graph and QoS requests
 """
-[0]
-def stAggregate (graph):
+def stAggregate(graph):
     newGraph = nx.MultiGraph()
 
     for edge in nx.edges_iter(graph):
@@ -573,8 +571,8 @@ print "res", res
 print "cos_res", cos_res
 """
 
-"""
-A = nx.sedgewick_maze_graph()
+
+A = nx.complete_graph(20)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
@@ -591,10 +589,10 @@ for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 
 
-res, cos_res = AkSP(agGraph, random.randrange(1, 2), random.randrange(3, 7), 2, 'total')
+res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(3, 7), 2, 'total')
 print "res", res
 print "cos_res", cos_res
-"""
+
 
 
 
@@ -604,9 +602,11 @@ lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
 print "longest", lonpa
 """
 
+"""
 res, cos_res = AkSP(M, '00:00:05', '00:00:06', 3, 'delay')
 print "res", res
 print "cos_res", cos_res
+"""
 
 """
 camino, coste = AkLP(M, '00:00:05', '00:00:06', 2, 'weight')
@@ -669,4 +669,4 @@ def plot_path(agGraph, maxPath):
 maxPath, length = path_select(res, cos_res, 1)
 print maxPath
 
-plot_path(M, res)
+plot_path(agGraph, maxPath)
