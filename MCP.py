@@ -311,10 +311,12 @@ def AkLP(graph, source, target, num_k, weight):
 def ALP(graph, source, target, weight):
     maxPath = None
     maxCost = 0
+    maxAvgCost = 0
 
 
     for path in nx.all_simple_paths(graph, source, target):
         totalAux = 0
+        avgAux = 0
 
         edgePath = to_edge_path(path, H)
         print "PATH", edgePath
@@ -329,15 +331,25 @@ def ALP(graph, source, target, weight):
             try:
                 new_length = sedgeData[1][weight]
                 totalAux += new_length
+
+                print "hop-count", (len(path)-1)
+#
                 print "TOTALAUX", totalAux
-                if totalAux > maxCost:
-                    maxCost = totalAux
-                    maxPath = edgePath
+                print "preMAXCOST", maxCost
+                print "EDGEPATH", edgePath
+                print "esto", edgePath[(len(edgePath)-1)]
+                if edge == edgePath[(len(edgePath)-1)]:
+                    print "entra!"
+                    avgAux = totalAux / (len(path) - 1)
+                    if avgAux > maxAvgCost:
+                        maxCost = totalAux
+                        maxAvgCost = avgAux
+                        maxPath = edgePath
             except:
                 print "ERROR!"
 
-
     print "TOTAL", maxCost
+    print "AVGTOTAL", maxAvgCost
     maxPath = to_node_path(maxPath)
     print "PATH", maxPath
     return maxPath, maxCost
@@ -571,12 +583,12 @@ print "res", res
 print "cos_res", cos_res
 """
 
-
-A = nx.complete_graph(8)
+"""
+A = nx.complete_bipartite_graph(4, 4)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
-    bnd = random.randrange(1, 50)
+    bnd = random.randrange(1, 100)
     dly = random.uniform(1, 10)
     jtr = random.uniform(1, 5)
     pls = random.randrange(0, 100)
@@ -592,7 +604,7 @@ for edge in agGraph.edges_iter(data=True):
 res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(3, 5), 2, 'total')
 print "res", res
 print "cos_res", cos_res
-
+"""
 
 
 
@@ -614,11 +626,11 @@ print "RESULTAO", camino
 print "RESULTAO", coste
 """
 
-"""
+
 res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "cost", cos_res
-"""
+
 
 
 """
@@ -640,6 +652,11 @@ print "cost", ulti_cost
 
 
 def plot_path(agGraph, maxPath):
+    e2e = []
+    source = maxPath[0]
+    destination = maxPath[(len(maxPath)-1)]
+    e2e.append(source)
+    e2e.append(destination)
     print maxPath
     for i in range(len(maxPath)-1):
         print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
@@ -652,7 +669,8 @@ def plot_path(agGraph, maxPath):
 
     pos = nx.spring_layout(agGraph)    # positions for all nodes
     nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
-    nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_color='y', node_shape='s')
+    nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
+    nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
 
     nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
     nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
@@ -665,8 +683,8 @@ def plot_path(agGraph, maxPath):
     plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
     plt.show()  # display
 
-
+"""
 maxPath, length = path_select(res, cos_res, 1)
 print maxPath
-
-plot_path(agGraph, maxPath)
+"""
+plot_path(M, res)
