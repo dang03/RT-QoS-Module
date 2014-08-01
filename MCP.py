@@ -261,13 +261,14 @@ def AkLP(graph, source, target, num_k, weight):
     maxPath = None
     maxCost = 0
     maxAux = 0
+    maxAvgAux =0
 
 
-    # Initialize heap to store potential Kth shortest path
+    # Initialize lists to store potential Kth longest path
     A_costs = []
     B = []
 
-    # shortest path from source to destination
+    # all simple paths from source to destination
     A = list(nx.all_simple_paths(graph, source, target))  # [0]]
 
     print "A", A
@@ -279,9 +280,12 @@ def AkLP(graph, source, target, num_k, weight):
         print "INDEX", [A.index(path)]
         cost = path_length(graph, A[A.index(path)], weight)
         print "cost", cost
+        avgCost = cost / (len(path) - 1)
 
-        if cost > maxAux:
+        if avgCost > maxAvgAux:
             maxAux = cost
+            maxAvgAux = avgCost
+
             A_costs.insert(i, maxAux)
             print "maxAUX", maxAux
 
@@ -338,9 +342,9 @@ def ALP(graph, source, target, weight):
                 print "TOTALAUX", totalAux
                 print "preMAXCOST", maxCost
                 print "EDGEPATH", edgePath
-                print "esto", edgePath[(len(edgePath)-1)]
+
                 if edge == edgePath[(len(edgePath)-1)]:
-                    print "entra!"
+
                     avgAux = totalAux / (len(path) - 1)
                     if avgAux > maxAvgCost:
                         maxCost = totalAux
@@ -586,7 +590,7 @@ print "cos_res", cos_res
 """
 
 
-A = nx.complete_graph(9)
+A = nx.complete_graph(8)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
@@ -603,7 +607,7 @@ for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 
 
-res, cos_res = ALP(agGraph, random.randrange(1, 2), random.randrange(3, 6), 'total')
+res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(3, 8), 3, 'total')
 print "res", res
 print "cos_res", cos_res
 
@@ -623,9 +627,9 @@ print "cos_res", cos_res
 """
 
 """
-camino, coste = AkLP(M, '00:00:05', '00:00:06', 2, 'weight')
-print "RESULTAO", camino
-print "RESULTAO", coste
+res, cos_res = AkLP(M, '00:00:05', '00:00:06', 5, 'bandwidth')
+print "PATH", res
+print "COST", cos_res
 """
 
 """
@@ -684,9 +688,9 @@ def plot_path(agGraph, maxPath):
     plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
     plt.show()  # display
 
-"""
-maxPath, length = path_select(res, cos_res, 1)
-print maxPath
-"""
 
-plot_path(agGraph, res)
+maxPath, length = path_select(res, cos_res, len(res))
+print maxPath
+
+
+plot_path(agGraph, maxPath)
