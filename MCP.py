@@ -312,19 +312,20 @@ def ALP(graph, source, target, weight):
     maxPath = None
     maxCost = 0
     maxAvgCost = 0
-
+    iteration = 0
 
     for path in nx.all_simple_paths(graph, source, target):
         totalAux = 0
-        avgAux = 0
+        iteration += 1
 
-        edgePath = to_edge_path(path, H)
+
+        edgePath = to_edge_path(path, graph)
         print "PATH", edgePath
         for edge in edgePath:
             edge1, edge2 = edge
             print edge1, edge2
 
-            edgeData = H.get_edge_data(edge1, edge2)
+            edgeData = graph.get_edge_data(edge1, edge2)
             sedgeData = edgeData.items()[0]
             print "SEDGE", sedgeData
 
@@ -348,6 +349,7 @@ def ALP(graph, source, target, weight):
             except:
                 print "ERROR!"
 
+    print "ITERATION", iteration
     print "TOTAL", maxCost
     print "AVGTOTAL", maxAvgCost
     maxPath = to_node_path(maxPath)
@@ -583,8 +585,8 @@ print "res", res
 print "cos_res", cos_res
 """
 
-"""
-A = nx.complete_bipartite_graph(4, 4)
+
+A = nx.complete_graph(9)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
@@ -601,10 +603,10 @@ for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 
 
-res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(3, 5), 2, 'total')
+res, cos_res = ALP(agGraph, random.randrange(1, 2), random.randrange(3, 6), 'total')
 print "res", res
 print "cos_res", cos_res
-"""
+
 
 
 
@@ -626,11 +628,11 @@ print "RESULTAO", camino
 print "RESULTAO", coste
 """
 
-
+"""
 res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "cost", cos_res
-
+"""
 
 
 """
@@ -666,7 +668,6 @@ def plot_path(agGraph, maxPath):
 
     print eFail
 
-
     pos = nx.spring_layout(agGraph)    # positions for all nodes
     nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
     nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
@@ -687,4 +688,5 @@ def plot_path(agGraph, maxPath):
 maxPath, length = path_select(res, cos_res, 1)
 print maxPath
 """
-plot_path(M, res)
+
+plot_path(agGraph, res)
