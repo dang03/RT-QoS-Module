@@ -590,7 +590,7 @@ print "cos_res", cos_res
 """
 
 
-A = nx.complete_graph(8)
+A = nx.dorogovtsev_goltsev_mendes_graph(4)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
@@ -607,7 +607,7 @@ for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 
 
-res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(3, 8), 3, 'total')
+res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(20, 35), 3, 'total')
 print "res", res
 print "cos_res", cos_res
 
