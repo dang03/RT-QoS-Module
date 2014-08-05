@@ -435,7 +435,8 @@ if isPath:
             #AkLP
 
 else:
-    pass
+    #Means that len(k) is greater than 1
+    #So stAggregator must be applied to deal with the MCP
 
 
 #else:
