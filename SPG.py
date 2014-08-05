@@ -365,6 +365,7 @@ On a first approach, every constraint will be treated as a predefined named cons
 i.e. this step only works for: delay, jitter, packet-loss constraints, if they are delivered
 Further implementation may work with any kind of constraint (Additive-class).
 """
+#TODO: Handle exceptions for not found dict keys
 
 if 'delay' in k:
     for u, v, data in G.edges_iter(data=True):
@@ -421,12 +422,20 @@ plt.show()  # display
 # SPG algorithm Step 2: search all suitable paths meeting QoS constraints
 # src and dst path check - Check path connection between src and dst
 
+################################################################################
+# Connectivity check between source to destination nodes
+isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
-if isPath and k > 1:
-
+if isPath:
     print "Step 2: MCP process"
+    if len(k) == 1:
 
+        if 'bandwidth' in k:
+            #ALP
+            #AkLP
 
+else:
+    pass
 
 
 #else:
