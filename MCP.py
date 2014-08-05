@@ -32,7 +32,8 @@ def path_length(graph, path, weight=None):
             edge = graph.get_edge_data(path[i], path[i + 1])
             print "edge:", edge
             edge = edge.items()[0]
-            print edge
+            print "edge items", edge
+            #print "item", edge[1][weight]
             try:
                 new_length = edge[1][weight]
                 pathLength += new_length
@@ -278,6 +279,7 @@ def AkLP(graph, source, target, num_k, weight):
         print "path1", path
 
         print "INDEX", [A.index(path)]
+        print "algo", A[A.index(path)]
         cost = path_length(graph, A[A.index(path)], weight)
         print "cost", cost
         avgCost = cost / (len(path) - 1)
@@ -579,8 +581,9 @@ M.add_edge('00:00:03', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 """
 print M.edges()
 """
+"""
 H = nx.MultiGraph(M)
-
+"""
 """
 agGraph = stAggregate(M)
 
@@ -589,8 +592,8 @@ print "res", res
 print "cos_res", cos_res
 """
 
-
-A = nx.dorogovtsev_goltsev_mendes_graph(4)
+"""
+A = nx.dorogovtsev_goltsev_mendes_graph(2)
 
 for edge in A.edges_iter(data=True):
     edge1, edge2, nfo = edge
@@ -599,18 +602,19 @@ for edge in A.edges_iter(data=True):
     jtr = random.uniform(1, 5)
     pls = random.randrange(0, 100)
     A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
+"""
 
-
-agGraph = stAggregate_test(A)
+"""agGraph = stAggregate_test(A)
 
 for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
+"""
 
-
-res, cos_res = AkLP(agGraph, random.randrange(1, 2), random.randrange(20, 35), 3, 'total')
+"""
+res, cos_res = AkLP(M, '00:00:05', '00:00:06', 3, 'bandwidth')
 print "res", res
 print "cos_res", cos_res
-
+"""
 
 
 
@@ -688,9 +692,11 @@ def plot_path(agGraph, maxPath):
     plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
     plt.show()  # display
 
-
+"""
 maxPath, length = path_select(res, cos_res, len(res))
-print maxPath
+print 'selectedPATH', maxPath
+print 'selectedCOST', length
 
 
-plot_path(agGraph, maxPath)
+plot_path(M, maxPath)
+"""
