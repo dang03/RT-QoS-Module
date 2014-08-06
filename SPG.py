@@ -216,6 +216,9 @@ print("Topology data loaded")
 #######################################################################
 # Read topology QoS related parameters to apply QoS request constraints:
 # For BANDWIDTH required constraint (Bottleneck QoS parameter - Critical)
+print "STEP-1 Process"
+
+#print mcolors.OKGREEN+"Checking link availability... [Bandwidth constraint]\n"+mcolors.ENDC
 
 if 'bandwidth' in k:
     topoSrcSwitch = 0
@@ -262,6 +265,7 @@ if 'bandwidth' in k:
 
 ################################################################################
 # SPG algorithm Step 1: search and delete those links not meeting QoS constraints
+
 # Remove edges - Bottleneck QoS parameters. Links that does not satisfy bandwidth
 # constraints are removed from the graph. Minimum bandwidth rule: available_bandwidth
 # value must be GREATER than requested value to avoid removing
@@ -294,7 +298,7 @@ plt.show()  # display
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
 if isPath:
-    print mcolors.OKGREEN+"Searching best path available... [Bandwidth constraint]\n"+mcolors.ENDC
+    print mcolors.OKGREEN+"Feasible path available... [Bandwidth constraint]\n"+mcolors.ENDC
 
 
 else:
@@ -426,22 +430,101 @@ plt.show()  # display
 # Connectivity check between source to destination nodes
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
+# If isPath returns True, there's src-dst connection on topology graph
+# Calculate all feasible paths meeting requested requirements, then select the optimal path
 if isPath:
-    print "Step 2: MCP process"
-    if len(k) == 1:
+    print "STEP-2 Process"
+    print mcolors.OKGREEN+"Searching feasible paths available...\n"+mcolors.ENDC
 
+    """
+    CODE PART for Path computation algorithms: here can be applied various algorithms from
+    MCP.py file, such AkLP algorithm for k-longest-paths or ALP for longest path computation
+    """
+
+
+    if len(k) == 1:
+        # Creates copy of the graph
+        M = nx.MultiGraph(G)
+        # Single constraint request; list(k) can contain any requested QoS parameter
+        # Calculate path total bandwidth per minimum hop count, selects kth path
         if 'bandwidth' in k:
-            #ALP
             #AkLP
+            kPaths, kCosts = AkLP(M, srcSwitch, dstSwitch, k_sel, 'bandwidth')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+            #ALP
+            """
+            path, cost = ALP(M, srcSwitch, dstSwitch, 'bandwidth')
+            print "path", path
+            print "cost", cost
+            """
+
+        # Calculate minimum delay k paths
+        if 'delay' in k:
+            #AkSP
+            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'delay')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+
+        # Calculate minimum jitter k paths,
+        if 'jitter' in k:
+            #AkSP
+            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'jitter')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+        # Calculate minimum packet-loss k paths
+        if 'packet-loss' in k:
+            #AkSP
+            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'packetLoss')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+    else:
+        #Means that len(k) is greater than 1
+        #So stAggregator must be applied to deal with the MCP
+        print mcolors.OKGREEN+"MCP: Searching feasible paths available... Multiple Constraints Path\n"+mcolors.ENDC
+
+        M = stAggregate(G)
+        for edge in M.edges_iter(data=True):
+            print "Aggregated Cost", edge
+
+        hostList = [srcSwitch, dstSwitch]
+        edgeLabels = {}
+        edgeLabels.update((nx.get_edge_attributes(M, 'total')))
+
+        pos = nx.spring_layout(G)    # positions for all nodes
+        nx.draw_networkx_nodes(G, pos, node_size=700, node_color='b')
+        nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
+
+        nx.draw_networkx_edges(G, pos, width=2, alpha=1)
+        nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
+        nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
+
+        plt.axis('off')
+        plt.savefig("/home/i2cat/Documents/test.png")   # save as png
+        plt.show()  # display
+
+        kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
+
+
 
 else:
-    #Means that len(k) is greater than 1
-    #So stAggregator must be applied to deal with the MCP
+    print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
+    sys.exit()
 
 
-#else:
-# Single constraint request; suitable bandwidth requested
-   # Calculate maximum bandwidth per link,
+
+
+print "QoS k paths = %s\n" % kPaths
+print "QoS k lengths = %s\n" % kCosts
+
+maxPath, length = path_select(kPaths, kCosts, 2)
+
+print "QoS path = %s\n" % maxPath
+print "QoS length = %s\n" % length
 
 # First version of yen's k-shortest path applied for a generic edge weight(disabled)
 """
@@ -523,49 +606,6 @@ plt.show()  # display
 
 
 
-
-################################################################################
-# Multi-constraint path finder; find a feasible path satisfying multiple constraints
-# Additive weights: find requested constraints and add them to the graph
-topoSrcSwitch = None
-topoDstSwitch = None
-with open("topology.json") as topologyData:
-        parsedData = json.load(topologyData)
-        for i in range(len(parsedData)):
-                topoSrcSwitch = parsedData[i]['src-switch']
-                topoDstSwitch = parsedData[i]['dst-switch']
-                edgeDelay = parsedData[i]['delay']
-                edgePacketLoss = parsedData[i]['packet-loss']
-                if G.has_edge(topoSrcSwitch, topoDstSwitch):
-                    G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, delay=edgeDelay, packetLoss=edgePacketLoss)
-                print "edge: %s - %s, delay: %s, packet-loss: %s" % (topoSrcSwitch, topoDstSwitch, edgeDelay, edgePacketLoss)
-
-print G.edges(data=True)
-
-# First selection wave: delete links not meeting requested requirements
-"""
-On a first approach, every constraint will be treated as a predefined named constraint:
-i.e. this step only works for delay, packet-loss if they are delivered
-In future improve implementation, this should work with any kind of constraint.
-"""
-
-for u, v, data in G.edges_iter(data=True):
-    if data['delay'] > reqDelay:
-        G.remove_edge(u, v)
-
-for u, v, data in G.edges_iter(data=True):
-    if data['packetLoss'] > reqPacketLoss:
-        G.remove_edge(u, v)
-
-"""
-for u, v, data in G.edges_iter(data=True):
-    if data['cost'] <= reqCost:
-        G.remove_edge(u, v)
-
-for u, v, data in G.edges_iter(data=True):
-    if data['anyConstraint'] <= reqAnyConstraint:
-        G.remove_edge(u, v)
-"""
 # Second selection wave: calculate all feasible paths meeting requested requirements
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
 delayPaths = None
@@ -585,15 +625,15 @@ else:
     print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
     sys.exit()
 
-
 #################################################################################
-#
+#################################################################################
+# Pathfinder - Path Application
 # Path Pusher: send one flow mod per pair of Access Point in path
-# using StaticFlowPusher rest API
+# using StaticFlowPusher REST API
 
         # IMPORTANT NOTE: current Floodlight StaticflowEntryPusher
         # assumes all flow entries to have unique name across all switches
-        # this will most possibly be relaxed later, but for now we
+        # (this will most possibly be relaxed later), but for now we
         # encode each flow entry's name with both switch dpid, qos request-id
         # and flow type ( consider flows: forward/reverse, farp/rarp)
 

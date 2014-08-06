@@ -428,6 +428,8 @@ def longestPath(graph, source, target, weight, visited=None):
 """
 MCP edge stats Aggregator Function for multiple constraints graph and QoS requests
 """
+#TODO: Hint for possible errors while aggregating QoS parameters that cannot be loaded from edge dict
+
 def stAggregate(graph):
     newGraph = nx.MultiGraph()
 
@@ -437,17 +439,27 @@ def stAggregate(graph):
         total = 1
 
         try:
-            delay = graph[edge1][edge2][0]['delay']
+            delay = graph[edge1][edge2].values()[0]['delay']
+
+            """
+            print edgeData.keys()[0]
+            print edgeData.values()[0]
+            print edgeData.items()[0]
+            delay = edgeData.keys()[0]['delay']
+            """
+
             print 'delay', delay
             if delay == 0:
                 delay = 1
 
             total = total * delay
+
         except:
             continue
 
+
         try:
-            jitter = graph[edge1][edge2][0]['jitter']
+            jitter = graph[edge1][edge2].values()[0]['jitter']
             print 'jitter', jitter
             if jitter == 0:
                 jitter = 1
@@ -457,7 +469,7 @@ def stAggregate(graph):
             pass
 
         try:
-            ploss = graph[edge1][edge2][0]['packet-loss']
+            ploss = graph[edge1][edge2].values()[0]['packet-loss']
             print 'packet-loss', ploss
             if ploss == 0:
                 ploss = 1
@@ -467,7 +479,7 @@ def stAggregate(graph):
             pass
 
         try:
-            bandwidth = graph[edge1][edge2][0]['bandwidth']
+            bandwidth = graph[edge1][edge2].values()[0]['bandwidth']
             print 'bandwidth', bandwidth
             if bandwidth == 0:
                 bandwidth = 1
@@ -585,8 +597,9 @@ print M.edges()
 H = nx.MultiGraph(M)
 """
 """
-agGraph = stAggregate(M)
-
+agGraph = stAggregate_test(M)
+"""
+"""
 res, cos_res = AkSP(agGraph, '00:00:05', '00:00:06', 5, 'total')
 print "res", res
 print "cos_res", cos_res
@@ -604,7 +617,8 @@ for edge in A.edges_iter(data=True):
     A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
 """
 
-"""agGraph = stAggregate_test(A)
+"""
+agGraph = stAggregate(M)
 
 for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
@@ -631,7 +645,7 @@ print "cos_res", cos_res
 """
 
 """
-res, cos_res = AkLP(M, '00:00:05', '00:00:06', 5, 'bandwidth')
+res, cos_res = AkLP(M, '00:00:05', '00:00:06', 1, 'bandwidth')
 print "PATH", res
 print "COST", cos_res
 """
