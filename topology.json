@@ -128,7 +128,7 @@
         "dst-port-state":0,
         "type":"internal",
         "bandwidth":11.0,
-        "delay": 0.5,
+        "delay": 5.5,
         "packet-loss": 8
     },
     {
@@ -140,7 +140,7 @@
         "dst-port-state":0,
         "type":"internal",
         "bandwidth":11.0,
-        "delay": 0.5,
+        "delay": 5.5,
         "packet-loss": 8
     }
 ]

@@ -238,29 +238,9 @@ if 'bandwidth' in k:
 
     eOK = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] > reqBand]
     eFail = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] <= reqBand]
-
-
-
-    # labels
     hostList = [srcSwitch, dstSwitch]
-    edgeLabels = {}
-    edgeLabels.update((nx.get_edge_attributes(G, 'bandwidth')))
 
-    pos = nx.spring_layout(G)    # positions for all nodes
-    nx.draw_networkx_nodes(G, pos, node_size=700, node_color='b')
-    nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-    nx.draw_networkx_edges(G, pos, edgelist=eOK, width=2, alpha=1)
-    nx.draw_networkx_edges(G, pos, edgelist=eFail, width=2, alpha=0.5, edge_color='b', style='dashed')
-
-    nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-    nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-    plt.axis('off')
-    plt.savefig("/home/i2cat/Documents/test.png")   # save as png
-    plt.show()  # display
-
-    print G.edges(data=True)
+    plot_path(G, None, hostList, eOK, eFail, 'bandwidth')
 
 
 ################################################################################
@@ -275,23 +255,9 @@ if 'bandwidth' in k:
         if data['bandwidth'] <= reqBand:
             G.remove_edge(u, v)
 
-
-# labels
 hostList = [srcSwitch, dstSwitch]
-edgeLabels = {}
-edgeLabels.update((nx.get_edge_attributes(G, 'bandwidth')))
+plot_path(G, None, hostList, None, None, 'bandwidth')
 
-pos = nx.spring_layout(G)    # positions for all nodes
-nx.draw_networkx_nodes(G, pos, node_size=700, node_color='b')
-nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-nx.draw_networkx_edges(G, pos, width=2, alpha=1)
-nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-plt.axis('off')
-plt.savefig("/home/i2cat/Documents/test.png")   # save as png
-plt.show()  # display
 
 ################################################################################
 # Connectivity check between source to destination nodes
@@ -400,25 +366,7 @@ for constraint in k:
         G.remove_edge(u, v)
 """
 
-hostList = [srcSwitch, dstSwitch]
-edgeLabels = {}
-edgeLabels.update((nx.get_edge_attributes(G, 'bandwidth')))
-
-pos = nx.spring_layout(G)    # positions for all nodes
-nx.draw_networkx_nodes(G, pos, node_size=700, node_color='b')
-nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-nx.draw_networkx_edges(G, pos, width=2, alpha=1)
-nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-plt.axis('off')
-plt.savefig("/home/i2cat/Documents/test.png")   # save as png
-plt.show()  # display
-
-
-
-
+plot_path(G, None, hostList, None, None, 'bandwidth')
 
 
 
@@ -456,9 +404,9 @@ if isPath:
 
             #ALP
             """
-            path, cost = ALP(M, srcSwitch, dstSwitch, 'bandwidth')
-            print "path", path
-            print "cost", cost
+            maxPath, length = ALP(M, srcSwitch, dstSwitch, 'bandwidth')
+            print "path", maxPath
+            print "cost", length
             """
 
             maxPath, length = path_select(kPaths, kCosts, len(kPaths))
@@ -471,6 +419,7 @@ if isPath:
             print "PATH", kPaths
             print "COST", kCosts
 
+            maxPath, length = path_select(kPaths, kCosts, 1)
 
         # Calculate minimum jitter k paths,
         if 'jitter' in k:
@@ -479,12 +428,19 @@ if isPath:
             print "PATH", kPaths
             print "COST", kCosts
 
+            maxPath, length = path_select(kPaths, kCosts, 1)
+
         # Calculate minimum packet-loss k paths
         if 'packet-loss' in k:
             #AkSP
             kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'packetLoss')
             print "PATH", kPaths
             print "COST", kCosts
+
+            maxPath, length = path_select(kPaths, kCosts, 1)
+
+        plot_path(M, maxPath, hostList, None, None, 'bandwidth')
+
 
     else:
         #Means that len(k) is greater than 1
@@ -495,10 +451,10 @@ if isPath:
         for edge in M.edges_iter(data=True):
             print "Aggregated Cost", edge
 
-        hostList = [srcSwitch, dstSwitch]
-        edgeLabels = {}
-        edgeLabels.update((nx.get_edge_attributes(M, 'total')))
+        plot_path(M, None, hostList, None, None, 'total')
 
+
+        """
         pos = nx.spring_layout(G)    # positions for all nodes
         nx.draw_networkx_nodes(G, pos, node_size=700, node_color='b')
         nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
@@ -510,6 +466,7 @@ if isPath:
         plt.axis('off')
         plt.savefig("/home/i2cat/Documents/test.png")   # save as png
         plt.show()  # display
+        """
 
         kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
 
@@ -518,7 +475,7 @@ if isPath:
 
         maxPath, length = path_select(kPaths, kCosts, 1)
 
-        plot_path(M, maxPath, data='total')
+        plot_path(M, maxPath, hostList, None, None, 'total')
 
         print "QoS path = %s\n" % maxPath
         print "QoS length = %s\n" % length

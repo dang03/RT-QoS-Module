@@ -675,39 +675,66 @@ print "cost", ulti_cost
 """
 
 
-def plot_path(agGraph, maxPath, data=None):
-    e2e = []
-    source = maxPath[0]
-    destination = maxPath[(len(maxPath)-1)]
-    e2e.append(source)
-    e2e.append(destination)
-    print maxPath
-    for i in range(len(maxPath)-1):
-        print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
-    maxPathList = to_edge_path(maxPath)
-    print maxPathList
-    eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
-
-    print eFail
-
+def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
     edgeLabels = {}
-    edgeLabels.update((nx.get_edge_attributes(agGraph, data)))
 
-    pos = nx.spring_layout(agGraph)    # positions for all nodes
-    nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
-    nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
-    nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
+    if e2e is None and maxPath is not None:
+        e2e = []
+        source = maxPath[0]
+        destination = maxPath[(len(maxPath)-1)]
+        e2e.append(source)
+        e2e.append(destination)
 
-    nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
-    nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
+    if maxPath is not None:
+        for i in range(len(maxPath)-1):
+            print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
 
-    nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-    nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+        maxPathList = to_edge_path(maxPath)
+        print maxPathList
 
+        if eFail is None:
+            eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
 
-    plt.axis('off')
-    plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
-    plt.show()  # display
+        print eFail
+
+        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
+
+        pos = nx.spring_layout(agGraph)    # positions for all nodes
+        nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
+        nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
+        nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
+
+        nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
+        nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
+
+        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
+        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+
+        plt.axis('off')
+        plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
+        plt.show()  # display
+
+    else:
+        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
+
+        pos = nx.spring_layout(agGraph)    # positions for all nodes
+        nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
+        nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
+
+        if eOK is not None:
+            nx.draw_networkx_edges(agGraph, pos, edgelist=eOK, width=2, alpha=1)
+        else:
+            nx.draw_networkx_edges(agGraph, pos, width=2, alpha=1)
+        if eFail is not None:
+            nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5, edge_color='b', style='dashed')
+
+        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
+        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+
+        plt.axis('off')
+        plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
+        plt.show()  # display
+
 
 """
 maxPath, length = path_select(res, cos_res, len(res))
