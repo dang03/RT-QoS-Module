@@ -509,6 +509,15 @@ if isPath:
 
         kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
 
+        print "QoS k paths = %s\n" % kPaths
+        print "QoS k lengths = %s\n" % kCosts
+
+        maxPath, length = path_select(kPaths, kCosts, 1)
+
+        plot_path(M, maxPath, data='total')
+
+        print "QoS path = %s\n" % maxPath
+        print "QoS length = %s\n" % length
 
 
 else:
@@ -518,13 +527,14 @@ else:
 
 
 
-print "QoS k paths = %s\n" % kPaths
-print "QoS k lengths = %s\n" % kCosts
+maxPath, length = path_select(kPaths, kCosts, 1)
 
-maxPath, length = path_select(kPaths, kCosts, 2)
+plot_path(M, maxPath, data='total')
 
 print "QoS path = %s\n" % maxPath
 print "QoS length = %s\n" % length
+
+
 
 # First version of yen's k-shortest path applied for a generic edge weight(disabled)
 """
@@ -551,24 +561,6 @@ print M.edges(data=True)
 length, maxPath = nx.bidirectional_dijkstra(M, srcSwitch, dstSwitch, weight='bandwidth')
 print "QoS path = %s\n" % maxPath
 """
-
-"""
-CODE PART for Path computation algorithms: here can be applied various algorithms from
-MCP.py file, such AkLP algorithm for k-longest-paths or ALP for longest path computation
-"""
-
-M = nx.MultiGraph(G)
-kPaths, kLengths = AkLP(M, srcSwitch, dstSwitch, 4, 'bandwidth')
-
-print "QoS k paths = %s\n" % kPaths
-print "QoS k lengths = %s\n" % kLengths
-
-maxPath, length = path_select(kPaths, kLengths, 2)
-
-print "QoS path = %s\n" % maxPath
-print "QoS length = %s\n" % length
-
-
 
 
 # labels
@@ -604,26 +596,6 @@ plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
 plt.show()  # display
 
 
-
-
-# Second selection wave: calculate all feasible paths meeting requested requirements
-isPath = nx.has_path(G, srcSwitch, dstSwitch)
-delayPaths = None
-packetLossPaths = None
-
-print isPath
-if isPath:
-    print mcolors.OKGREEN+"Searching feasible paths available...[MCP NOT AVAILABLE]\n"+mcolors.ENDC
-    delayPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'delay')])
-    packetLossPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'packetLoss')])
-
-    print delayPaths
-    print packetLossPaths
-
-
-else:
-    print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
-    sys.exit()
 
 #################################################################################
 #################################################################################

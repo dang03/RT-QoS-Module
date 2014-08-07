@@ -675,7 +675,7 @@ print "cost", ulti_cost
 """
 
 
-def plot_path(agGraph, maxPath):
+def plot_path(agGraph, maxPath, data=None):
     e2e = []
     source = maxPath[0]
     destination = maxPath[(len(maxPath)-1)]
@@ -690,6 +690,9 @@ def plot_path(agGraph, maxPath):
 
     print eFail
 
+    edgeLabels = {}
+    edgeLabels.update((nx.get_edge_attributes(agGraph, data)))
+
     pos = nx.spring_layout(agGraph)    # positions for all nodes
     nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
     nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
@@ -697,7 +700,6 @@ def plot_path(agGraph, maxPath):
 
     nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
     nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
-
 
     nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
 
