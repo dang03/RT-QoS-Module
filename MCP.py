@@ -701,6 +701,7 @@ def plot_path(agGraph, maxPath, data=None):
     nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
     nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
 
+    nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
     nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
 
 

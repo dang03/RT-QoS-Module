@@ -430,6 +430,7 @@ plt.show()  # display
 # Connectivity check between source to destination nodes
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
+global maxPath
 # If isPath returns True, there's src-dst connection on topology graph
 # Calculate all feasible paths meeting requested requirements, then select the optimal path
 if isPath:
@@ -459,6 +460,9 @@ if isPath:
             print "path", path
             print "cost", cost
             """
+
+            maxPath, length = path_select(kPaths, kCosts, len(kPaths))
+
 
         # Calculate minimum delay k paths
         if 'delay' in k:
@@ -527,9 +531,8 @@ else:
 
 
 
-maxPath, length = path_select(kPaths, kCosts, 1)
 
-plot_path(M, maxPath, data='total')
+plot_path(M, maxPath)
 
 print "QoS path = %s\n" % maxPath
 print "QoS length = %s\n" % length
