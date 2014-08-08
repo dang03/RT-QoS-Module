@@ -1,4 +1,46 @@
 {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "QoS-Request",
+    "description": "Pathfinder QoS request data schema",
+    "type": "object"
+    "properties": {
+        "id": {
+            "description": "The unique identifier for a QoS request",
+            "type": "integer"
+        },
+        "source": {
+            "description": "The unique identifier for a QoS request",
+            "type": "integer"
+        },
+        "destination": {
+            "description": "The unique identifier for a QoS request",
+            "type": "integer"
+        },
+        "alarm": {
+            "description": "The unique identifier for a QoS request",
+            "type": "integer"
+        },
+        "parameters": {
+            "description": "The unique identifier for a QoS request",
+            "type": "integer"
+        }
+    },
+    "required": ["id"]
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
     "requestID": "04A4",
     "ip-src": "10.0.0.1",
     "ip-dst": "10.0.0.2",

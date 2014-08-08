@@ -2,11 +2,13 @@
 # encoding: utf-8
 
 """
-Path Computation Process: main application implementing QoS Algorithm for NCL integration
-Pathfinder modified code
+Pathfinder: main application implementing QoS Algorithm adapted from Suitable Path Process (SPG)
+Requirements:
+...
 
 """
 __author__ = 'Daniel'
+
 
 # Import libraries
 import os
@@ -26,7 +28,7 @@ import sys
 from PathDrawer import to_edge_path
 from fractions import Fraction
 from collections import defaultdict
-from MCP import yen_networkx, path_select, path_length
+from MCP import *
 
 # main vars
 delta_sec = 2        # seconds to delay in time.sleep
@@ -81,7 +83,8 @@ reqDelay = None     # Data gathering not yet implemented
 reqPacketLoss = None
 reqJitter = None    # Not used, QoS parameter to consider
 reqCost = None      # Not used, QoS link average state
-k = 0               # To stack number of constraints used to calculate a path
+k = []               # To stack number of constraints used to calculate a path
+
 with open('./qosDb.json') as qosDb:
     for line in qosDb:
         data = json.loads(line)
@@ -103,20 +106,34 @@ with open('./qosDb.json') as qosDb:
 
     with open("QoS_Request.json") as qosRequest:
         reqData = json.load(qosRequest)
-        if reqData['bandwidth']:
-            reqBand = reqData['bandwidth']
-            print "Requested minimum bandwidth: %s" % reqBand
-            k += 1
-        if reqData['delay'] is not 0:
-            reqDelay = reqData['delay']
-            print "Requested maximum delay: %s" % reqDelay
-            k += 1
-        if reqData['packet-loss'] is not 0:
-            reqPacketLoss = reqData['packet-loss']
-            print "Requested maximum packet-loss: %s" % reqPacketLoss
-            k += 1
-        print "Number of constraints: %s\n" % k
+
+        if 'bandwidth' in reqData:
+            if reqData['bandwidth'] is not 0:
+                reqBand = reqData['bandwidth']
+                print "Requested minimum bandwidth: %s" % reqBand
+                k.append('bandwidth')
+
+        if 'delay' in reqData:
+            if reqData['delay'] is not 0:
+                reqDelay = reqData['delay']
+                print "Requested maximum delay: %s" % reqDelay
+                k.append('delay')
+
+        if 'jitter' in reqData:
+            if reqData['jitter'] is not 0:
+                reqJitter = reqData['jitter']
+                print "Requested maximum jitter: %s" % reqJitter
+                k.append('jitter')
+
+        if 'packet-loss' in reqData:
+            if reqData['packet-loss'] is not 0:
+                reqPacketLoss = reqData['packet-loss']
+                print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
+                k.append('packet-loss')
+
+        print "Number of constraints: %s\n" % len(k)
         print("QoS Request data loaded.\n")
+
 
 
 # retrieve source and destination device attachment points
@@ -199,85 +216,58 @@ for parsedResult in json.loads(rtTopo):
 
 print("Topology data loaded")
 
-# read topology QoS related parameters to apply QoS request constraints
-# BANDWIDTH requirement
+#######################################################################
+# Read topology QoS related parameters to apply QoS request constraints:
+# For BANDWIDTH required constraint (Bottleneck QoS parameter - Critical)
+print "STEP-1 Process"
 
-topoSrcSwitch = 0
-topoDstSwitch = 0
-edgeBand = 0
-with open("topology.json") as topologyData:
-        parsedData = json.load(topologyData)
-        for i in range(len(parsedData)):
-                topoSrcSwitch = parsedData[i]['src-switch']
-                topoDstSwitch = parsedData[i]['dst-switch']
-                edgeBand = parsedData[i]['bandwidth']
-                if G.has_edge(topoSrcSwitch, topoDstSwitch):
+#print mcolors.OKGREEN+"Checking link availability... [Bandwidth constraint]\n"+mcolors.ENDC
 
-                    G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, bandwidth=edgeBand)
-                print "edge: %s - %s, bandwidth: %s, key: %s" % (topoSrcSwitch, topoDstSwitch, edgeBand, topoSrcSwitch+topoDstSwitch)
+if 'bandwidth' in k:
+    topoSrcSwitch = 0
+    topoDstSwitch = 0
+    edgeBand = 0
+    with open("topology.json") as topologyData:
+            parsedData = json.load(topologyData)
+            for i in range(len(parsedData)):
+                    topoSrcSwitch = parsedData[i]['src-switch']
+                    topoDstSwitch = parsedData[i]['dst-switch']
+                    edgeBand = parsedData[i]['bandwidth']
+
+                    if G.has_edge(topoSrcSwitch, topoDstSwitch):
+                        G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, bandwidth=edgeBand)
+                    print "edge: %s - %s, bandwidth: %s, key: %s" % (topoSrcSwitch, topoDstSwitch, edgeBand, topoSrcSwitch+topoDstSwitch)
 
 
-eOK = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] > reqBand]
-eFail = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] <= reqBand]
+    eOK = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] > reqBand]
+    eFail = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] <= reqBand]
+    hostList = [srcSwitch, dstSwitch]
 
-"""
-# labels
-hostList = [srcSwitch, dstSwitch]
-edgeLabels = {}
-edgeLabels.update((nx.get_edge_attributes(G, 'bandwidth')))
-
-pos = nx.spring_layout(G)    # positions for all nodes
-nx.draw_networkx_nodes(G, pos, node_size=700)
-nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-nx.draw_networkx_edges(G, pos, edgelist=eOK, width=6, alpha=1)
-nx.draw_networkx_edges(G, pos, edgelist=eFail, width=6, alpha=0.5, edge_color='b', style='dashed')
-
-nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-plt.axis('off')
-plt.savefig("/home/i2cat/Documents/test.png")   # save as png
-plt.show()  # display
-"""
-print G.edges(data=True)
+    plot_path(G, None, hostList, eOK, eFail, 'bandwidth')
 
 
 ################################################################################
 # SPG algorithm Step 1: search and delete those links not meeting QoS constraints
-# Remove edges - Links that does not satisfy bandwidth constraints are removed from the graph
 
-for u, v, data in G.edges_iter(data=True):
-    if data['bandwidth'] <= reqBand:
-        G.remove_edge(u, v)
+# Remove edges - Bottleneck QoS parameters. Links that does not satisfy bandwidth
+# constraints are removed from the graph. Minimum bandwidth rule: available_bandwidth
+# value must be GREATER than requested value to avoid removing
 
-"""
-# labels
+
+    for u, v, data in G.edges_iter(data=True):
+        if data['bandwidth'] <= reqBand:
+            G.remove_edge(u, v)
+
 hostList = [srcSwitch, dstSwitch]
-edgeLabels = {}
-edgeLabels.update((nx.get_edge_attributes(G, 'bandwidth')))
+plot_path(G, None, hostList, None, None, 'bandwidth')
 
-pos = nx.spring_layout(G)    # positions for all nodes
-nx.draw_networkx_nodes(G, pos, node_size=700)
-nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-nx.draw_networkx_edges(G, pos, width=6, alpha=1)
-nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-plt.axis('off')
-plt.savefig("/home/i2cat/Documents/test.png")   # save as png
-plt.show()  # display
-"""
 
 ################################################################################
-# SPG algorithm Step 2: search all suitable paths meeting QoS constraints
-# src and dst path check - Check path connection between src and dst
-
+# Connectivity check between source to destination nodes
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
 if isPath:
-    print mcolors.OKGREEN+"Searching best path available... [Bandwidth constraint]\n"+mcolors.ENDC
+    print mcolors.OKGREEN+"Feasible path available... [Bandwidth constraint]\n"+mcolors.ENDC
 
 
 else:
@@ -285,15 +275,227 @@ else:
     sys.exit()
 
 
-if isPath and k > 1:
+# Remove edges - additive QoS parameters: If provided and requested, links that does
+# not satisfy other constraints of additive class are removed from the graph.
+# Removing rule: Additive QoS parameters value must be LESS than requested value to
+# avoid removing
 
-    print "Step 2: MCP process"
+# Load Additive QoS from topology to graph weights: find requested constraints and add the statistics data to the graph
+# For DELAY, JITTER, PACKET-LOSS required constraint (Additive QoS parameter)
+# Other parameters GENERIC GRAPH COST (disabled)
 
-#else:
-# Single constraint request; suitable bandwidth requested
-   # Calculate maximum bandwidth per link,
+if 'delay'or 'jitter' or 'packet-loss' in k:
+    topoSrcSwitch = None
+    topoDstSwitch = None
+    with open("topology.json") as topologyData:
+            parsedData = json.load(topologyData)
+            for i in range(len(parsedData)):
+                    topoSrcSwitch = parsedData[i]['src-switch']
+                    topoDstSwitch = parsedData[i]['dst-switch']
+
+                    try:
+                        edgeDelay = parsedData[i]['delay']
+                    except:
+                        pass
+
+                    try:
+                        edgeJitter = parsedData[i]['jitter']
+                    except:
+                        pass
+
+                    try:
+                        edgePacketLoss = parsedData[i]['packet-loss']
+                    except:
+                        pass
+
+                    if G.has_edge(topoSrcSwitch, topoDstSwitch):
+                        try:
+                            G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, delay=edgeDelay)
+                        except:
+                            pass
+
+                        try:
+                            G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, jitter=edgeJitter)
+                        except:
+                            pass
+
+                        try:
+                            G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, packetLoss=edgePacketLoss)
+                        except:
+                            pass
+
+"""
+                #print "edge: %s - %s, delay: %s, packet-loss: %s" % (topoSrcSwitch, topoDstSwitch, edgeDelay, edgePacketLoss)
+                print "edge: %s - %s" % (topoSrcSwitch, topoDstSwitch), G.get_edge_data(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch)
 """
 
+for link in G.edges(data=True):
+    print "LINK", link
+
+# First selection wave: delete links not meeting requested requirements
+"""
+On a first approach, every constraint will be treated as a predefined named constraint:
+i.e. this step only works for: delay, jitter, packet-loss constraints, if they are delivered
+Further implementation may work with any kind of constraint (Additive-class).
+"""
+#TODO: Handle exceptions for not found dict keys
+
+if 'delay' in k:
+    for u, v, data in G.edges_iter(data=True):
+        if data['delay'] > reqDelay:
+            G.remove_edge(u, v)
+
+if 'jitter' in k:
+    for u, v, data in G.edges_iter(data=True):
+        if data['delay'] > reqJitter:
+            G.remove_edge(u, v)
+
+if 'packet-loss' in k:
+    for u, v, data in G.edges_iter(data=True):
+        #print data
+        if data['packetLoss'] > reqPacketLoss:
+            G.remove_edge(u, v)
+
+"""
+for u, v, data in G.edges_iter(data=True):
+    if data['cost'] <= reqCost:
+        G.remove_edge(u, v)
+"""
+
+"""
+for constraint in k:
+    for u, v, data in G.edges_iter(data=True):
+    if data[constraint] <= reqCost:
+        G.remove_edge(u, v)
+"""
+
+plot_path(G, None, hostList, None, None, 'bandwidth')
+
+
+
+################################################################################
+# SPG algorithm Step 2: search all suitable paths meeting QoS constraints
+# src and dst path check - Check path connection between src and dst
+
+################################################################################
+# Connectivity check between source to destination nodes
+isPath = nx.has_path(G, srcSwitch, dstSwitch)
+
+global maxPath  # will store result of QoS path
+global length   # and total cost-length value of QoS path
+
+# If isPath returns True, there's src-dst connection on topology graph
+# Calculate all feasible paths meeting requested requirements, then select the optimal path
+if isPath:
+    print "STEP-2 Process"
+    print mcolors.OKGREEN+"Searching feasible paths available...\n"+mcolors.ENDC
+
+    """
+    CODE PART for Path computation algorithms: here can be applied various algorithms from
+    MCP.py file, such AkLP algorithm for k-longest-paths or ALP for longest path computation
+    """
+
+
+    if len(k) == 1:
+        # Creates copy of the graph
+        M = nx.MultiGraph(G)
+        # Single constraint request; list(k) can contain any requested QoS parameter
+        # Calculate path total bandwidth per minimum hop count, selects kth path
+        if 'bandwidth' in k:
+            #AkLP
+            kPaths, kCosts = AkLP(M, srcSwitch, dstSwitch, k_sel, 'bandwidth')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+            #ALP
+            """
+            maxPath, length = ALP(M, srcSwitch, dstSwitch, 'bandwidth')
+            print "path", maxPath
+            print "cost", length
+            """
+
+            maxPath, length = path_select(kPaths, kCosts, len(kPaths))
+
+
+        # Calculate minimum delay k paths
+        if 'delay' in k:
+            #AkSP
+            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'delay')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+            maxPath, length = path_select(kPaths, kCosts, 1)
+
+        # Calculate minimum jitter k paths,
+        if 'jitter' in k:
+            #AkSP
+            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'jitter')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+            maxPath, length = path_select(kPaths, kCosts, 1)
+
+        # Calculate minimum packet-loss k paths
+        if 'packet-loss' in k:
+            #AkSP
+            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'packetLoss')
+            print "PATH", kPaths
+            print "COST", kCosts
+
+            maxPath, length = path_select(kPaths, kCosts, 1)
+
+        plot_path(M, maxPath, hostList, None, None, 'bandwidth')
+
+        print "QoS path = %s\n" % maxPath
+        print "QoS length = %s\n" % length
+
+    else:
+        #Means that len(k) is greater than 1
+        #So stAggregator must be applied to deal with the MCP
+        print mcolors.OKGREEN+"MCP: Searching feasible paths available... Multiple Constraints Path\n"+mcolors.ENDC
+
+        M = stAggregate(G)
+        for edge in M.edges_iter(data=True):
+            print "Aggregated Cost", edge
+
+        plot_path(M, None, hostList, None, None, 'total')
+
+
+        """
+        pos = nx.spring_layout(G)    # positions for all nodes
+        nx.draw_networkx_nodes(G, pos, node_size=700, node_color='b')
+        nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
+
+        nx.draw_networkx_edges(G, pos, width=2, alpha=1)
+        nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
+        nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
+
+        plt.axis('off')
+        plt.savefig("/home/i2cat/Documents/test.png")   # save as png
+        plt.show()  # display
+        """
+
+        kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
+
+        print "QoS k paths = %s\n" % kPaths
+        print "QoS k lengths = %s\n" % kCosts
+
+        maxPath, length = path_select(kPaths, kCosts, 1)
+
+        plot_path(M, maxPath, hostList, None, None, 'total')
+
+        print "QoS path = %s\n" % maxPath
+        print "QoS length = %s\n" % length
+
+
+else:
+    print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
+    sys.exit()
+
+
+
+# First version of yen's k-shortest path applied for a generic edge weight(disabled)
+"""
 res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'weight')
 print "res", res
 print "cos_res", cos_res
@@ -306,6 +508,7 @@ print "path", ultimate_path
 print "cost", ultimate_cost
 """
 
+# Earlier bandwidth computation trick for SPG for bidirectional dijkstra application (disabled)
 """
 M = nx.MultiGraph(G)
 for (u, v, d) in M.edges(data=True):
@@ -318,131 +521,15 @@ print "QoS path = %s\n" % maxPath
 """
 
 
-M = nx.MultiGraph(G)
-kPaths, kLengths = yen_networkx(M, srcSwitch, dstSwitch, 2, 'bandwidth')
-
-print "QoS k paths = %s\n" % kPaths
-print "QoS k lengths = %s\n" % kLengths
-
-maxPath, length = path_select(kPaths, kLengths, 2)
-
-print "QoS path = %s\n" % maxPath
-print "QoS length = %s\n" % length
-
-
-
-
-# labels
-hostList = [srcSwitch, dstSwitch]
-edgeLabels = {}
-edgeLabels.update((nx.get_edge_attributes(G, 'bandwidth')))
-"""
-# list of edges (switches) used to push flowmods
-maxPathList = [(u, v) for (u, v) in G.edges() if u in maxPath and v in maxPath]
-maxPathList = set(list(maxPathList))
-"""
-maxPathList = to_edge_path(maxPath)
-print "maxPathList: %s" % maxPathList
-
-#list of other feasible edges, but not the optimum path
-#otherPathList = [(u, v) for (u, v) in G.edges() if (u, v) not in maxPathList]
-
-"""
-for (u, v) in G.edges():
-    if u in maxPath and v in maxPath:
-            print (u, v)
-"""
-"""
-pos = nx.spring_layout(G)    # positions for all nodes
-nx.draw_networkx_nodes(G, pos, node_size=700)
-nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-
-nx.draw_networkx_edges(G, pos, edgelist=maxPathList, width=6, alpha=1)
-#nx.draw_networkx_edges(G, pos, edgelist=otherPathList, width=6, alpha=0.5, edge_color='b', style='dashed')
-
-nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-
-plt.axis('off')
-plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
-plt.show()  # display
-"""
-
-
-
-
-################################################################################
-# Multi-constraint path finder; find a feasible path satisfying multiple constraints
-# Additive weights: find requested constraints and add them to the graph
-topoSrcSwitch = None
-topoDstSwitch = None
-with open("topology.json") as topologyData:
-        parsedData = json.load(topologyData)
-        for i in range(len(parsedData)):
-                topoSrcSwitch = parsedData[i]['src-switch']
-                topoDstSwitch = parsedData[i]['dst-switch']
-                edgeDelay = parsedData[i]['delay']
-                edgePacketLoss = parsedData[i]['packet-loss']
-                if G.has_edge(topoSrcSwitch, topoDstSwitch):
-                    G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, delay=edgeDelay, packetLoss=edgePacketLoss)
-                print "edge: %s - %s, delay: %s, packet-loss: %s" % (topoSrcSwitch, topoDstSwitch, edgeDelay, edgePacketLoss)
-
-print G.edges(data=True)
-
-# First selection wave: delete links not meeting requested requirements
-"""
-On a first approach, every constraint will be treated as a predefined named constraint:
-i.e. this step only works for delay, packet-loss if they are delivered
-In future improve implementation, this should work with any kind of constraint.
-"""
-
-for u, v, data in G.edges_iter(data=True):
-    if data['delay'] > reqDelay:
-        G.remove_edge(u, v)
-
-for u, v, data in G.edges_iter(data=True):
-    if data['packetLoss'] > reqPacketLoss:
-        G.remove_edge(u, v)
-
-"""
-for u, v, data in G.edges_iter(data=True):
-    if data['cost'] <= reqCost:
-        G.remove_edge(u, v)
-
-for u, v, data in G.edges_iter(data=True):
-    if data['anyConstraint'] <= reqAnyConstraint:
-        G.remove_edge(u, v)
-"""
-# Second selection wave: calculate all feasible paths meeting requested requirements
-isPath = nx.has_path(G, srcSwitch, dstSwitch)
-delayPaths = None
-packetLossPaths = None
-
-print isPath
-if isPath:
-    print mcolors.OKGREEN+"Searching feasible paths available...[MCP NOT AVAILABLE]\n"+mcolors.ENDC
-    delayPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'delay')])
-    packetLossPaths = ([p for p in nx.all_shortest_paths(G, srcSwitch, dstSwitch, 'packetLoss')])
-
-    print delayPaths
-    print packetLossPaths
-
-
-else:
-    print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
-    sys.exit()
-
-
 #################################################################################
-#
+#################################################################################
+# Pathfinder - Path Application
 # Path Pusher: send one flow mod per pair of Access Point in path
-# using StaticFlowPusher rest API
+# using StaticFlowPusher REST API
 
         # IMPORTANT NOTE: current Floodlight StaticflowEntryPusher
         # assumes all flow entries to have unique name across all switches
-        # this will most possibly be relaxed later, but for now we
+        # (this will most possibly be relaxed later), but for now we
         # encode each flow entry's name with both switch dpid, qos request-id
         # and flow type ( consider flows: forward/reverse, farp/rarp)
 
@@ -602,7 +689,7 @@ for midSwitch, midPorts in midSwitches.iteritems():
 
 queueDb = open('./queueDb.txt', 'a')
 print "config string:", configString
-queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=100000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=10000000 other-config:priority=100" % configString
+queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=30000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=30000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=20000000 other-config:priority=8" % configString
 qResult = os.popen(queueString).read()
 print "queue string:", queueString
 print "qResult:", qResult
@@ -639,7 +726,15 @@ to_serial = qosPath
 serial = json.dumps(to_serial)
 pathRes.write(serial+"\n")
 
+"""
+command = "curl -s http://%s/wm/topology/route/%s/%s/%s/%s/json" % (controllerRestIp, srcSwitch, srcPort, dstSwitch, dstPort)
+result = os.popen(command).read()
+parsedResult = json.loads(result)
 
+print command+"\n"
+print result+"\n"
+qResult = os.popen(queueString).read()
+"""
 
 ################################################################################
 # store created circuit attributes in local ./qosDb.json
@@ -650,12 +745,6 @@ str = json.dumps(circuitParams)
 qosDb.write(str+"\n")
 duration = time.time()-startTime
 print("SPG End Time ", duration, " seconds")
-
-
-
-
-
-
 
 
 
