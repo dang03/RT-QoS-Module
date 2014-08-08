@@ -8,6 +8,18 @@ Critical functions and computation algorithms for Pathfinder main process
 Functions and algorithms are NetworkX graph based
 """
 
+__all__ = ['path_length',
+           'path_select',
+           'plot_path',
+           'maxLength_path',
+           'longestPath',
+           'AkLP',
+           'ALP',
+           'AkSP',
+           'has_loop',
+           'stAggregate',
+           'stAggregate_test']
+
 import networkx as nx
 from PathDrawer import to_edge_path, to_node_path
 import json
@@ -48,6 +60,8 @@ def path_length(graph, path, weight=None):
     return pathLength
 
 
+#####################
+
 """
 Function used for loop detection in AKSP and AKLP graph algorithms
 """
@@ -62,13 +76,12 @@ def has_loop(rootPath, spurPath):
                 loop = True
     return loop
 
+
+#####################
 # path selector from k-path list
-
-
 """
-Comment
+Enables to select custom path item from result list and checks its validity
 """
-
 
 def path_select(res, cos_res, kPath):
     kRange = range(len(res))
@@ -88,15 +101,13 @@ def path_select(res, cos_res, kPath):
 
     return path, pathCost
 
-
+#####################
 """
 AKSP Algorithm: Adaptation to NetworkX of Yen's K-shortest-paths
 FINAL VERSION:
 num_k: number of solutions to find (iteration of returned path)
 weights: edge cost to compute
-
 """
-
 
 def AkSP(grapho, source, target, num_k, weights):
     graph = nx.MultiGraph(grapho)
@@ -248,15 +259,13 @@ def AkSP(grapho, source, target, num_k, weights):
 
 
 
-
+#####################
 """
 AKLP Algorithm: NetworkX K-longest-paths computation algorithm
 FINAL VERSION:
 num_k: number of solutions to find (iteration of returned path)
 weights: edge cost to compute
-
 """
-
 
 def AkLP(graph, source, target, num_k, weight):
     maxPath = None
@@ -313,6 +322,7 @@ def AkLP(graph, source, target, num_k, weight):
         return B, A_costs
 
 
+#####################
 
 def ALP(graph, source, target, weight):
     maxPath = None
@@ -362,6 +372,7 @@ def ALP(graph, source, target, weight):
     print "PATH", maxPath
     return maxPath, maxCost
 
+#####################
 
 
 def maxLength_path(graph, path, weight):
@@ -380,6 +391,8 @@ def maxLength_path(graph, path, weight):
             print "Total:", totalCost
             maximumPath = path[i]
     return maximumPath, totalCost
+
+#####################
 
 
 def longestPath(graph, source, target, weight, visited=None):
@@ -423,6 +436,7 @@ def longestPath(graph, source, target, weight, visited=None):
     print "MAXA IS=", maxa
     return maxa
 
+#####################
 
 
 """
@@ -499,6 +513,8 @@ def stAggregate(graph):
 
     return newGraph
 
+
+#####################
 """
 MCP Aggregation function only for testing purposes
 """
@@ -560,6 +576,72 @@ def stAggregate_test(graph):
         print "newGraph.node", node
 
     return newGraph
+
+
+#####################
+
+def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
+    edgeLabels = {}
+
+    if e2e is None and maxPath is not None:
+        e2e = []
+        source = maxPath[0]
+        destination = maxPath[(len(maxPath)-1)]
+        e2e.append(source)
+        e2e.append(destination)
+
+    if maxPath is not None:
+        for i in range(len(maxPath)-1):
+            print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
+
+        maxPathList = to_edge_path(maxPath)
+        print maxPathList
+
+        if eFail is None:
+            eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
+
+        print eFail
+
+        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
+
+        pos = nx.spring_layout(agGraph)    # positions for all nodes
+        nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
+        nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
+        nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
+
+        nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
+        nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
+
+        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
+        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+
+        plt.axis('off')
+        plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
+        plt.show()  # display
+
+    else:
+        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
+
+        pos = nx.spring_layout(agGraph)    # positions for all nodes
+        nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
+        nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
+
+        if eOK is not None:
+            nx.draw_networkx_edges(agGraph, pos, edgelist=eOK, width=2, alpha=1)
+        else:
+            nx.draw_networkx_edges(agGraph, pos, width=2, alpha=1)
+        if eFail is not None:
+            nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5, edge_color='b', style='dashed')
+
+        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
+        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+
+        plt.axis('off')
+        plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
+        plt.show()  # display
+
+
+
 
 
 """
@@ -674,66 +756,6 @@ print "path", ulti_path
 print "cost", ulti_cost
 """
 
-
-def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
-    edgeLabels = {}
-
-    if e2e is None and maxPath is not None:
-        e2e = []
-        source = maxPath[0]
-        destination = maxPath[(len(maxPath)-1)]
-        e2e.append(source)
-        e2e.append(destination)
-
-    if maxPath is not None:
-        for i in range(len(maxPath)-1):
-            print "is there path from", maxPath[i], maxPath[i+1], "?", agGraph.has_edge(maxPath[i], maxPath[i+1])
-
-        maxPathList = to_edge_path(maxPath)
-        print maxPathList
-
-        if eFail is None:
-            eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
-
-        print eFail
-
-        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
-
-        pos = nx.spring_layout(agGraph)    # positions for all nodes
-        nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
-        nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
-        nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
-
-        nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
-        nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
-
-        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
-
-        plt.axis('off')
-        plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
-        plt.show()  # display
-
-    else:
-        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
-
-        pos = nx.spring_layout(agGraph)    # positions for all nodes
-        nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
-        nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
-
-        if eOK is not None:
-            nx.draw_networkx_edges(agGraph, pos, edgelist=eOK, width=2, alpha=1)
-        else:
-            nx.draw_networkx_edges(agGraph, pos, width=2, alpha=1)
-        if eFail is not None:
-            nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5, edge_color='b', style='dashed')
-
-        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
-
-        plt.axis('off')
-        plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
-        plt.show()  # display
 
 
 """

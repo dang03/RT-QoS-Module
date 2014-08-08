@@ -378,7 +378,9 @@ plot_path(G, None, hostList, None, None, 'bandwidth')
 # Connectivity check between source to destination nodes
 isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
-global maxPath
+global maxPath  # will store result of QoS path
+global length   # and total cost-length value of QoS path
+
 # If isPath returns True, there's src-dst connection on topology graph
 # Calculate all feasible paths meeting requested requirements, then select the optimal path
 if isPath:
@@ -441,6 +443,8 @@ if isPath:
 
         plot_path(M, maxPath, hostList, None, None, 'bandwidth')
 
+        print "QoS path = %s\n" % maxPath
+        print "QoS length = %s\n" % length
 
     else:
         #Means that len(k) is greater than 1
@@ -487,15 +491,6 @@ else:
 
 
 
-
-
-plot_path(M, maxPath)
-
-print "QoS path = %s\n" % maxPath
-print "QoS length = %s\n" % length
-
-
-
 # First version of yen's k-shortest path applied for a generic edge weight(disabled)
 """
 res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'weight')
@@ -521,40 +516,6 @@ print M.edges(data=True)
 length, maxPath = nx.bidirectional_dijkstra(M, srcSwitch, dstSwitch, weight='bandwidth')
 print "QoS path = %s\n" % maxPath
 """
-
-
-# labels
-hostList = [srcSwitch, dstSwitch]
-edgeLabels = {}
-edgeLabels.update((nx.get_edge_attributes(G, 'bandwidth')))
-"""
-# list of edges (switches) used to push flowmods
-maxPathList = [(u, v) for (u, v) in G.edges() if u in maxPath and v in maxPath]
-maxPathList = set(list(maxPathList))
-"""
-maxPathList = to_edge_path(maxPath)
-print "maxPathList: %s" % maxPathList
-
-
-#list of other feasible edges, but not the optimum path
-#otherPathList = [(u, v) for (u, v) in G.edges() if (u, v) not in maxPathList]
-
-pos = nx.spring_layout(G)    # positions for all nodes
-nx.draw_networkx_nodes(G, pos, node_size=700)
-nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-
-nx.draw_networkx_edges(G, pos, edgelist=maxPathList, width=6, alpha=1)
-#nx.draw_networkx_edges(G, pos, edgelist=otherPathList, width=6, alpha=0.5, edge_color='b', style='dashed')
-
-nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-
-plt.axis('off')
-plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
-plt.show()  # display
-
 
 
 #################################################################################
@@ -781,12 +742,6 @@ str = json.dumps(circuitParams)
 qosDb.write(str+"\n")
 duration = time.time()-startTime
 print("SPG End Time ", duration, " seconds")
-
-
-
-
-
-
 
 
 

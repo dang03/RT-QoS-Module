@@ -1,13 +1,16 @@
 """
 **********
-PathDrawer
+Graph Path Functions and utilities
 
-Draw multiple paths in a graph. Uses matplotlib (pylab).
+Data structures (node, edges) conversion
+Graph path checks
+Original Plot utilities: Draw multiple paths in a graph. Uses matplotlib (pylab).
+
 The path corners are rounded with the help of cube Bezier curves.
 If two or more paths traverse the same edge, they are automatically shifted to make them all visible.
 
 
-References:
+Some references:
  - matplotlib:     http://matplotlib.sourceforge.net/
  - Bezier curves:  http://matplotlib.sourceforge.net/api/path_api.html
  """
