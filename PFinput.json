@@ -1,33 +1,55 @@
+"requestID": "04A4",
+    "ip-src": "10.0.0.1",
+    "ip-dst": "10.0.0.2",
+    "bandwidth": 10.0,
+    "delay":1.0,
+    "packet-loss":10,
+    "alarm":1},
+
+
+
+
 {
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "title": "QoS-Request",
-    "description": "Pathfinder QoS request data schema",
-    "type": "object"
-    "properties": {
-        "id": {
-            "description": "The unique identifier for a QoS request",
-            "type": "integer"
-        },
-        "source": {
-            "description": "The unique identifier for a QoS request",
-            "type": "string"
-        },
-        "destination": {
-            "description": "The unique identifier for a QoS request",
-            "type": "string"
-        },
+        "requestID": "04A4",
+        "source": "10.0.0.1",
+        "destination": "10.0.0.2",
         "alarm": {
-            "description": "The unique identifier for a QoS request",
+            "description": "Flag for new or re-configuration request",
             "type": "number"
         },
         "parameters": {
             "description": "The unique identifier for a QoS request",
             "type": "object"
-        }
-            "QoS parameter": {
-            "description": "The unique identifier for a QoS request",
-            "type": "integer or float"
+            "properties": {
+                "bandwidth": {"type": "integer or float"},
+                "delay": {"type": "integer or float"},
+                "jitter": {"type": "integer or float"},
+                "packet-loss": {"type": "integer or float"},
+                }
+        },
+        "topology": {
+            "description": "The topology link data statistics",
+            "type": "array"
+            "items": {
+                "link": {
+                "description": "The unique identifier for a QoS request",
+                "type": "object"
+                "properties": {
+                    "src-switch": {"type": "DPID"},
+                    "src-port": {"type": "number"},
+                    "src-port-state": {"type": "number"},
+                    "dst-switch": {"type": "DPID"},
+                    "dst-port": {"type": "number"},
+                    "dst-port-state": {"type": "number"},
+                    "type": {"type": "number"},
+                    "bandwidth": {"type": "integer or float"},
+                    "delay": {"type": "integer or float"},
+                    "jitter": {"type": "integer or float"},
+                    "packet-loss": {"type": "integer or float"},
+                    },
+                }
             }
+        }
     },
     "required": ["id", "source", "destination", "alarm", "parameters"]
 
@@ -45,13 +67,7 @@
 
 
 
-    "requestID": "04A4",
-    "ip-src": "10.0.0.1",
-    "ip-dst": "10.0.0.2",
-    "bandwidth": 10.0,
-    "delay":1.0,
-    "packet-loss":10,
-    "alarm":1},
+
     [
         {
             "src-switch":"00:00:00:00:00:00:00:05",

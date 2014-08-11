@@ -1,0 +1,59 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "QoS-Request",
+    "description": "Pathfinder QoS request data schema",
+    "type": "object"
+    "properties": {
+        "id": {
+            "description": "The unique identifier for a QoS request",
+            "type": "hex string"
+        },
+        "source": {
+            "description": "The origin IP address end-to-end point",
+            "type": "ip address"
+        },
+        "destination": {
+            "description": "The target IP address end-to-end point",
+            "type": "ip address"
+        },
+        "alarm": {
+            "description": "Flag for new or re-configuration request",
+            "type": "number"
+        },
+        "parameters": {
+            "description": "The unique identifier for a QoS request",
+            "type": "object"
+            "properties": {
+                "bandwidth": {"type": "integer or float"},
+                "delay": {"type": "integer or float"},
+                "jitter": {"type": "integer or float"},
+                "packet-loss": {"type": "integer or float"},
+                }
+        },
+        "topology": {
+            "description": "The topology link data statistics",
+            "type": "array"
+            "items": {
+                "link": {
+                "description": "The unique identifier for a QoS request",
+                "type": "object"
+                "properties": {
+                    "src-switch": {"type": "DPID"},
+                    "src-port": {"type": "number"},
+                    "src-port-state": {"type": "number"},
+                    "dst-switch": {"type": "DPID"},
+                    "dst-port": {"type": "number"},
+                    "dst-port-state": {"type": "number"},
+                    "type": {"type": "number"},
+                    "bandwidth": {"type": "integer or float"},
+                    "delay": {"type": "integer or float"},
+                    "jitter": {"type": "integer or float"},
+                    "packet-loss": {"type": "integer or float"},
+                    },
+                }
+            }
+        }
+    },
+    "required": ["id", "source", "destination", "alarm", "parameters"]
+
+}
