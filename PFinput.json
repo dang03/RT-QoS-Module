@@ -10,22 +10,26 @@
         },
         "source": {
             "description": "The unique identifier for a QoS request",
-            "type": "integer"
+            "type": "string"
         },
         "destination": {
             "description": "The unique identifier for a QoS request",
-            "type": "integer"
+            "type": "string"
         },
         "alarm": {
             "description": "The unique identifier for a QoS request",
-            "type": "integer"
+            "type": "number"
         },
         "parameters": {
             "description": "The unique identifier for a QoS request",
-            "type": "integer"
+            "type": "object"
         }
+            "QoS parameter": {
+            "description": "The unique identifier for a QoS request",
+            "type": "integer or float"
+            }
     },
-    "required": ["id"]
+    "required": ["id", "source", "destination", "alarm", "parameters"]
 
 }
 
