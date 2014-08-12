@@ -4,15 +4,15 @@
     "description": "Pathfinder QoS request data schema",
     "type": "object"
     "properties": {
-        "id": {
+        "requestID": {
             "description": "The unique identifier for a QoS request",
             "type": "hex string"
         },
-        "source": {
+        "ip-src": {
             "description": "The origin IP address end-to-end point",
             "type": "ip address"
         },
-        "destination": {
+        "ip-dst": {
             "description": "The target IP address end-to-end point",
             "type": "ip address"
         },
@@ -54,6 +54,6 @@
             }
         }
     },
-    "required": ["id", "source", "destination", "alarm", "parameters"]
+    "required": ["id", "source", "destination", "alarm", "parameters", "topology"]
 
 }

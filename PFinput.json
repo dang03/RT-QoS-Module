@@ -1,216 +1,170 @@
-"requestID": "04A4",
-    "ip-src": "10.0.0.1",
-    "ip-dst": "10.0.0.2",
-    "bandwidth": 10.0,
-    "delay":1.0,
-    "packet-loss":10,
-    "alarm":1},
-
-
-
-
 {
-        "requestID": "04A4",
-        "source": "10.0.0.1",
-        "destination": "10.0.0.2",
-        "alarm": {
-            "description": "Flag for new or re-configuration request",
-            "type": "number"
-        },
+        "requestID":"04A4",
+        "ip-src":"10.0.0.1",
+        "ip-dst":"10.0.0.2",
+        "alarm":0,
         "parameters": {
-            "description": "The unique identifier for a QoS request",
-            "type": "object"
-            "properties": {
-                "bandwidth": {"type": "integer or float"},
-                "delay": {"type": "integer or float"},
-                "jitter": {"type": "integer or float"},
-                "packet-loss": {"type": "integer or float"},
-                }
+                "bandwidth":10.0,
+                "delay":1.0,
+                "jitter":0,
+                "packet-loss":10,
         },
-        "topology": {
-            "description": "The topology link data statistics",
-            "type": "array"
-            "items": {
-                "link": {
-                "description": "The unique identifier for a QoS request",
-                "type": "object"
-                "properties": {
-                    "src-switch": {"type": "DPID"},
-                    "src-port": {"type": "number"},
-                    "src-port-state": {"type": "number"},
-                    "dst-switch": {"type": "DPID"},
-                    "dst-port": {"type": "number"},
-                    "dst-port-state": {"type": "number"},
-                    "type": {"type": "number"},
-                    "bandwidth": {"type": "integer or float"},
-                    "delay": {"type": "integer or float"},
-                    "jitter": {"type": "integer or float"},
-                    "packet-loss": {"type": "integer or float"},
-                    },
+        "topology": [
+                {
+                    "src-switch":"00:00:00:00:00:00:00:05",
+                    "src-port":3,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:06",
+                    "dst-port":1,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":4.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:06",
+                    "src-port":2,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:05",
+                    "dst-port":1,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":4.5,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:05",
+                    "src-port":1,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:07",
+                    "dst-port":2,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":20.5,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:07",
+                    "src-port":2,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:05",
+                    "dst-port":2,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":20.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:06",
+                    "src-port":1,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:08",
+                    "dst-port":3,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":14.0,
+                    "delay": 0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:08",
+                    "src-port":1,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:06",
+                    "dst-port":2,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":14.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:07",
+                    "src-port":2,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:08",
+                    "dst-port":1,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":28.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:08",
+                    "src-port":2,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:07",
+                    "dst-port":2,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":28.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:05",
+                    "src-port":1,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:08",
+                    "dst-port":4,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":11.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:08",
+                    "src-port":4,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:05",
+                    "dst-port":1,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":11.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:07",
+                    "src-port":2,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:06",
+                    "dst-port":4,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":10.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
+                },
+                {
+                    "src-switch":"00:00:00:00:00:00:00:06",
+                    "src-port":4,
+                    "src-port-state":0,
+                    "dst-switch":"00:00:00:00:00:00:00:07",
+                    "dst-port":2,
+                    "dst-port-state":0,
+                    "type":"internal",
+                    "bandwidth":10.0,
+                    "delay":0.5,
+                    "jitter":0,
+                    "packet-loss":8
                 }
-            }
-        }
-    },
-    "required": ["id", "source", "destination", "alarm", "parameters"]
-
+        ]
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    [
-        {
-            "src-switch":"00:00:00:00:00:00:00:05",
-            "src-port":3,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:06",
-            "dst-port":1,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":4.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:06",
-            "src-port":2,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:05",
-            "dst-port":1,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":4.5,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:05",
-            "src-port":1,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:07",
-            "dst-port":2,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":20.5,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:07",
-            "src-port":2,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:05",
-            "dst-port":2,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":20.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:06",
-            "src-port":1,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:08",
-            "dst-port":3,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":14.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:08",
-            "src-port":1,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:06",
-            "dst-port":2,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":14.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:07",
-            "src-port":2,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:08",
-            "dst-port":1,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":28.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:08",
-            "src-port":2,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:07",
-            "dst-port":2,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":28.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:05",
-            "src-port":1,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:08",
-            "dst-port":4,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":11.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:08",
-            "src-port":4,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:05",
-            "dst-port":1,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":11.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:07",
-            "src-port":2,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:06",
-            "dst-port":4,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":10.0,
-            "delay": 0.5,
-            "packet-loss": 8
-        },
-        {
-            "src-switch":"00:00:00:00:00:00:00:06",
-            "src-port":4,
-            "src-port-state":0,
-            "dst-switch":"00:00:00:00:00:00:00:07",
-            "dst-port":2,
-            "dst-port-state":0,
-            "type":"internal",
-            "bandwidth":10.0,
-        "delay": 0.5,
-        "packet-loss": 8
-    }
-]
