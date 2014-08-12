@@ -735,8 +735,8 @@ qResult = os.popen(queueString).read()
 
 ################################################################################
 # store created circuit attributes in local ./qosDb.json
-qosDb = open('./qosDb.json', 'a')
 datetime = time.asctime()
+qosDb = open('./qosDb.json', 'a')
 circuitParams = {'requestID': reqID, 'ip-src': srcAddress, 'ip-dst': dstAddress, 'bandwidth': reqBand, 'datetime': datetime}
 str = json.dumps(circuitParams)
 qosDb.write(str+"\n")
