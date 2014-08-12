@@ -37,3 +37,5 @@
 {"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "delivery", "datetime": "Mon Jul 28 14:12:14 2014"}
 {"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "delivery", "datetime": "Mon Aug  4 14:10:37 2014"}
 {"ip-src": "10.0.0.1", "bandwidth": 10.0, "ip-dst": "10.0.0.2", "requestID": "delivery", "datetime": "Fri Aug  8 09:39:47 2014"}
+{"ip-src": "10.0.0.1", "bandwidth": 20, "ip-dst": "10.0.0.2", "requestID": "delivery", "datetime": "Tue Aug 12 11:51:44 2014"}
+{"ip-src": "10.0.0.1", "bandwidth": 20, "ip-dst": "10.0.0.2", "requestID": "delivery", "datetime": "Tue Aug 12 11:58:42 2014"}
