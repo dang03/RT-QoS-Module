@@ -9,7 +9,6 @@ Requirements:
 """
 __author__ = 'Daniel'
 
-
 # Import libraries
 import os
 import io
@@ -723,7 +722,7 @@ else:
 qosPath.append({"requestID": reqID})
 pathRes = open('./path.json', 'w')
 to_serial = qosPath
-serial = json.dumps(to_serial)
+serial = json.dumps(to_serial, indent=2, separators=(',', ': '))
 pathRes.write(serial+"\n")
 
 """
@@ -738,8 +737,8 @@ qResult = os.popen(queueString).read()
 
 ################################################################################
 # store created circuit attributes in local ./qosDb.json
-qosDb = open('./qosDb.json', 'a')
 datetime = time.asctime()
+qosDb = open('./qosDb.json', 'a')
 circuitParams = {'requestID': reqID, 'ip-src': srcAddress, 'ip-dst': dstAddress, 'bandwidth': reqBand, 'datetime': datetime}
 str = json.dumps(circuitParams)
 qosDb.write(str+"\n")
