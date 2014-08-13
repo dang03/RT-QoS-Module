@@ -61,6 +61,7 @@ class mcolors:
         self.ENDC = ''
 
 # first check if a local db file exists, which needs to be updated after add/delete
+#TODO: disable qosDb checks?
 if os.path.exists('./qosDb.json'):
     qosDb = open('./qosDb.json', 'r')
     lines = qosDb.readlines()
@@ -74,7 +75,7 @@ else:
 print(lines)
 
 # load qos request ID to compare with qosDb and check its availability
-
+#TODO: add new function to enable new request interface (requestLoader.py)
 reqID = None
 reqAlarm = None     # Check if request is a re-route / duplicated request
 reqBand = None
@@ -531,6 +532,8 @@ print "QoS path = %s\n" % maxPath
         # (this will most possibly be relaxed later), but for now we
         # encode each flow entry's name with both switch dpid, qos request-id
         # and flow type ( consider flows: forward/reverse, farp/rarp)
+#TODO: disable flow pusher - return output (QoS path switch-port), and disable queue...
+#dynamic configuration
 
 auxPath = []    # auxiliar to store path ports
 
