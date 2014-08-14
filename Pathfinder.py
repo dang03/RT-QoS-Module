@@ -532,7 +532,7 @@ print "QoS path = %s\n" % maxPath
         # (this will most possibly be relaxed later), but for now we
         # encode each flow entry's name with both switch dpid, qos request-id
         # and flow type ( consider flows: forward/reverse, farp/rarp)
-#TODO: disable flow pusher - return output (QoS path switch-port), and disable queue...
+#TODO: disable flow pusher - return output (QoS path switch-port), and disable queue... DONE
 #dynamic configuration
 
 auxPath = []    # auxiliar to store path ports
@@ -558,18 +558,20 @@ for nodeSwitch in maxPath:
                 print edgeSrcPort, edgeDstPort
                 if edgeSrcSwitch == srcSwitch:
 
-                # Switch Queues Configuration
-
+                    # Switch Queues Configuration
+                    """
                     srcSwitchName = G.node[srcSwitch]['name']
                     print srcSwitchName
+
                     configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, srcPort)
                     configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, edgeSrcPort)
-
+                    """
                     qosNode = {'switch': srcSwitch, 'port1': srcPort, 'port2': edgeSrcPort}
                     auxPath.append(qosNode)
                     print auxPath
 
-                #switch is the source host connected switch
+                    #switch is the source host connected switch
+                    """
                     command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".f", srcAddress, dstAddress, "0x800", srcPort, edgeSrcPort, controllerRestIp)
                     result = os.popen(command).read()
                     print command
@@ -581,25 +583,30 @@ for nodeSwitch in maxPath:
                     command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".r", dstAddress, srcAddress, "0x800", edgeSrcPort, srcPort, controllerRestIp)
                     result = os.popen(command).read()
                     print command
-                    if edgeDstSwitch != dstSwitch:
-                        midSwitches[edgeDstSwitch].append(edgeDstPort)
 
                     command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".rarp", "0x806", edgeSrcPort, srcPort, controllerRestIp)
                     result = os.popen(command).read()
                     print command
+                    """
+                    if edgeDstSwitch != dstSwitch:
+                        midSwitches[edgeDstSwitch].append(edgeDstPort)
 
                 elif edgeSrcSwitch == dstSwitch and edgeSrcSwitch not in checkedList:
+
                     # Switch Queues Configuration
+                    """
                     dstSwitchName = G.node[dstSwitch]['name']
                     print dstSwitchName
                     configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, dstPort)
                     configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
+                    """
 
                     qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeSrcPort}
                     auxPath.append(qosNode)
                     print auxPath
 
-                                #switch is the destination host connected switch
+                    #switch is the destination host connected switch
+                    """
                     command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".f", srcAddress, dstAddress, "0x800", edgeSrcPort, dstPort, controllerRestIp)
                     result = os.popen(command).read()
                     print command
@@ -615,22 +622,27 @@ for nodeSwitch in maxPath:
                     command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+edgeSrcSwitch+".rarp", "0x806", dstPort, edgeSrcPort, controllerRestIp)
                     result = os.popen(command).read()
                     print command
+                    """
                     if edgeDstSwitch != srcSwitch:
                         midSwitches[edgeDstSwitch].append(edgeDstPort)
 
 
                 elif edgeDstSwitch == dstSwitch and edgeDstSwitch not in checkedList:
+
                     # Switch Queues Configuration
+                    """
                     dstSwitchName = G.node[dstSwitch]['name']
                     print dstSwitchName
                     configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, dstPort)
                     configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
+                    """
 
                     qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeSrcPort}
                     auxPath.append(qosNode)
                     print auxPath
 
-                                #switch is the destination host connected switch
+                    #switch is the destination host connected switch
+                    """
                     command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".f", srcAddress, dstAddress, "0x800", edgeDstPort, dstPort, controllerRestIp)
                     result = os.popen(command).read()
                     print command
@@ -646,9 +658,9 @@ for nodeSwitch in maxPath:
                     command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".rarp", "0x806", dstPort, edgeDstPort, controllerRestIp)
                     result = os.popen(command).read()
                     print command
+                    """
                     if edgeSrcSwitch != srcSwitch:
                         midSwitches[edgeSrcSwitch].append(edgeSrcPort)
-
 
                 else:
                     #switch is between other switches; create a dict with switch - ports (midSwitch : port-pair)
@@ -657,21 +669,26 @@ for nodeSwitch in maxPath:
                     midSwitches[edgeDstSwitch].append(edgeDstPort)
 
 print midSwitches
+
 for midSwitch, midPorts in midSwitches.iteritems():
     if midSwitch not in checkedList:
 
         print "%s - %s, %s" % (str(midSwitch), str(midPorts[0]), str(midPorts[1]))
+
         # Switch Queues Configuration
+        """
         midSwitchName = G.node[midSwitch]['name']
         print midSwitchName
         configString += " -- set Port %s-eth%s qos=@newqos" % (midSwitchName, str(midPorts[0]))
         configString += " -- set Port %s-eth%s qos=@newqos" % (midSwitchName, str(midPorts[1]))
+        """
 
         qosNode = {'switch': midSwitch, 'port1': str(midPorts[0]), 'port2': str(midPorts[1])}
         auxPath.append(qosNode)
         print auxPath
 
         #push midSwitches flowmods
+        """
         command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[0]))+".f", srcAddress, dstAddress, "0x800", (str(midPorts[0])), (str(midPorts[1])), controllerRestIp)
         result = os.popen(command).read()
         print command
@@ -680,7 +697,6 @@ for midSwitch, midPorts in midSwitches.iteritems():
         result = os.popen(command).read()
         print command
 
-
         command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[1]))+".r", dstAddress, srcAddress, "0x800", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
         result = os.popen(command).read()
         print command
@@ -688,7 +704,8 @@ for midSwitch, midPorts in midSwitches.iteritems():
         command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[1]))+".rarp", "0x806", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
         result = os.popen(command).read()
         print command
-
+        """
+"""
 queueDb = open('./queueDb.txt', 'a')
 print "config string:", configString
 queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=30000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=30000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=20000000 other-config:priority=8" % configString
@@ -696,6 +713,7 @@ qResult = os.popen(queueString).read()
 print "queue string:", queueString
 print "qResult:", qResult
 queueDb.write(qResult+"\n")
+"""
 
 # Switch sort to provide QoS path from source to destination
 def path_sort(path, aux):
@@ -714,7 +732,8 @@ def path_sort(path, aux):
     return sortedPath
 
 qosPath = path_sort(maxPath, auxPath)
-print "QOS PATH:", qosPath
+print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
+
 
 if os.path.exists('./path.json'):
     pathRes = open('./path.json', 'r')
@@ -722,6 +741,7 @@ if os.path.exists('./path.json'):
     pathRes.close()
 else:
     lines = {}
+
 qosPath.append({"requestID": reqID})
 pathRes = open('./path.json', 'w')
 to_serial = qosPath
