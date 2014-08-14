@@ -90,6 +90,8 @@ with open('./qosDb.json') as qosDb:
         data = json.loads(line)
         dataID = data.get('requestID', [])
         print(data)
+
+        #TODO: change to new input data structure (PFinput.json)
         with open("QoS_Request.json") as qosRequest:
             reqData = json.load(qosRequest)
             reqID = reqData['requestID']
@@ -104,6 +106,7 @@ with open('./qosDb.json') as qosDb:
     if reqAlarm != 0:
         print mcolors.OKGREEN + "QoS Request Alarm: %s re-route requested\n" % reqID, mcolors.ENDC
 
+    #TODO: change to new input data structure (PFinput.json)
     with open("QoS_Request.json") as qosRequest:
         reqData = json.load(qosRequest)
 
@@ -137,7 +140,8 @@ with open('./qosDb.json') as qosDb:
 
 
 # retrieve source and destination device attachment points
-    # using DeviceManager rest API
+# using DeviceManager rest API
+#TODO: change to new input data structure (PFinput.json)
 with open("QoS_Request.json") as qosRequest:
     reqData = json.load(qosRequest)
     srcAddress = reqData['ip-src']
