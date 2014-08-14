@@ -666,11 +666,13 @@ M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 
-print(json_graph.node_link_data(M))
-print(json_graph.adjacency_data(M))
+
+data = json_graph.node_link_data(M)
+dato = json_graph.adjacency_data(M)
+
 
 for u, v, data in M.edges_iter(data=True):
-    print( u, v, data)
+    print(u, v, data)
 
 """
 M.add_edge('00:00:04', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=3, cost=2)

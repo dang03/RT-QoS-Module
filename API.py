@@ -10,6 +10,13 @@ from flask import Flask, session, render_template
 import requests
 import json
 
+# testing REST requests
+r = requests.get("http://weather.yahooapis.com/forecastrss", params = {"w":"753692", "u":"c"})
+if r.status_code == 200:
+    print r.text
+
+
+"""
 app = Flask(__name__)
 
 # Generate a secret random key for the session
@@ -54,7 +61,7 @@ if __name__ == '__main__':
 		host="0.0.0.0",
 		port=int("80")
 	)
-
+"""
 
 
 
