@@ -749,7 +749,8 @@ else:
 qosPath.append({"requestID": reqID})
 pathRes = open('./path.json', 'w')
 to_serial = qosPath
-serial = json.dumps(to_serial, indent=2, separators=(',', ': '))
+serial = json.dumps(to_serial)
+#serial = json.dumps(to_serial, indent=2, separators=(',', ': '))
 pathRes.write(serial+"\n")
 
 """

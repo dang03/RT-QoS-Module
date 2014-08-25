@@ -10,58 +10,59 @@ from flask import Flask, session, render_template
 import requests
 import json
 
-# testing REST requests
-r = requests.get("http://weather.yahooapis.com/forecastrss", params = {"w":"753692", "u":"c"})
-if r.status_code == 200:
-    print r.text
-
-
-"""
 app = Flask(__name__)
 
+"""
 # Generate a secret random key for the session
 app.secret_key = os.urandom(24)
-
-
+"""
+"""
 # Define routes
 @app.route('/run_get')
 def run_get():
-	url = ''
+    url = ''
     # example to actually run
-    #url = 'https://api.github.com/users/runnable'
+    # url = 'https://api.github.com/users/runnable'
 
-	# this issues a GET to the url. replace "get" with "post", "head",
-	# "put", "patch"... to make a request using a different method
-	r = requests.get(url)
+    # this issues a GET to the url. replace "get" with "post", "head",
+    # "put", "patch"... to make a request using a different method
+    r = requests.get(url)
 
-	return json.dumps(r.json(), indent=4)
+    return json.dumps(r.json(), indent=4)
+
 
 @app.route('/run_post')
 def run_post():
-	url = ''
+    url = ''
     # example to actually run
-    #url = 'http://httpbin.org/post'
+    # url = 'http://httpbin.org/post'
 
-	data = {'a': 10, 'b': [{'c': True, 'd': False}, None]}
+    data = {'a': 10, 'b': [{'c': True, 'd': False}, None]}
     # example of JSON data
     #data = {'a': 10, 'b': [{'c': True, 'd': False}, None]}
-	headers = {'Content-Type': 'application/json'}
+    headers = {'Content-Type': 'application/json'}
 
-	r = requests.post(url, data=json.dumps(data), headers=headers)
+    r = requests.post(url, data=json.dumps(data), headers=headers)
 
-	return json.dumps(r.json(), indent=4)
+    return json.dumps(r.json(), indent=4)
+"""
 
 # Define a route for the webserver
 @app.route('/')
 def index():
-	return render_template('index.html')
+    return render_template('index.html')
+
 
 if __name__ == '__main__':
-	app.run(
-		host="0.0.0.0",
-		port=int("80")
-	)
+    app.run(
+        # host="0.0.0.0",
+        #port=int("80")
+        debug=True
+    )
+
 """
-
-
-
+# testing REST requests
+r = requests.get("http://weather.yahooapis.com/forecastrss", params = {"w":"753692", "u":"c"})
+if r.status_code == 200:
+    print r.text
+"""
