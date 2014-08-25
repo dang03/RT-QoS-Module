@@ -19,6 +19,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy
 from networkx.readwrite import json_graph
+import Port_stats
 import json
 import datetime
 import time
@@ -27,7 +28,6 @@ from PathDrawer import to_edge_path
 from fractions import Fraction
 from collections import defaultdict
 from MCP import *
-import requestLoader
 
 # main vars
 delta_sec = 2        # seconds to delay in time.sleep
@@ -61,8 +61,7 @@ class mcolors:
         self.ENDC = ''
 
 # first check if a local db file exists, which needs to be updated after add/delete
-# disabled qosDb checks
-"""
+#TODO: disable qosDb checks?
 if os.path.exists('./qosDb.json'):
     qosDb = open('./qosDb.json', 'r')
     lines = qosDb.readlines()
@@ -72,18 +71,18 @@ else:
     print "QoS database file not found. Creating new empty database.\n"
     with open('qosDb.json', 'wb') as qosDb:
         json.dump(lines, qosDb)
-"""
+
+print(lines)
 
 # load qos request ID to compare with qosDb and check its availability
 #TODO: add new function to enable new request interface (requestLoader.py)
-
 reqID = None
 reqAlarm = None     # Check if request is a re-route / duplicated request
 reqBand = None
 reqDelay = None     # Data gathering not yet implemented
 reqPacketLoss = None
 reqJitter = None    # Not used, QoS parameter to consider
-
+reqCost = None      # Not used, QoS link average state
 k = []               # To stack number of constraints used to calculate a path
 
 with open('./qosDb.json') as qosDb:
@@ -754,6 +753,15 @@ serial = json.dumps(to_serial)
 #serial = json.dumps(to_serial, indent=2, separators=(',', ': '))
 pathRes.write(serial+"\n")
 
+"""
+command = "curl -s http://%s/wm/topology/route/%s/%s/%s/%s/json" % (controllerRestIp, srcSwitch, srcPort, dstSwitch, dstPort)
+result = os.popen(command).read()
+parsedResult = json.loads(result)
+
+print command+"\n"
+print result+"\n"
+qResult = os.popen(queueString).read()
+"""
 
 ################################################################################
 # store created circuit attributes in local ./qosDb.json
@@ -764,3 +772,16 @@ str = json.dumps(circuitParams)
 qosDb.write(str+"\n")
 duration = time.time()-startTime
 print("SPG End Time ", duration, " seconds")
+
+
+
+"""
+statType = queue
+command = "curl -s http://%s/wm/core/switch/all/%s/json" % (controllerRestIp, statType)
+result = os.popen(command).read()
+parsedResult = json.loads(result)
+
+print command+"\n"
+print result+"\n"
+qResult = os.popen(queueString).read()
+"""

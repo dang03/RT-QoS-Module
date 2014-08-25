@@ -4,6 +4,8 @@
 __author__ = 'Dani'
 
 import json
+import networkx as nx
+from MCP import plot_path
 
 with open("PFinput.json", 'r') as PFinput:
     reqData = json.load(PFinput)
@@ -20,7 +22,6 @@ with open("PFinput.json", 'r') as PFinput:
     reqPLoss = reqData['parameters']['packet-loss']
 
     rtTopo = reqData['topology']
-    mistery = reqData['topology'][0]['src-switch']
 
     """
     reqJitter = reqData[0]['attachmentPoint'][0]['port']
@@ -38,7 +39,6 @@ with open("PFinput.json", 'r') as PFinput:
     print "QoS Request PACKET-LOSS: %s" % reqPLoss
 
     print "QoS Request TOPOLOGY: %s" % rtTopo
-    print "QoS Request MISTERY: %s" % mistery
 
     """
     print "SOURCE DPID: %s" % srcSwitch
@@ -63,6 +63,37 @@ with open("PFinput.json", 'r') as PFinput:
         print "edge DELAY: %s" % edgeDelay
         print "edge JITTER: %s" % edgeJitter
         print "edge PACKET-LOSS: %s" % edgePLoss + "\n"
+
+
+
+
+# graph builder
+G = nx.MultiGraph()
+
+for i in range(len(rtTopo)):
+    edgeSrcSwitch = rtTopo[i]['src-switch']
+    edgeDstSwitch = rtTopo[i]['dst-switch']
+    edgeSrcPort = rtTopo[i]['src-port']
+    edgeDstPort = rtTopo[i]['dst-port']
+    key = str(edgeSrcSwitch)+"-"+str(edgeDstSwitch)
+    print edgeSrcSwitch, "\n"
+    print edgeDstSwitch, "\n"
+    print edgeSrcPort, "\n"
+    print edgeDstPort, "\n"
+    print key
+
+    G.add_edge(edgeSrcSwitch, edgeDstSwitch, key=str(key), srcPort=edgeSrcPort, dstPort=edgeDstPort)
+
+print list(G.nodes(data=True))
+print G.edges(None, data=True, keys=True)
+
+
+plot_path(G)
+
+
+
+
+
 
 
 

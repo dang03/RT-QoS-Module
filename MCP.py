@@ -650,7 +650,7 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
 $$$TEST ZONE$$$
 ------------------------------------------------------------------------------
 """
-
+"""
 M = nx.MultiGraph()
 
 M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
@@ -673,6 +673,7 @@ dato = json_graph.adjacency_data(M)
 
 for u, v, data in M.edges_iter(data=True):
     print(u, v, data)
+"""
 
 """
 M.add_edge('00:00:04', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', weight=3, cost=2)

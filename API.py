@@ -5,7 +5,7 @@ __author__ = 'Dani'
 
 import os
 # Using Flask since Python doesn't have built-in session management
-from flask import Flask, session, render_template
+from flask import Flask, session, render_template, jsonify
 # Our target library
 import requests
 import json
@@ -16,23 +16,54 @@ app = Flask(__name__)
 # Generate a secret random key for the session
 app.secret_key = os.urandom(24)
 """
-"""
-# Define routes
-@app.route('/run_get')
-def run_get():
-    url = ''
+
+# Query last Pathfindr result: returns last QoS path returned
+@app.route('/pathfinder/get_path')
+def get_path():
+    #url = ''
     # example to actually run
-    # url = 'https://api.github.com/users/runnable'
+    #url = 'https://api.github.com/users/runnable'
 
     # this issues a GET to the url. replace "get" with "post", "head",
     # "put", "patch"... to make a request using a different method
-    r = requests.get(url)
+    #r = requests.get(url)
 
-    return json.dumps(r.json(), indent=4)
+    if os.path.exists('./path.json'):
+        pathRes = open('./path.json', 'r')
+        r = pathRes.readlines()
+        pathRes.close()
+    else:
+        r = {}
+
+    return json.dumps(r, indent=4)
+
+# Query qosDb log
+@app.route('/pathfinder/get_qosDb')
+def get_qosDb():
+
+    if os.path.exists('./qosDb.json'):
+        qosDb = open('./qosDb.json', 'r')
+        r = qosDb.readlines()
+        qosDb.close()
+    else:
+        r = {}
+
+    return json.dumps(r, indent=4)
 
 
-@app.route('/run_post')
-def run_post():
+
+
+
+
+
+
+
+
+
+
+@app.route('/pathfinder/run_app')
+def run_app():
+    """
     url = ''
     # example to actually run
     # url = 'http://httpbin.org/post'
@@ -45,12 +76,20 @@ def run_post():
     r = requests.post(url, data=json.dumps(data), headers=headers)
 
     return json.dumps(r.json(), indent=4)
-"""
+    """
+    queueString = "sudo python Pathfinder.py"
+    result = os.popen(queueString).read()
+    return result
 
 # Define a route for the webserver
 @app.route('/')
 def index():
-    return render_template('index.html')
+    #return render_template('index.html')
+
+    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned"}, {'get_qosDb': "Query QoS log returned"}]}}
+
+    return jsonify(json_index)
+
 
 
 if __name__ == '__main__':
