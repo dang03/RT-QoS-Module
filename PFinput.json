@@ -1,7 +1,7 @@
 {
     "requestID":"04A4",
-    "ip-src":"10.0.0.1",
-    "ip-dst":"10.0.0.2",
+    "src":"10.0.0.1",
+    "dst":"10.0.0.2",
     "alarm":0,
     "parameters": {
             "bandwidth":10.0,

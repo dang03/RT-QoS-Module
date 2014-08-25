@@ -8,13 +8,13 @@
             "description": "The unique identifier for a QoS request",
             "type": "hex string"
         },
-        "ip-src": {
-            "description": "The origin IP address end-to-end point",
-            "type": "ip address"
+        "src": {
+            "description": "The origin IP address, port, switch ID or port ID end-to-end point",
+            "type": "string"
         },
-        "ip-dst": {
-            "description": "The target IP address end-to-end point",
-            "type": "ip address"
+        "dst": {
+            "description": "The target IP address, port, switch ID or port ID end-to-end point",
+            "type": "string"
         },
         "alarm": {
             "description": "Flag for new or re-configuration request",

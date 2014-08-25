@@ -11,8 +11,8 @@ with open("PFinput.json", 'r') as PFinput:
     reqData = json.load(PFinput)
     print reqData
     reqId = reqData['requestID']
-    srcAddress = reqData['ip-src']
-    dstAddress = reqData['ip-dst']
+    srcAddress = reqData['src']
+    dstAddress = reqData['dst']
     reqAlarm = reqData['alarm']
     reqParameters = reqData['parameters']
 
@@ -76,13 +76,17 @@ for i in range(len(rtTopo)):
     edgeSrcPort = rtTopo[i]['src-port']
     edgeDstPort = rtTopo[i]['dst-port']
     key = str(edgeSrcSwitch)+"-"+str(edgeDstSwitch)
+    edgeBand = rtTopo[i]['bandwidth']
+    edgeDelay = rtTopo[i]['delay']
+    edgeJitter = rtTopo[i]['jitter']
+    edgePLoss = rtTopo[i]['packet-loss']
     print edgeSrcSwitch, "\n"
     print edgeDstSwitch, "\n"
     print edgeSrcPort, "\n"
     print edgeDstPort, "\n"
     print key
 
-    G.add_edge(edgeSrcSwitch, edgeDstSwitch, key=str(key), srcPort=edgeSrcPort, dstPort=edgeDstPort)
+    G.add_edge(edgeSrcSwitch, edgeDstSwitch, key=str(key), srcPort=edgeSrcPort, dstPort=edgeDstPort, bandwidth=edgeBand, delay=edgeDelay, jitter=edgeJitter, packetLoss=edgePLoss)
 
 print list(G.nodes(data=True))
 print G.edges(None, data=True, keys=True)

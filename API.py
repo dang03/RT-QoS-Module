@@ -12,10 +12,10 @@ import json
 
 app = Flask(__name__)
 
-"""
+
 # Generate a secret random key for the session
 app.secret_key = os.urandom(24)
-"""
+
 
 # Query last Pathfindr result: returns last QoS path returned
 @app.route('/pathfinder/get_path')
@@ -82,11 +82,11 @@ def run_app():
     return result
 
 # Define a route for the webserver
-@app.route('/')
+@app.route('/pathfinder/')
 def index():
     #return render_template('index.html')
 
-    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned"}, {'get_qosDb': "Query QoS log returned"}]}}
+    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned"}, {'get_qosDb': "Query QoS log returned"}, {'example': "More to be implemented"}]}}
 
     return jsonify(json_index)
 
