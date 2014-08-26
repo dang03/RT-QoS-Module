@@ -27,7 +27,7 @@ from PathDrawer import to_edge_path
 from fractions import Fraction
 from collections import defaultdict
 from MCP import *
-import requestLoader
+
 
 # main vars
 delta_sec = 2        # seconds to delay in time.sleep
@@ -42,13 +42,14 @@ print "SPG Start Time: ", datetime.datetime.now()
 # parse controller address.
 # Syntax:
 #   *ALGORITHM* --controller {IP:REST_PORT}
-
+"""
 parser = argparse.ArgumentParser(description='Suitable Path Generator')
 parser.add_argument('--controller', dest='controllerRestIp', action='store', default='localhost:8080', help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
 args = parser.parse_args()
 print args, "\n"
 
 controllerRestIp = args.controllerRestIp
+"""
 
 class mcolors:
     OKGREEN = '\033[92m'
@@ -74,30 +75,34 @@ else:
         json.dump(lines, qosDb)
 """
 
-# load qos request ID to compare with qosDb and check its availability
-#TODO: add new function to enable new request interface (requestLoader.py)
+#
+# enabled new request interface (based on requestLoader.py) to load required data from request
 
-reqID = None
-reqAlarm = None     # Check if request is a re-route / duplicated request
-reqBand = None
-reqDelay = None     # Data gathering not yet implemented
-reqPacketLoss = None
-reqJitter = None    # Not used, QoS parameter to consider
+with open("PFinput.json", 'r') as PFinput:
+    reqData = json.load(PFinput)
+    #print reqData
+    reqID = reqData['requestID']
+    srcAddress = reqData['src']     # retrieve source and destination device points
+    dstAddress = reqData['dst']
+    reqAlarm = reqData['alarm']     # Check if request is a re-route / duplicated request
+    reqParameters = reqData['parameters']
 
-k = []               # To stack number of constraints used to calculate a path
+    rtTopo = reqData['topology']
 
+k = []      # Stacks number of constraints used to calculate a path
+
+
+# The following code section can be used to enable request ID uniqueness, allowing
+# the duplicity check for served requests or active QoS paths. A file cache or database
+# is needed to check for stored requests ID.
+"""
 with open('./qosDb.json') as qosDb:
+    print "QoS-Request ID: %s\n" % reqID
     for line in qosDb:
         data = json.loads(line)
         dataID = data.get('requestID', [])
-        print(data)
+        #print(data)
 
-        #TODO: change to new input data structure (PFinput.json)
-        with open("QoS_Request.json") as qosRequest:
-            reqData = json.load(qosRequest)
-            reqID = reqData['requestID']
-            reqAlarm = reqData['alarm']
-            print "QoS Request ID: %s\n" % reqID
         if dataID == reqID:
             if reqAlarm == 0:
                 print mcolors.FAIL + "QoS Request ID: %s already exists. A new ID is required to initialize.\n" % reqID
@@ -106,87 +111,107 @@ with open('./qosDb.json') as qosDb:
                 sys.exit()
     if reqAlarm != 0:
         print mcolors.OKGREEN + "QoS Request Alarm: %s re-route requested\n" % reqID, mcolors.ENDC
+"""
 
-    #TODO: change to new input data structure (PFinput.json)
-    with open("QoS_Request.json") as qosRequest:
-        reqData = json.load(qosRequest)
+print "QoS Request SOURCE address: %s" % srcAddress
+print "QoS Request DESTINATION address: %s" % dstAddress
 
-        if 'bandwidth' in reqData:
-            if reqData['bandwidth'] is not 0:
-                reqBand = reqData['bandwidth']
-                print "Requested minimum bandwidth: %s" % reqBand
-                k.append('bandwidth')
-
-        if 'delay' in reqData:
-            if reqData['delay'] is not 0:
-                reqDelay = reqData['delay']
-                print "Requested maximum delay: %s" % reqDelay
-                k.append('delay')
-
-        if 'jitter' in reqData:
-            if reqData['jitter'] is not 0:
-                reqJitter = reqData['jitter']
-                print "Requested maximum jitter: %s" % reqJitter
-                k.append('jitter')
-
-        if 'packet-loss' in reqData:
-            if reqData['packet-loss'] is not 0:
-                reqPacketLoss = reqData['packet-loss']
-                print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
-                k.append('packet-loss')
-
-        print "Number of constraints: %s\n" % len(k)
-        print("QoS Request data loaded.\n")
+print mcolors.OKGREEN + "QoS-Request core data loaded succesfully\n", mcolors.ENDC
 
 
+# QoS-Request requested parameters parsing: Bandwidth, delay, jitter and packet-loss supported
+# A not-requested parameter must be declared as a 0 value on the requested parameters section
+# or may be excluded from the request.
+# k is an array needed to count requested parameters for the MCP computation
 
-# retrieve source and destination device attachment points
-# using DeviceManager rest API
-#TODO: change to new input data structure (PFinput.json)
-with open("QoS_Request.json") as qosRequest:
-    reqData = json.load(qosRequest)
-    srcAddress = reqData['ip-src']
-    dstAddress = reqData['ip-dst']
-    print "QoS Request SOURCE address: %s" % srcAddress
-    print "QoS Request DESTINATION address: %s" % dstAddress
+if 'bandwidth' in reqParameters:
+    reqBand = reqData['parameters']['bandwidth']
+    if reqBand is not 0:
+        print "Requested minimum bandwidth: %s" % reqBand
+        k.append('bandwidth')
+
+if 'delay' in reqParameters:
+    reqDelay = reqData['parameters']['delay']
+    if reqDelay is not 0:
+        print "Requested maximum delay: %s" % reqDelay
+        k.append('delay')
+
+if 'jitter' in reqParameters:
+    reqJitter = reqData['parameters']['jitter']
+    if reqJitter is not 0:
+        print "Requested maximum jitter: %s" % reqJitter
+        k.append('jitter')
+
+if 'packet-loss' in reqParameters:
+    reqPacketLoss = reqData['parameters']['packet-loss']
+    if reqPacketLoss is not 0:
+        print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
+        k.append('packet-loss')
 
 
-command = "curl -s http://%s/wm/device/?ipv4=%s" % (args.controllerRestIp, srcAddress)
-result = os.popen(command).read()
+print "Number of constraints: %s\n" % len(k)
+print mcolors.OKGREEN + "QoS-Request requested parameters loaded\n", mcolors.ENDC
+
+
+# Parse and load end-to-end attachment points of source - destination
+# For each end point, switch DPID/switch ID and port number/port ID is required.
+# If switch DPID/port number is provided, then every other switch in ['topology'] must provide
+# its DPID/port numbers (or switchID/port IDs for switchID/port ID case)
 try:
-    parsedResult = json.loads(result)
-    print command+"\n"
-
-    srcSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
-    srcPort = parsedResult[0]['attachmentPoint'][0]['port']
+    srcSwitch = srcAddress['srcSwitch']
+    srcPort = srcAddress['srcPort']
 
 except:
-    print mcolors.FAIL + "Error: Controller could not find SRC attachment point!"
+    print mcolors.FAIL + "Error: SRC attachment point could not be loaded!"
     duration = time.time()-startTime
     print "SPG End Time: ", duration, " seconds"
     sys.exit()
 
 
-command = "curl -s http://%s/wm/device/?ipv4=%s" % (args.controllerRestIp, dstAddress)
-result = os.popen(command).read()
-parsedResult = json.loads(result)
-print command+"\n"
 try:
-    dstSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
-    dstPort = parsedResult[0]['attachmentPoint'][0]['port']
+    dstSwitch = dstAddress['dstSwitch']
+    dstPort = dstAddress['dstPort']
 
 except:
-    print mcolors.FAIL + "Error: Controller could not find DST attachment point!"
+    print mcolors.FAIL + "Error: DST attachment point could not be loaded!"
     duration = time.time()-startTime
     print "SPG End Time: ", duration, " seconds"
     sys.exit()
 
-print srcSwitch, "\n", srcPort, "\n", dstSwitch, "\n", dstPort
 
 print "SRC switch: ", srcSwitch, "\n", "SRC port: ", srcPort, "\n", "DST switch: ", dstSwitch, "\n", "DST port: ", dstPort
 
 # Create empty topology multiGraph to add nodes and edges
 G = nx.MultiGraph()
+
+
+# graph builder
+for i in range(len(rtTopo)):
+    edgeSrcSwitch = rtTopo[i]['src-switch']
+    edgeDstSwitch = rtTopo[i]['dst-switch']
+    edgeSrcPort = rtTopo[i]['src-port']
+    edgeDstPort = rtTopo[i]['dst-port']
+    key = str(edgeSrcSwitch)+"-"+str(edgeDstSwitch)
+    edgeBand = rtTopo[i]['bandwidth']
+    edgeDelay = rtTopo[i]['delay']
+    edgeJitter = rtTopo[i]['jitter']
+    edgePLoss = rtTopo[i]['packet-loss']
+    print edgeSrcSwitch, "\n"
+    print edgeDstSwitch, "\n"
+    print edgeSrcPort, "\n"
+    print edgeDstPort, "\n"
+    print key
+
+    G.add_edge(edgeSrcSwitch, edgeDstSwitch, key=str(key), srcPort=edgeSrcPort, dstPort=edgeDstPort, bandwidth=edgeBand, delay=edgeDelay, jitter=edgeJitter, packetLoss=edgePLoss)
+
+print list(G.nodes(data=True))
+print G.edges(None, data=True, keys=True)
+
+e2e = []
+e2e.append(srcSwitch)
+e2e.append(dstSwitch)
+
+plot_path(G, None, e2e, None, None, None)
 
 
 # Get all the nodes/switches

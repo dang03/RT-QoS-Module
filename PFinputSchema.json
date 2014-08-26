@@ -9,12 +9,24 @@
             "type": "hex string"
         },
         "src": {
-            "description": "The origin IP address, port, switch ID or port ID end-to-end point",
-            "type": "string"
+            "srcSwitch": {
+                "description": "The origin switch ID or switch DPID as end-to-end point where host is directly connected",
+                "type": "string"
+            },
+            "srcPort": {
+                "description": "The origin port or port ID as end-to-end point where host is directly connected",
+                "type": "string"
+            }
         },
         "dst": {
-            "description": "The target IP address, port, switch ID or port ID end-to-end point",
-            "type": "string"
+            "dstSwitch": {
+                "description": "The target switch ID or switch DPID as end-to-end point where host is directly connected",
+                "type": "string"
+            },
+            "dstPort": {
+                "description": "The target port or port ID as end-to-end point where host is directly connected",
+                "type": "string"
+            }
         },
         "alarm": {
             "description": "Flag for new or re-configuration request",
