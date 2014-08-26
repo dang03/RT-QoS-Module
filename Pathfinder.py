@@ -216,10 +216,7 @@ plot_path(G, None, e2e, None, None, None)
 
 
 # Get all the nodes/switches
-command = "curl -s http://%s//wm/core/controller/switches/json" % args.controllerRestIp
-result = os.popen(command).read()
-print command+"\n"
-print result
+"""
 for parsedResult in json.loads(result):
     switchID = parsedResult['dpid']
     switchName = parsedResult['ports'][0]['name']
@@ -227,9 +224,10 @@ for parsedResult in json.loads(result):
     print switchName
 
     G.add_node(switchID, name=switchName)
-
+"""
 
 # Get all the edges/links
+"""
 command = "curl -s http://%s//wm/topology/links/json" % args.controllerRestIp
 rtTopo = os.popen(command).read()
 print command+"\n"
@@ -243,7 +241,7 @@ for parsedResult in json.loads(rtTopo):
     print edgeSrcPort, "\n"
     print edgeDstPort, "\n"
     G.add_edge(edgeSrcSwitch, edgeDstSwitch, key=edgeSrcSwitch+edgeDstSwitch, srcPort=edgeSrcPort, dstPort=edgeDstPort)
-
+"""
 
 print("Topology data loaded")
 
