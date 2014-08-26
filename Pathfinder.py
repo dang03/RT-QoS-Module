@@ -214,6 +214,7 @@ e2e.append(dstSwitch)
 plot_path(G, None, e2e, None, None, None)
 
 
+
 # Get all the nodes/switches
 command = "curl -s http://%s//wm/core/controller/switches/json" % args.controllerRestIp
 result = os.popen(command).read()

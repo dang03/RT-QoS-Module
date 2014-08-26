@@ -6,7 +6,7 @@
     "properties": {
         "requestID": {
             "description": "The unique identifier for a QoS request",
-            "type": "hex string"
+            "type": "HEX string"
         },
         "src": {
             "srcSwitch": {

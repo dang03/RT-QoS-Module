@@ -101,6 +101,7 @@ plot_path(G)
 
 
 
+
 # main vars
 delta_sec = 2        # seconds to delay in time.sleep
 check_freq = 10     # seconds to check requests
