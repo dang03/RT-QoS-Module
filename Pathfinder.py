@@ -149,7 +149,7 @@ if 'packet-loss' in reqParameters:
         k.append('packet-loss')
 
 
-print "Number of constraints: %s\n" % len(k)
+print "Number of constraints: %s" % len(k)
 print mcolors.OKGREEN + "QoS-Request requested parameters loaded\n", mcolors.ENDC
 
 
@@ -180,30 +180,36 @@ except:
 
 
 print "SRC switch: ", srcSwitch, "\n", "SRC port: ", srcPort, "\n", "DST switch: ", dstSwitch, "\n", "DST port: ", dstPort
+print mcolors.OKGREEN + "QoS-Request e2e points loaded\n", mcolors.ENDC
 
 # Create empty topology multiGraph to add nodes and edges
 G = nx.MultiGraph()
 
 
-# graph builder
+# Graph structure creation from QoS-Request data (rtTopo)
 for i in range(len(rtTopo)):
+    # Get all the edges/links
     edgeSrcSwitch = rtTopo[i]['src-switch']
     edgeDstSwitch = rtTopo[i]['dst-switch']
     edgeSrcPort = rtTopo[i]['src-port']
     edgeDstPort = rtTopo[i]['dst-port']
     key = str(edgeSrcSwitch)+"-"+str(edgeDstSwitch)
+    # Link QoS parameters
     edgeBand = rtTopo[i]['bandwidth']
     edgeDelay = rtTopo[i]['delay']
     edgeJitter = rtTopo[i]['jitter']
     edgePLoss = rtTopo[i]['packet-loss']
-    print edgeSrcSwitch, "\n"
-    print edgeDstSwitch, "\n"
-    print edgeSrcPort, "\n"
-    print edgeDstPort, "\n"
-    print key
+    print edgeSrcSwitch
+    print edgeDstSwitch
+    print edgeSrcPort
+    print edgeDstPort
+    print key, "\n"
 
+    # NetworkX graph automatically adds nodes to the graph through edge information
     G.add_edge(edgeSrcSwitch, edgeDstSwitch, key=str(key), srcPort=edgeSrcPort, dstPort=edgeDstPort, bandwidth=edgeBand, delay=edgeDelay, jitter=edgeJitter, packetLoss=edgePLoss)
 
+    # In older Pathfinder versions, nodes could store information such 'switch name'
+    # for switch-queue applications
 print list(G.nodes(data=True))
 print G.edges(None, data=True, keys=True)
 
@@ -211,83 +217,40 @@ e2e = []
 e2e.append(srcSwitch)
 e2e.append(dstSwitch)
 
-plot_path(G, None, e2e, None, None, None)
+#plot_path(G, None, e2e, None, None, None)
 
 
-
-# Get all the nodes/switches
-"""
-for parsedResult in json.loads(result):
-    switchID = parsedResult['dpid']
-    switchName = parsedResult['ports'][0]['name']
-    print switchID
-    print switchName
-
-    G.add_node(switchID, name=switchName)
-"""
-
-# Get all the edges/links
-"""
-command = "curl -s http://%s//wm/topology/links/json" % args.controllerRestIp
-rtTopo = os.popen(command).read()
-print command+"\n"
-for parsedResult in json.loads(rtTopo):
-    edgeSrcSwitch = parsedResult['src-switch']
-    edgeDstSwitch = parsedResult['dst-switch']
-    edgeSrcPort = parsedResult['src-port']
-    edgeDstPort = parsedResult['dst-port']
-    print edgeSrcSwitch, "\n"
-    print edgeDstSwitch, "\n"
-    print edgeSrcPort, "\n"
-    print edgeDstPort, "\n"
-    G.add_edge(edgeSrcSwitch, edgeDstSwitch, key=edgeSrcSwitch+edgeDstSwitch, srcPort=edgeSrcPort, dstPort=edgeDstPort)
-"""
-
-print("Topology data loaded")
+print mcolors.OKGREEN + "Topology graph structure loaded\n", mcolors.ENDC
 
 #######################################################################
 # Read topology QoS related parameters to apply QoS request constraints:
+#######################################################################
+# SPG algorithm Step 1: search and delete those links not meeting QoS constraints
 # For BANDWIDTH required constraint (Bottleneck QoS parameter - Critical)
+
 print "STEP-1 Process"
 
 #print mcolors.OKGREEN+"Checking link availability... [Bandwidth constraint]\n"+mcolors.ENDC
 
 if 'bandwidth' in k:
-    topoSrcSwitch = 0
-    topoDstSwitch = 0
-    edgeBand = 0
-    with open("topology.json") as topologyData:
-            parsedData = json.load(topologyData)
-            for i in range(len(parsedData)):
-                    topoSrcSwitch = parsedData[i]['src-switch']
-                    topoDstSwitch = parsedData[i]['dst-switch']
-                    edgeBand = parsedData[i]['bandwidth']
-
-                    if G.has_edge(topoSrcSwitch, topoDstSwitch):
-                        G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, bandwidth=edgeBand)
-                    print "edge: %s - %s, bandwidth: %s, key: %s" % (topoSrcSwitch, topoDstSwitch, edgeBand, topoSrcSwitch+topoDstSwitch)
-
 
     eOK = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] > reqBand]
     eFail = [(u, v) for (u, v, d) in G.edges(data=True) if d['bandwidth'] <= reqBand]
     hostList = [srcSwitch, dstSwitch]
 
+    # plot topology graph structure (optional)
     plot_path(G, None, hostList, eOK, eFail, 'bandwidth')
 
 
-################################################################################
-# SPG algorithm Step 1: search and delete those links not meeting QoS constraints
-
-# Remove edges - Bottleneck QoS parameters. Links that does not satisfy bandwidth
-# constraints are removed from the graph. Minimum bandwidth rule: available_bandwidth
-# value must be GREATER than requested value to avoid removing
-
-
+    # Remove edges - Bottleneck QoS parameters. Links that does not satisfy bandwidth
+    # constraints are removed from the graph. Minimum bandwidth rule: available_bandwidth
+    # value must be GREATER than requested value to avoid removing
     for u, v, data in G.edges_iter(data=True):
         if data['bandwidth'] <= reqBand:
             G.remove_edge(u, v)
 
 hostList = [srcSwitch, dstSwitch]
+# plot topology graph structure (optional)
 plot_path(G, None, hostList, None, None, 'bandwidth')
 
 
@@ -298,11 +261,9 @@ isPath = nx.has_path(G, srcSwitch, dstSwitch)
 if isPath:
     print mcolors.OKGREEN+"Feasible path available... [Bandwidth constraint]\n"+mcolors.ENDC
 
-
 else:
     print mcolors.FAIL+"Failure: No path available\n"+mcolors.ENDC
     sys.exit()
-
 
 # Remove edges - additive QoS parameters: If provided and requested, links that does
 # not satisfy other constraints of additive class are removed from the graph.
@@ -313,61 +274,12 @@ else:
 # For DELAY, JITTER, PACKET-LOSS required constraint (Additive QoS parameter)
 # Other parameters GENERIC GRAPH COST (disabled)
 
-if 'delay'or 'jitter' or 'packet-loss' in k:
-    topoSrcSwitch = None
-    topoDstSwitch = None
-    with open("topology.json") as topologyData:
-            parsedData = json.load(topologyData)
-            for i in range(len(parsedData)):
-                    topoSrcSwitch = parsedData[i]['src-switch']
-                    topoDstSwitch = parsedData[i]['dst-switch']
-
-                    try:
-                        edgeDelay = parsedData[i]['delay']
-                    except:
-                        pass
-
-                    try:
-                        edgeJitter = parsedData[i]['jitter']
-                    except:
-                        pass
-
-                    try:
-                        edgePacketLoss = parsedData[i]['packet-loss']
-                    except:
-                        pass
-
-                    if G.has_edge(topoSrcSwitch, topoDstSwitch):
-                        try:
-                            G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, delay=edgeDelay)
-                        except:
-                            pass
-
-                        try:
-                            G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, jitter=edgeJitter)
-                        except:
-                            pass
-
-                        try:
-                            G.add_edge(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch, packetLoss=edgePacketLoss)
-                        except:
-                            pass
-
-"""
-                #print "edge: %s - %s, delay: %s, packet-loss: %s" % (topoSrcSwitch, topoDstSwitch, edgeDelay, edgePacketLoss)
-                print "edge: %s - %s" % (topoSrcSwitch, topoDstSwitch), G.get_edge_data(topoSrcSwitch, topoDstSwitch, key=topoSrcSwitch+topoDstSwitch)
-"""
-
-for link in G.edges(data=True):
-    print "LINK", link
-
 # First selection wave: delete links not meeting requested requirements
 """
 On a first approach, every constraint will be treated as a predefined named constraint:
 i.e. this step only works for: delay, jitter, packet-loss constraints, if they are delivered
 Further implementation may work with any kind of constraint (Additive-class).
 """
-#TODO: Handle exceptions for not found dict keys
 
 if 'delay' in k:
     for u, v, data in G.edges_iter(data=True):
@@ -390,14 +302,7 @@ for u, v, data in G.edges_iter(data=True):
     if data['cost'] <= reqCost:
         G.remove_edge(u, v)
 """
-
-"""
-for constraint in k:
-    for u, v, data in G.edges_iter(data=True):
-    if data[constraint] <= reqCost:
-        G.remove_edge(u, v)
-"""
-
+# plot topology graph structure (optional)
 plot_path(G, None, hostList, None, None, 'bandwidth')
 
 
