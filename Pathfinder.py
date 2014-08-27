@@ -193,7 +193,7 @@ for i in range(len(rtTopo)):
     edgeDstSwitch = rtTopo[i]['dst-switch']
     edgeSrcPort = rtTopo[i]['src-port']
     edgeDstPort = rtTopo[i]['dst-port']
-    key = str(edgeSrcSwitch)+"-"+str(edgeDstSwitch)
+    key = str(edgeSrcSwitch)+"::"+str(edgeSrcPort)+"-"+str(edgeDstSwitch)+"::"+str(edgeSrcPort)
     # Link QoS parameters
     edgeBand = rtTopo[i]['bandwidth']
     edgeDelay = rtTopo[i]['delay']
@@ -302,18 +302,24 @@ for u, v, data in G.edges_iter(data=True):
     if data['cost'] <= reqCost:
         G.remove_edge(u, v)
 """
+# Connectivity check between source to destination nodes
+isPath = nx.has_path(G, srcSwitch, dstSwitch)
+
+if isPath:
+    print mcolors.OKGREEN+"Feasible path available... [Additive constraints]\n"+mcolors.ENDC
+
+else:
+    print mcolors.FAIL+"Failure: No path available [Additive constraints]\n"+mcolors.ENDC
+    sys.exit()
+
 # plot topology graph structure (optional)
 plot_path(G, None, hostList, None, None, 'bandwidth')
-
-
 
 ################################################################################
 # SPG algorithm Step 2: search all suitable paths meeting QoS constraints
 # src and dst path check - Check path connection between src and dst
 
 ################################################################################
-# Connectivity check between source to destination nodes
-isPath = nx.has_path(G, srcSwitch, dstSwitch)
 
 global maxPath  # will store result of QoS path
 global length   # and total cost-length value of QoS path
@@ -328,7 +334,6 @@ if isPath:
     CODE PART for Path computation algorithms: here can be applied various algorithms from
     MCP.py file, such AkLP algorithm for k-longest-paths or ALP for longest path computation
     """
-
 
     if len(k) == 1:
         # Creates copy of the graph
@@ -360,6 +365,7 @@ if isPath:
 
             maxPath, length = path_select(kPaths, kCosts, 1)
 
+
         # Calculate minimum jitter k paths,
         if 'jitter' in k:
             #AkSP
@@ -368,6 +374,7 @@ if isPath:
             print "COST", kCosts
 
             maxPath, length = path_select(kPaths, kCosts, 1)
+
 
         # Calculate minimum packet-loss k paths
         if 'packet-loss' in k:
@@ -378,6 +385,7 @@ if isPath:
 
             maxPath, length = path_select(kPaths, kCosts, 1)
 
+        # plot topology graph structure (optional)
         plot_path(M, maxPath, hostList, None, None, 'bandwidth')
 
         print "QoS path = %s\n" % maxPath
@@ -392,22 +400,9 @@ if isPath:
         for edge in M.edges_iter(data=True):
             print "Aggregated Cost", edge
 
+        # plot topology graph structure (optional)
         plot_path(M, None, hostList, None, None, 'total')
 
-
-        """
-        pos = nx.spring_layout(G)    # positions for all nodes
-        nx.draw_networkx_nodes(G, pos, node_size=700, node_color='b')
-        nx.draw_networkx_nodes(G, pos, nodelist=hostList, node_color='y', node_shape='s')
-
-        nx.draw_networkx_edges(G, pos, width=2, alpha=1)
-        nx.draw_networkx_edge_labels(G, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-        nx.draw_networkx_labels(G, pos, font_size=20, font_family='sans-serif')
-
-        plt.axis('off')
-        plt.savefig("/home/i2cat/Documents/test.png")   # save as png
-        plt.show()  # display
-        """
 
         kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
 
@@ -426,21 +421,6 @@ else:
     print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
     sys.exit()
 
-
-
-# First version of yen's k-shortest path applied for a generic edge weight(disabled)
-"""
-res, cos_res = yen_networkx(M, '00:00:01', '00:00:06', 4, 'weight')
-print "res", res
-print "cos_res", cos_res
-
-path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'weight'))
-print path
-
-ultimate_cost, ultimate_path = maxLength_path(M, res, 'weight')
-print "path", ultimate_path
-print "cost", ultimate_cost
-"""
 
 # Earlier bandwidth computation trick for SPG for bidirectional dijkstra application (disabled)
 """
@@ -466,13 +446,13 @@ print "QoS path = %s\n" % maxPath
         # (this will most possibly be relaxed later), but for now we
         # encode each flow entry's name with both switch dpid, qos request-id
         # and flow type ( consider flows: forward/reverse, farp/rarp)
-#TODO: disable flow pusher - return output (QoS path switch-port), and disable queue... DONE
-#dynamic configuration
+# Disabled flow pusher - returns output (QoS path switch-port), and disables queues... DONE
+# dynamic configuration
 
 auxPath = []    # auxiliar to store path ports
 
 print "switches to configure: %s" % maxPath
-configString = ""
+#configString = ""
 checkedList = []
 idx = 0
 midSwitches = defaultdict(list)
@@ -482,11 +462,21 @@ for nodeSwitch in maxPath:
     else:
         idx = (idx + 1)
         nextNodeSwitch = maxPath[idx]
-        for parsedResult in json.loads(rtTopo):
-            edgeSrcSwitch = parsedResult['src-switch']
-            edgeDstSwitch = parsedResult['dst-switch']
-            edgeSrcPort = parsedResult['src-port']
-            edgeDstPort = parsedResult['dst-port']
+
+        for i in range(len(rtTopo)):
+            # Get all the edges/links
+            edgeSrcSwitch = rtTopo[i]['src-switch']
+            edgeDstSwitch = rtTopo[i]['dst-switch']
+            edgeSrcPort = rtTopo[i]['src-port']
+            edgeDstPort = rtTopo[i]['dst-port']
+            #key = str(edgeSrcSwitch)+"::"+str(edgeSrcPort)+"-"+str(edgeDstSwitch)+"::"+str(edgeSrcPort)
+
+            print edgeSrcSwitch
+            print edgeDstSwitch
+            print edgeSrcPort
+            print edgeDstPort
+            #print key, "\n"
+
             if edgeSrcSwitch == nodeSwitch and edgeDstSwitch == nextNodeSwitch:
                 print edgeSrcSwitch, edgeDstSwitch
                 print edgeSrcPort, edgeDstPort
@@ -686,10 +676,12 @@ pathRes.write(serial+"\n")
 
 ################################################################################
 # store created circuit attributes in local ./qosDb.json
+"""
 datetime = time.asctime()
 qosDb = open('./qosDb.json', 'a')
 circuitParams = {'requestID': reqID, 'ip-src': srcAddress, 'ip-dst': dstAddress, 'bandwidth': reqBand, 'datetime': datetime}
 str = json.dumps(circuitParams)
 qosDb.write(str+"\n")
+"""
 duration = time.time()-startTime
 print("SPG End Time ", duration, " seconds")

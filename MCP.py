@@ -331,9 +331,11 @@ def ALP(graph, source, target, weight):
     maxAvgCost = 0
     iteration = 0
 
+
     for path in nx.all_simple_paths(graph, source, target):
         totalAux = 0
         iteration += 1
+        print "paaath", path
 
 
         edgePath = to_edge_path(path, graph)
@@ -343,28 +345,39 @@ def ALP(graph, source, target, weight):
             print edge1, edge2
 
             edgeData = graph.get_edge_data(edge1, edge2)
-            sedgeData = edgeData.items()[0]
-            print "SEDGE", sedgeData
+            print "edgeData", edgeData
 
-            try:
-                new_length = sedgeData[1][weight]
-                totalAux += new_length
+            print "RANGO", range(len(edgeData))
+            for i in range(len(edgeData)):
+                if i % 2 == 0:
+                    sedgeData = edgeData.items()[i]
+                    print "SEDGE", sedgeData
 
-                print "hop-count", (len(path)-1)
-#
-                print "TOTALAUX", totalAux
-                print "preMAXCOST", maxCost
-                print "EDGEPATH", edgePath
+                    edgeSrcPort = sedgeData[1]['srcPort']
+                    edgeDstPort = sedgeData[1]['dstPort']
+                    print "srcPORT", edgeSrcPort
+                    print "dstPORT", edgeDstPort
 
-                if edge == edgePath[(len(edgePath)-1)]:
+                    try:
+                        new_length = sedgeData[1][weight]
+                        totalAux += new_length
 
-                    avgAux = totalAux / (len(path) - 1)
-                    if avgAux > maxAvgCost:
-                        maxCost = totalAux
-                        maxAvgCost = avgAux
-                        maxPath = edgePath
-            except:
-                print "ERROR!"
+                        print "hop-count", (len(path)-1)
+            #
+                        print "TOTALAUX", totalAux
+                        print "preMAXCOST", maxCost
+                        print "EDGEPATH", edgePath
+
+                        if edge == edgePath[(len(edgePath)-1)]:
+
+                            avgAux = totalAux / (len(path) - 1)
+                            if avgAux > maxAvgCost:
+                                maxCost = totalAux
+                                maxAvgCost = avgAux
+                                maxPath = edgePath
+                    except:
+                        print "ERROR!"
+
 
     print "ITERATION", iteration
     print "TOTAL", maxCost
@@ -650,9 +663,9 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
 $$$TEST ZONE$$$
 ------------------------------------------------------------------------------
 """
-"""
-M = nx.MultiGraph()
 
+M = nx.MultiGraph()
+"""
 M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
@@ -665,8 +678,17 @@ M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
 M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
+"""
+
+M.add_edge('00:00:05', '00:00:06', srcPort=1, dstPort=2, bandwidth=15, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', srcPort=2, dstPort=1, bandwidth=15, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:05', '00:00:06', srcPort=2, dstPort=1, bandwidth=11, delay=0.3, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', srcPort=1, dstPort=2, bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 
 
+
+
+"""
 data = json_graph.node_link_data(M)
 dato = json_graph.adjacency_data(M)
 
@@ -742,11 +764,11 @@ print "PATH", res
 print "COST", cos_res
 """
 
-"""
+
 res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "cost", cos_res
-"""
+
 
 
 """
