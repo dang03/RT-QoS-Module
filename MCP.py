@@ -108,6 +108,45 @@ def path_length(graph, path, weight=None):
 
 
 #####################
+#TODO: FIX EDGE AND KEY DATA!!!
+# returns a path length, such as hop count in edge_key format
+def path_length_e(graph, path, weight=None):
+    pathLength = 0
+
+
+    for i in range(len(path) - 1):
+        """
+        print "edge1:", path[i]
+        print "edge2:", path[i + 1]
+        print graph.has_edge(path[i], path[i + 1])
+        if graph.has_edge(path[i], path[i + 1]) or graph.has_edge(path[i + 1], path[i]):
+        """
+
+
+        edge = graph.edges(path)
+        print "edge items", edge
+        #print "item", edge[1][weight]
+        try:
+                new_length = edge[1][weight]
+                pathLength += new_length
+                print "COSTE1:", pathLength
+        except:
+                # no weight attribute, then edge counter
+                pathLength += 1
+                print "COSTE2:", pathLength
+
+        print graph.has_edge(path[i], path[i + 1])
+    print "COSTE3:", pathLength
+    return pathLength
+
+
+#####################
+
+
+
+
+
+
 
 """
 Function used for loop detection in AKSP and AKLP graph algorithms
@@ -327,16 +366,26 @@ def AkLP(graph, source, target, num_k, weight):
 
     # all simple paths from source to destination
     A = list(nx.all_simple_paths(graph, source, target))  # [0]]
-
+    A_keys = []
+    key_path = None
     print "A", A
 
-    i = 0
     for path in A:
+        key_path = multiEdgeKey(path, graph)
+        print "KEY_PATH", key_path
+
+
+    i = 0
+    #for path in A:
+    for path in key_path:
         print "path1", path
 
-        print "INDEX", [A.index(path)]
-        print "algo", A[A.index(path)]
-        cost = path_length(graph, A[A.index(path)], weight)
+        #print "INDEX", [A.index(path)]
+        #print "algo", A[A.index(path)]
+        print "INDEX", [key_path.index(path)]
+        print "algo", key_path[key_path.index(path)]
+        #cost = path_length(A[A.index(path)], weight)
+        cost = path_length_e(graph, key_path[key_path.index(path)], weight)
         print "cost", cost
         avgCost = cost / (len(path) - 1)
 
@@ -733,7 +782,7 @@ $$$TEST ZONE$$$
 
 M = nx.MultiGraph()
 
-
+"""
 M.add_edge('00:00:05', '00:00:06', key='k1', srcPort='A', dstPort='B', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='k2', srcPort='B', dstPort='A', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:07', key='k3', srcPort='C', dstPort='D', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
@@ -746,13 +795,13 @@ M.add_edge('00:00:06', '00:00:08', key='k9', srcPort='I', dstPort='J', bandwidth
 M.add_edge('00:00:08', '00:00:06', key='k10', srcPort='J', dstPort='I', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
 M.add_edge('00:00:07', '00:00:08', key='k11', srcPort='K', dstPort='L', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', key='k12', srcPort='L', dstPort='K', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
-
 """
+
 M.add_edge('00:00:05', '00:00:06', key='5-6:1', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:1', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:06', key='5-6:2', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:2', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
-"""
+
 
 
 
@@ -775,6 +824,22 @@ M.add_edge('00:00:03', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 """
 print M.edges()
 """
+
+"""
+pathlist = list(nx.all_simple_paths(M, '00:00:05', '00:00:08', 'bandwidth'))
+for path in pathlist:
+    test_path = multiEdgeKey(path, M)
+    length = path_length(M, path, 'bandwidth')
+    print "FINAL COST", test_path, ":", length
+"""
+
+
+
+
+
+
+
+
 """
 H = nx.MultiGraph(M)
 """
@@ -806,11 +871,11 @@ for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 """
 
-"""
+
 res, cos_res = AkLP(M, '00:00:05', '00:00:06', 3, 'bandwidth')
 print "res", res
 print "cos_res", cos_res
-"""
+
 
 
 
@@ -842,11 +907,6 @@ print path_JSON
 """
 
 
-pathlist = list(nx.all_simple_paths(M, '00:00:05', '00:00:08', 'bandwidth'))
-for path in pathlist:
-    test_path = multiEdgeKey(path, M)
-    length = path_length(M, path, 'bandwidth')
-    print "FINAL COST", test_path, ":", length
 """
 ultimate_path, ultimate_cost = maxLength_path(H, res, 'weight')
 print "path", ultimate_path
