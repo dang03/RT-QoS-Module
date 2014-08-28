@@ -326,28 +326,30 @@ def AkLP(graph, source, target, num_k, weight):
 #####################
 
 def ALP(graph, source, target, weight):
-    maxPath = None
+    global maxPath
     maxCost = 0
     maxAvgCost = 0
     iteration = 0
 
-
     for path in nx.all_simple_paths(graph, source, target):
+        #maxPath = []
         totalAux = 0
         iteration += 1
         print "paaath", path
 
-
         edgePath = to_edge_path(path, graph)
         print "PATH", edgePath
+
         for edge in edgePath:
             edge1, edge2 = edge
-            print edge1, edge2
+            print "nodes", edge1, edge2
 
             edgeData = graph.get_edge_data(edge1, edge2)
             print "edgeData", edgeData
 
             print "RANGO", range(len(edgeData))
+            # each node connection has two edge layers or multiple edges, select the edge with higher cost
+            max_length = 0
             for i in range(len(edgeData)):
                 if i % 2 == 0:
                     sedgeData = edgeData.items()[i]
@@ -358,30 +360,49 @@ def ALP(graph, source, target, weight):
                     print "srcPORT", edgeSrcPort
                     print "dstPORT", edgeDstPort
 
-                    try:
-                        new_length = sedgeData[1][weight]
-                        totalAux += new_length
+                    aux_length = sedgeData[1][weight]
 
-                        print "hop-count", (len(path)-1)
-            #
-                        print "TOTALAUX", totalAux
-                        print "preMAXCOST", maxCost
-                        print "EDGEPATH", edgePath
+                    # if a higher cost found, updates the max value
+                    if aux_length > max_length:
+                        print "UPDATES max_length"
+                        max_length = aux_length
+                        """
+                        maxPath.append({"switch": edge1})
+                        maxPath.append({"port": edgeSrcPort})
+                        maxPath.append({"switch": edge2})
+                        maxPath.append({"port": edgeDstPort})
+                        """
 
-                        if edge == edgePath[(len(edgePath)-1)]:
+            try:
+                new_length = max_length
+                totalAux += new_length
 
-                            avgAux = totalAux / (len(path) - 1)
-                            if avgAux > maxAvgCost:
-                                maxCost = totalAux
-                                maxAvgCost = avgAux
-                                maxPath = edgePath
-                    except:
-                        print "ERROR!"
+                print "hop-count", (len(path)-1)
+                print "TOTALAUX", totalAux
+                print "preMAXCOST", maxCost
+                print "EDGEPATH", edgePath
+
+                print edge, "==", edgePath[(len(edgePath)-1)], "?"
+
+                if edge == edgePath[(len(edgePath)-1)]:
+                    avgAux = totalAux / (len(path) - 1)
+                    print "avgAux", avgAux
+                    print "maxAvgCost", maxAvgCost
+
+                    if avgAux > maxAvgCost:
+                        print "UPDATES costs"
+                        maxCost = totalAux
+                        maxAvgCost = avgAux
+                        maxPath = edgePath
+
+            except:
+                print "ERROR!"
 
 
     print "ITERATION", iteration
     print "TOTAL", maxCost
     print "AVGTOTAL", maxAvgCost
+    # uncomment to enable path result as a node path
     maxPath = to_node_path(maxPath)
     print "PATH", maxPath
     return maxPath, maxCost
@@ -665,9 +686,9 @@ $$$TEST ZONE$$$
 """
 
 M = nx.MultiGraph()
-"""
-M.add_edge('00:00:05', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
-M.add_edge('00:00:06', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
+
+M.add_edge('00:00:05', '00:00:06', srcPort='A', dstPort='B', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', srcPort='B', dstPort='A', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
 M.add_edge('00:00:07', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
 M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
@@ -678,13 +699,13 @@ M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort',
 M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
 M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
+
 """
-
-M.add_edge('00:00:05', '00:00:06', srcPort=1, dstPort=2, bandwidth=15, delay=0.7, jitter=0.5, loss=30)
-M.add_edge('00:00:06', '00:00:05', srcPort=2, dstPort=1, bandwidth=15, delay=0.7, jitter=0.5, loss=30)
-M.add_edge('00:00:05', '00:00:06', srcPort=2, dstPort=1, bandwidth=11, delay=0.3, jitter=0.5, loss=30)
-M.add_edge('00:00:06', '00:00:05', srcPort=1, dstPort=2, bandwidth=11, delay=0.3, jitter=0.5, loss=30)
-
+M.add_edge('00:00:05', '00:00:06', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:05', '00:00:06', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
+"""
 
 
 
@@ -769,6 +790,8 @@ res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "cost", cos_res
 
+path_JSON = json.dumps(res)
+print path_JSON
 
 
 """

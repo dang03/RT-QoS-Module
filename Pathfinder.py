@@ -452,6 +452,13 @@ print "QoS path = %s\n" % maxPath
 auxPath = []    # auxiliar to store path ports
 
 print "switches to configure: %s" % maxPath
+
+
+
+
+
+
+
 #configString = ""
 checkedList = []
 idx = 0
@@ -666,6 +673,7 @@ if os.path.exists('./path.json'):
 else:
     lines = {}
 
+# requestID is an optional field but must be provided
 qosPath.append({"requestID": reqID})
 pathRes = open('./path.json', 'w')
 to_serial = qosPath
