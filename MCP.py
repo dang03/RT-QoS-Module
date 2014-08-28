@@ -28,6 +28,52 @@ import random
 import matplotlib.pyplot as plt
 
 
+def multiEdgeKey(path, graph):
+    key_path = []
+    edgePath = to_edge_path(path, graph)
+    print "PATH", edgePath
+
+    for edge in edgePath:
+        edge1, edge2 = edge
+        print "nodes", edge1, edge2
+
+        edgeData = graph.get_edge_data(edge1, edge2)
+        print "edgeData", edgeData
+
+        print "RANGO", range(len(edgeData))
+        # each node connection has two edge layers or multiple edges, select the edge with higher cost
+        max_length = 0
+        for i in range(len(edgeData)):
+            if i % 2 == 0:
+                sedgeData = edgeData.keys()[i]
+                print "SEDGE", sedgeData
+                key_path.append(sedgeData)
+
+                """
+                edgeSrcPort = sedgeData[1]['srcPort']
+                edgeDstPort = sedgeData[1]['dstPort']
+                print "srcPORT", edgeSrcPort
+                print "dstPORT", edgeDstPort
+                """
+    return key_path
+
+
+
+"""
+                aux_length = sedgeData[1][weight]
+
+                # if a higher cost found, updates the max value
+                if aux_length > max_length:
+                    print "UPDATES max_length"
+                    max_length = aux_length
+
+                    maxPath.append({"switch": edge1})
+                    maxPath.append({"port": edgeSrcPort})
+                    maxPath.append({"switch": edge2})
+                    maxPath.append({"port": edgeDstPort})
+"""
+
+
 """
 Algorithm for edge cost computation - critical for AKSP and AKLP algorithms
 Returns the total cost of an end-to-end path
@@ -687,24 +733,25 @@ $$$TEST ZONE$$$
 
 M = nx.MultiGraph()
 
-M.add_edge('00:00:05', '00:00:06', srcPort='A', dstPort='B', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
-M.add_edge('00:00:06', '00:00:05', srcPort='B', dstPort='A', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
-M.add_edge('00:00:05', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
-M.add_edge('00:00:07', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
-M.add_edge('00:00:05', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
-M.add_edge('00:00:08', '00:00:05', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
-M.add_edge('00:00:06', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.9, jitter=0.8, loss=40)
-M.add_edge('00:00:07', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=11, delay=0.9, jitter=0.8, loss=40)
-M.add_edge('00:00:06', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
-M.add_edge('00:00:08', '00:00:06', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
-M.add_edge('00:00:07', '00:00:08', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
-M.add_edge('00:00:08', '00:00:07', srcPort='edgeSrcPort', dstPort='edgeDstPort', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
+
+M.add_edge('00:00:05', '00:00:06', key='k1', srcPort='A', dstPort='B', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', key='k2', srcPort='B', dstPort='A', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:05', '00:00:07', key='k3', srcPort='C', dstPort='D', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
+M.add_edge('00:00:07', '00:00:05', key='k4', srcPort='D', dstPort='C', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
+M.add_edge('00:00:05', '00:00:08', key='k5', srcPort='E', dstPort='F', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
+M.add_edge('00:00:08', '00:00:05', key='k6', srcPort='F', dstPort='E', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
+M.add_edge('00:00:06', '00:00:07', key='k7', srcPort='G', dstPort='H', bandwidth=11, delay=0.9, jitter=0.8, loss=40)
+M.add_edge('00:00:07', '00:00:06', key='k8', srcPort='H', dstPort='G', bandwidth=11, delay=0.9, jitter=0.8, loss=40)
+M.add_edge('00:00:06', '00:00:08', key='k9', srcPort='I', dstPort='J', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
+M.add_edge('00:00:08', '00:00:06', key='k10', srcPort='J', dstPort='I', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
+M.add_edge('00:00:07', '00:00:08', key='k11', srcPort='K', dstPort='L', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
+M.add_edge('00:00:08', '00:00:07', key='k12', srcPort='L', dstPort='K', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 
 """
-M.add_edge('00:00:05', '00:00:06', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
-M.add_edge('00:00:06', '00:00:05', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
-M.add_edge('00:00:05', '00:00:06', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
-M.add_edge('00:00:06', '00:00:05', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
+M.add_edge('00:00:05', '00:00:06', key='5-6:1', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', key='6-5:1', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
+M.add_edge('00:00:05', '00:00:06', key='5-6:2', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:05', key='6-5:2', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 """
 
 
@@ -794,10 +841,11 @@ path_JSON = json.dumps(res)
 print path_JSON
 """
 
-"""
-path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))
-print path
-"""
+
+pathlist = list(nx.all_simple_paths(M, '00:00:05', '00:00:08', 'bandwidth'))
+for path in pathlist:
+    test_path = multiEdgeKey(path, M)
+    print test_path
 
 """
 ultimate_path, ultimate_cost = maxLength_path(H, res, 'weight')

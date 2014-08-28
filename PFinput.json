@@ -11,9 +11,9 @@
     "alarm":0,
     "parameters": {
             "bandwidth":10.0,
-            "delay":1.0,
+            "delay":0,
             "jitter":0,
-            "packet-loss":10
+            "packet-loss":0
     },
     "topology": [
             {

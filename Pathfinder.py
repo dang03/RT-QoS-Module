@@ -453,6 +453,17 @@ auxPath = []    # auxiliar to store path ports
 
 print "switches to configure: %s" % maxPath
 
+getEdgePath = to_edge_path(maxPath, M)
+print "PATH", getEdgePath
+
+for link in getEdgePath:
+    node1, node2 = link
+    print "nodes", node1, node2
+
+    linkData = M.get_edge_data(node1, node2)
+    print "edgeData", linkData
+
+
 
 
 
