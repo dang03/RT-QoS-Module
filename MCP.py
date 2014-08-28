@@ -45,9 +45,9 @@ def multiEdgeKey(path, graph):
         max_length = 0
         for i in range(len(edgeData)):
             if i % 2 == 0:
-                sedgeData = edgeData.keys()[i]
-                print "SEDGE", sedgeData
-                key_path.append(sedgeData)
+                kedgeData = edgeData.keys()[i]
+                print "KEDGE", kedgeData
+                key_path.append(kedgeData)
 
                 """
                 edgeSrcPort = sedgeData[1]['srcPort']
@@ -845,8 +845,8 @@ print path_JSON
 pathlist = list(nx.all_simple_paths(M, '00:00:05', '00:00:08', 'bandwidth'))
 for path in pathlist:
     test_path = multiEdgeKey(path, M)
-    print test_path
-
+    length = path_length(M, path, 'bandwidth')
+    print "FINAL COST", test_path, ":", length
 """
 ultimate_path, ultimate_cost = maxLength_path(H, res, 'weight')
 print "path", ultimate_path
