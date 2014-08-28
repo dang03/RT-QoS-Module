@@ -785,14 +785,14 @@ print "PATH", res
 print "COST", cos_res
 """
 
-
+"""
 res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "cost", cos_res
 
 path_JSON = json.dumps(res)
 print path_JSON
-
+"""
 
 """
 path = list(nx.all_simple_paths(M, '00:00:01', '00:00:06', 'cost'))

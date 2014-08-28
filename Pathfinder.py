@@ -193,7 +193,7 @@ for i in range(len(rtTopo)):
     edgeDstSwitch = rtTopo[i]['dst-switch']
     edgeSrcPort = rtTopo[i]['src-port']
     edgeDstPort = rtTopo[i]['dst-port']
-    key = str(edgeSrcSwitch)+"::"+str(edgeSrcPort)+"-"+str(edgeDstSwitch)+"::"+str(edgeSrcPort)
+    key = str(edgeSrcSwitch)+"::"+str(edgeSrcPort)+"-"+str(edgeDstSwitch)+"::"+str(edgeDstPort)
     # Link QoS parameters
     edgeBand = rtTopo[i]['bandwidth']
     edgeDelay = rtTopo[i]['delay']
@@ -568,7 +568,7 @@ for nodeSwitch in maxPath:
                     configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
                     """
 
-                    qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeSrcPort}
+                    qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeDstPort}
                     auxPath.append(qosNode)
                     print auxPath
 
