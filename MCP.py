@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 
 
 def multiEdgeKey(path, graph):
+    # returns a path in edge-key format
     key_path = []
     edgePath = to_edge_path(path, graph)
     print "PATH", edgePath
@@ -61,7 +62,6 @@ def multiEdgeKey(path, graph):
     return key_path
 
 
-
 """
                 aux_length = sedgeData[1][weight]
 
@@ -84,9 +84,13 @@ Returns the total cost of an end-to-end path
 # returns a path length, such as hop count
 def path_length(graph, path, weight=None):
     pathLength = 0
+    multiPathLength = []
+    keyPath = []
 
     for i in range(len(path) - 1):
         print "given_path", path
+        node1 = path[i]
+        node2 = path[i + 1]
         print "edge1:", path[i]
         print "edge2:", path[i + 1]
         print graph.has_edge(path[i], path[i + 1])
@@ -99,40 +103,57 @@ def path_length(graph, path, weight=None):
             print "num_edges", num_edges
 
             if num_edges > 1:
-                print "do something"
-                edge = edge.items()[0]
-                print "edge items", edge
-                #print "item", edge[1][weight]
-                try:
-                    new_length = edge[1][weight]
-                    pathLength += new_length
-                    print "COSTE1:", pathLength
-                except:
-                    # no weight attribute, then edge counter
-                    pathLength += 1
-                    print "COSTE2:", pathLength
 
+                nodeback1 = None
+                nodeback2 = None
+                for i in range(len(edge)/2):
 
+                    edgekey = edge.keys()[i]
+                    print "edge key", edgekey
+                    print weight
+                    print "item", graph.edge[node1][node2][edgekey][weight]
+                    try:
+                            new_length = graph.edge[node1][node2][edgekey][weight]
+                            multiPathLength.append(new_length)
+                            keyPath.append(edgekey)
+                            print "COSTEe1:", multiPathLength
+                            print "keyPath:", keyPath
 
+                    except:
+                            # no weight attribute, then edge counter
+                            if node1 == nodeback1 and node2 == nodeback2:
+                                pathLength += 1
+                                print "COSTEe2:", pathLength
+                            else:
+                                continue
 
-
+                    nodeback1 = node1
+                    nodeback2 = node2
 
             else:
                 edge = edge.items()[0]
                 print "edge items", edge
                 #print "item", edge[1][weight]
                 try:
+                    edgekey = edge[0]
+                    print "edge key", edgekey
                     new_length = edge[1][weight]
                     pathLength += new_length
+                    keyPath.append(edgekey)
                     print "COSTE1:", pathLength
+                    print "keyPath:", keyPath
+                                      
+
                 except:
                     # no weight attribute, then edge counter
                     pathLength += 1
                     print "COSTE2:", pathLength
 
-        print graph.has_edge(path[i], path[i + 1])
-    print "COSTE3:", pathLength
-    return pathLength
+        for j in range(len(multiPathLength)):
+            multiPathLength[j] += pathLength
+
+    print "COSTE3:", multiPathLength
+    return multiPathLength
 
 
 #####################
