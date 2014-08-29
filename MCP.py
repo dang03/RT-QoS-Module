@@ -464,7 +464,7 @@ def AkLP(graph, source, target, num_k, weight):
 
     #print "INDEX", [A.index(path)]
         print "algo", A[A.index(path)]
-        cost = path_length(graph, A[A.index(path)], weight, 'AkLP')
+        cost = path_length(graph, A[A.index(path)], weight, 'AkSP')
         print "cost", cost
         avgCost = cost / (len(path) - 1)
 
