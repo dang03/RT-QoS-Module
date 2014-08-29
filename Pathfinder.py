@@ -438,8 +438,8 @@ print "QoS path = %s\n" % maxPath
 #################################################################################
 #################################################################################
 # Pathfinder - Path Builder
-# Path Pusher: send one flow mod per pair of Access Point in path
-# using StaticFlowPusher REST API
+# Port assignation per edge and node
+#
 
         # IMPORTANT NOTE: current Floodlight StaticflowEntryPusher
         # assumes all flow entries to have unique name across all switches
