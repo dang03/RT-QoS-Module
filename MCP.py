@@ -41,6 +41,9 @@ def multiEdgeKey(path, graph):
         print "edgeData", edgeData
 
         print "RANGO", range(len(edgeData))
+        num_edges = len(edgeData) / 2
+        print num_edges
+
         # each node connection has two edge layers or multiple edges, select the edge with higher cost
         max_length = 0
         for i in range(len(edgeData)):
@@ -83,6 +86,7 @@ def path_length(graph, path, weight=None):
     pathLength = 0
 
     for i in range(len(path) - 1):
+        print "given_path", path
         print "edge1:", path[i]
         print "edge2:", path[i + 1]
         print graph.has_edge(path[i], path[i + 1])
@@ -90,17 +94,41 @@ def path_length(graph, path, weight=None):
 
             edge = graph.get_edge_data(path[i], path[i + 1])
             print "edge:", edge
-            edge = edge.items()[0]
-            print "edge items", edge
-            #print "item", edge[1][weight]
-            try:
-                new_length = edge[1][weight]
-                pathLength += new_length
-                print "COSTE1:", pathLength
-            except:
-                # no weight attribute, then edge counter
-                pathLength += 1
-                print "COSTE2:", pathLength
+
+            num_edges = len(edge) / 2
+            print "num_edges", num_edges
+
+            if num_edges > 1:
+                print "do something"
+                edge = edge.items()[0]
+                print "edge items", edge
+                #print "item", edge[1][weight]
+                try:
+                    new_length = edge[1][weight]
+                    pathLength += new_length
+                    print "COSTE1:", pathLength
+                except:
+                    # no weight attribute, then edge counter
+                    pathLength += 1
+                    print "COSTE2:", pathLength
+
+
+
+
+
+
+            else:
+                edge = edge.items()[0]
+                print "edge items", edge
+                #print "item", edge[1][weight]
+                try:
+                    new_length = edge[1][weight]
+                    pathLength += new_length
+                    print "COSTE1:", pathLength
+                except:
+                    # no weight attribute, then edge counter
+                    pathLength += 1
+                    print "COSTE2:", pathLength
 
         print graph.has_edge(path[i], path[i + 1])
     print "COSTE3:", pathLength
@@ -123,9 +151,16 @@ def path_length_e(graph, path, weight=None):
         """
 
 
-        edge = graph.edges(path)
+        edge_dir = graph.edges(data=True, keys=True)
+        for x, y, u, v in edge_dir:
+            edge = v
+            print "edge items", edge
+        #edge = edge_dir[0]
+        #edge = graph.edge
+        print "all_edges", edge_dir
         print "edge items", edge
         #print "item", edge[1][weight]
+
         try:
                 new_length = edge[1][weight]
                 pathLength += new_length
@@ -366,6 +401,63 @@ def AkLP(graph, source, target, num_k, weight):
 
     # all simple paths from source to destination
     A = list(nx.all_simple_paths(graph, source, target))  # [0]]
+    print "A", A
+
+    i = 0
+    for path in A:
+        print "path1", path
+
+    #print "INDEX", [A.index(path)]
+        print "algo", A[A.index(path)]
+        cost = path_length(graph, A[A.index(path)], weight)
+        print "cost", cost
+        avgCost = cost / (len(path) - 1)
+
+        if avgCost > maxAvgAux:
+            maxAux = cost
+            maxAvgAux = avgCost
+
+            A_costs.insert(i, maxAux)
+            print "maxAUX", maxAux
+
+            i += 1
+            print i
+            B.append(path)
+
+
+    print "RANGO", len(B)
+    if len(B) <= num_k:
+        print "Bfinal", B
+        print "Afinal", A_costs
+        return B, A_costs
+
+    else:
+        while len(B) > num_k:
+            print "A-costs", A_costs
+            print "B", B
+            B.pop(0)
+            A_costs.pop(0)
+        print "Bfinal", B
+        print "Afinal", A_costs
+        return B, A_costs
+
+
+
+#####################
+def AkLP_e(graph, source, target, num_k, weight):
+    #AKLP algorithm version for edge data results
+    maxPath = None
+    maxCost = 0
+    maxAux = 0
+    maxAvgAux =0
+
+
+    # Initialize lists to store potential Kth longest path
+    A_costs = []
+    B = []
+
+    # all simple paths from source to destination
+    A = list(nx.all_simple_paths(graph, source, target))  # [0]]
     A_keys = []
     key_path = None
     print "A", A
@@ -416,6 +508,8 @@ def AkLP(graph, source, target, num_k, weight):
         print "Bfinal", B
         print "Afinal", A_costs
         return B, A_costs
+
+
 
 
 #####################
@@ -801,6 +895,8 @@ M.add_edge('00:00:05', '00:00:06', key='5-6:1', srcPort='1', dstPort='2', bandwi
 M.add_edge('00:00:06', '00:00:05', key='6-5:1', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:06', key='5-6:2', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:2', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
+M.add_edge('00:00:06', '00:00:07', key='6-7:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
+M.add_edge('00:00:07', '00:00:06', key='7-6:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
 
 
 
@@ -872,7 +968,7 @@ for edge in agGraph.edges_iter(data=True):
 """
 
 
-res, cos_res = AkLP(M, '00:00:05', '00:00:06', 3, 'bandwidth')
+res, cos_res = AkLP(M, '00:00:05', '00:00:07', 2, 'bandwidth')
 print "res", res
 print "cos_res", cos_res
 
