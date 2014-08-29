@@ -437,7 +437,7 @@ print "QoS path = %s\n" % maxPath
 
 #################################################################################
 #################################################################################
-# Pathfinder - Path Application
+# Pathfinder - Path Builder
 # Path Pusher: send one flow mod per pair of Access Point in path
 # using StaticFlowPusher REST API
 

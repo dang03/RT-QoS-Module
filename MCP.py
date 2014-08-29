@@ -82,7 +82,7 @@ Algorithm for edge cost computation - critical for AKSP and AKLP algorithms
 Returns the total cost of an end-to-end path
 """
 # returns a path length, such as hop count
-def path_length(graph, path, weight=None):
+def path_length(graph, path, weight=None, algorithm=None):
     pathLength = 0
     multiPathLength = []
     keyPath = []
@@ -106,18 +106,39 @@ def path_length(graph, path, weight=None):
 
                 nodeback1 = None
                 nodeback2 = None
-                for i in range(len(edge)/2):
 
+                for i in range(len(edge)/2):
+                    selEdge_cost = 0
                     edgekey = edge.keys()[i]
                     print "edge key", edgekey
                     print weight
                     print "item", graph.edge[node1][node2][edgekey][weight]
                     try:
+                        if algorithm == 'AkLP':
+                            edge_cost = graph.edge[node1][node2][edgekey][weight]
+
+                            if edge_cost > selEdge_cost:
+                                selEdge_cost = edge_cost
+
+
+
+                        elif algorithm == 'AkSP':
+                            edge_cost = graph.edge[node1][node2][edgekey][weight]
+
+                            if edge_cost < selEdge_cost:
+                                selEdge_cost = edge_cost
+
+
+
+                        else:
                             new_length = graph.edge[node1][node2][edgekey][weight]
                             multiPathLength.append(new_length)
-                            keyPath.append(edgekey)
+
                             print "COSTEe1:", multiPathLength
+                            keyPath.append(edgekey)
                             print "keyPath:", keyPath
+
+                        multiPathLength.append(selEdge_cost)
 
                     except:
                             # no weight attribute, then edge counter
@@ -142,7 +163,6 @@ def path_length(graph, path, weight=None):
                     keyPath.append(edgekey)
                     print "COSTE1:", pathLength
                     print "keyPath:", keyPath
-                                      
 
                 except:
                     # no weight attribute, then edge counter
@@ -153,7 +173,7 @@ def path_length(graph, path, weight=None):
             multiPathLength[j] += pathLength
 
     print "COSTE3:", multiPathLength
-    return multiPathLength
+    return multiPathLength, keyPath
 
 
 #####################
