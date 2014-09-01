@@ -226,50 +226,6 @@ def path_length(graph, path, weight=None, algorithm=None):
 
 
 # ####################
-# TODO: DELeTE THIs VERSION
-# returns a path length, such as hop count in edge_key format
-def path_length_e(graph, path, weight=None):
-    pathLength = 0
-
-    for i in range(len(path) - 1):
-        """
-        print "edge1:", path[i]
-        print "edge2:", path[i + 1]
-        print graph.has_edge(path[i], path[i + 1])
-        if graph.has_edge(path[i], path[i + 1]) or graph.has_edge(path[i + 1], path[i]):
-        """
-
-        edge_dir = graph.edges(data=True, keys=True)
-        for x, y, u, v in edge_dir:
-            edge = v
-            print "edge items", edge
-        #edge = edge_dir[0]
-        #edge = graph.edge
-        print "all_edges", edge_dir
-        print "edge items", edge
-        #print "item", edge[1][weight]
-
-        try:
-            new_length = edge[1][weight]
-            pathLength += new_length
-            print "COSTE1:", pathLength
-        except:
-            # no weight attribute, then edge counter
-            pathLength += 1
-            print "COSTE2:", pathLength
-
-        print graph.has_edge(path[i], path[i + 1])
-    print "COSTE3:", pathLength
-    return pathLength
-
-
-#####################
-
-
-
-
-
-
 
 """
 Function used for loop detection in AKSP and AKLP graph algorithms
@@ -546,10 +502,16 @@ def ALP(graph, source, target, weight):
     global maxPath
     maxCost = 0
     maxAvgCost = 0
+    maxKey = None
     iteration = 0
 
+    # For each end-to-end path, total edge cost is calculated. Then node-pah and edge-key-path are
+    # stored to return plus the total cost as a result
     for path in nx.all_simple_paths(graph, source, target):
         #maxPath = []
+        keyPath = []
+        edgeKey = None
+
         totalAux = 0
         iteration += 1
         print "paaath", path
@@ -572,8 +534,10 @@ def ALP(graph, source, target, weight):
                     sedgeData = edgeData.items()[i]
                     print "SEDGE", sedgeData
 
+                    edgeKey = edgeData.keys()[i]
                     edgeSrcPort = sedgeData[1]['srcPort']
                     edgeDstPort = sedgeData[1]['dstPort']
+                    print "edgeKey", edgeKey
                     print "srcPORT", edgeSrcPort
                     print "dstPORT", edgeDstPort
 
@@ -594,6 +558,9 @@ def ALP(graph, source, target, weight):
                 new_length = max_length
                 totalAux += new_length
 
+                print "UPDATE KEY LIST"
+                keyPath.append(edgeKey)
+
                 print "hop-count", (len(path) - 1)
                 print "TOTALAUX", totalAux
                 print "preMAXCOST", maxCost
@@ -611,6 +578,8 @@ def ALP(graph, source, target, weight):
                         maxCost = totalAux
                         maxAvgCost = avgAux
                         maxPath = edgePath
+                        print "UPDATE maxKey"
+                        maxKey = keyPath
 
             except:
                 print "ERROR!"
@@ -621,7 +590,8 @@ def ALP(graph, source, target, weight):
     # uncomment to enable path result as a node path
     maxPath = to_node_path(maxPath)
     print "PATH", maxPath
-    return maxPath, maxCost
+    print "maxkeyPath", maxKey
+    return maxPath, maxKey, maxCost
 
 
 #####################
@@ -987,11 +957,12 @@ agGraph = stAggregate(M)
 for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 """
-
+"""
 res, key_res, cos_res = AkLP(M, '00:00:05', '00:00:07', 3, 'bandwidth')
 print "res", res
 print "key_res", key_res
 print "cos_res", cos_res
+"""
 
 """
 visited=[]
@@ -1011,14 +982,15 @@ print "PATH", res
 print "COST", cos_res
 """
 
-"""
-res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
+
+res, key_res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
+print "key_res", key_res
 print "cost", cos_res
 
 path_JSON = json.dumps(res)
 print path_JSON
-"""
+
 
 """
 ultimate_path, ultimate_cost = maxLength_path(H, res, 'weight')
