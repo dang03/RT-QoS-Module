@@ -194,6 +194,7 @@ def path_length(graph, path, weight=None, algorithm=None):
                     keyPath.append(edgekey)
                     print "COSTE1:", pathLength
                     print "keyPath:", keyPath
+                    print "ismultipath..", multiPathLength
 
                 except:
                     # no weight attribute, then edge counter
@@ -201,13 +202,13 @@ def path_length(graph, path, weight=None, algorithm=None):
                     keyPath.append(edgekey)
                     print "COSTE2:", pathLength
 
-    if multiPathLength is not None:
+    if multiPathLength:
 
         if algorithm is None:
             # not implemented; algorithm = None will return the end-to-end sum of all edges
             # recommended for weight = None to return the hop-count
             for l in range(len(multiPathLength)):
-                pathLength += multiPathLength[l]
+                 multiPathLength[l] += pathLength
 
             print "return", multiPathLength, keyPath
             return multiPathLength, keyPath
@@ -215,9 +216,9 @@ def path_length(graph, path, weight=None, algorithm=None):
         else:
             for j in range(len(multiPathLength)):
                 pathLength += multiPathLength[j]
-                print "final sum"
-            print "return", multiPathLength, keyPath
-            return multiPathLength, keyPath
+                print "final sum", pathLength
+            print "return", pathLength, keyPath
+            return pathLength, keyPath
 
     else:
         print "return", pathLength, keyPath
@@ -473,6 +474,8 @@ AKLP Algorithm: NetworkX K-longest-paths computation algorithm
 FINAL VERSION:
 num_k: number of solutions to find (iteration of returned path)
 weights: edge cost to compute
+returns lists of nodes paths, edge-key paths and the total cost
+of each path, ordered by avg. cost
 """
 
 
@@ -486,6 +489,7 @@ def AkLP(graph, source, target, num_k, weight):
     # Initialize lists to store potential Kth longest path
     A_costs = []
     B = []
+    C_keys = []
 
     # all simple paths from source to destination
     A = list(nx.all_simple_paths(graph, source, target))  # [0]]
@@ -497,9 +501,10 @@ def AkLP(graph, source, target, num_k, weight):
 
         #print "INDEX", [A.index(path)]
         print "algo", A[A.index(path)]
-        cost = path_length(graph, A[A.index(path)])
-        #cost = path_length(graph, A[A.index(path)], weight, 'AkLP')
+        #cost = path_length(graph, A[A.index(path)])
+        cost, edgeKeys = path_length(graph, A[A.index(path)], weight, 'AkLP')
         print "cost", cost
+        print "keys", edgeKeys
         avgCost = cost / (len(path) - 1)
 
         if avgCost > maxAvgAux:
@@ -512,12 +517,14 @@ def AkLP(graph, source, target, num_k, weight):
             i += 1
             print i
             B.append(path)
+            C_keys.append(edgeKeys)
 
     print "RANGO", len(B)
     if len(B) <= num_k:
         print "Bfinal", B
         print "Afinal", A_costs
-        return B, A_costs
+        print "Cfinal", C_keys
+        return B, C_keys, A_costs
 
     else:
         while len(B) > num_k:
@@ -525,9 +532,12 @@ def AkLP(graph, source, target, num_k, weight):
             print "B", B
             B.pop(0)
             A_costs.pop(0)
+            C_keys.pop(0)
         print "Bfinal", B
         print "Afinal", A_costs
-        return B, A_costs
+        print "Cfinal", C_keys
+        return B, C_keys, A_costs
+
 
 
 #####################
@@ -893,9 +903,13 @@ $$$TEST ZONE$$$
 
 M = nx.MultiGraph()
 
-"""
+
 M.add_edge('00:00:05', '00:00:06', key='k1', srcPort='A', dstPort='B', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='k2', srcPort='B', dstPort='A', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
+
+M.add_edge('00:00:05', '00:00:06', key='k13', srcPort='A2', dstPort='B2', bandwidth=8, delay=0.4, jitter=0.5, loss=20)
+M.add_edge('00:00:06', '00:00:05', key='k14', srcPort='B2', dstPort='A2', bandwidth=8, delay=0.4, jitter=0.5, loss=20)
+
 M.add_edge('00:00:05', '00:00:07', key='k3', srcPort='C', dstPort='D', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
 M.add_edge('00:00:07', '00:00:05', key='k4', srcPort='D', dstPort='C', bandwidth=30, delay=0.3, jitter=0.1, loss=10)
 M.add_edge('00:00:05', '00:00:08', key='k5', srcPort='E', dstPort='F', bandwidth=11, delay=0.3, jitter=0.3, loss=20)
@@ -906,15 +920,15 @@ M.add_edge('00:00:06', '00:00:08', key='k9', srcPort='I', dstPort='J', bandwidth
 M.add_edge('00:00:08', '00:00:06', key='k10', srcPort='J', dstPort='I', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
 M.add_edge('00:00:07', '00:00:08', key='k11', srcPort='K', dstPort='L', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', key='k12', srcPort='L', dstPort='K', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
-"""
 
+"""
 M.add_edge('00:00:05', '00:00:06', key='5-6:1', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:1', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:06', key='5-6:2', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:2', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:07', key='6-7:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:07', '00:00:06', key='7-6:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
-
+"""
 """
 data = json_graph.node_link_data(M)
 dato = json_graph.adjacency_data(M)
@@ -974,8 +988,9 @@ for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
 """
 
-res, cos_res = AkLP(M, '00:00:05', '00:00:07', 2, 'bandwidth')
+res, key_res, cos_res = AkLP(M, '00:00:05', '00:00:07', 3, 'bandwidth')
 print "res", res
+print "key_res", key_res
 print "cos_res", cos_res
 
 """
