@@ -24,6 +24,7 @@ import networkx as nx
 from networkx.readwrite import json_graph
 from PathDrawer import to_edge_path, to_node_path
 import json
+import os
 import random
 import matplotlib.pyplot as plt
 
@@ -982,7 +983,7 @@ print "PATH", res
 print "COST", cos_res
 """
 
-
+"""
 res, key_res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "key_res", key_res
@@ -990,6 +991,14 @@ print "cost", cos_res
 
 path_JSON = json.dumps(res)
 print path_JSON
+"""
+
+"""
+command = "curl -s http://127.0.0.1:5000/pathfinder/"
+result = os.popen(command).read()
+print command+"\n"
+print json.loads(result)
+"""
 
 
 """
