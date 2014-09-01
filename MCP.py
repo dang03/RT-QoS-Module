@@ -284,7 +284,7 @@ def AkSP(grapho, source, target, num_k, weights):
     # shortest path from source to destination
     A = [list(nx.all_shortest_paths(graph, source, target, weight=weights))[0]]
     print "A", A
-    A_costs = [path_length(graph, A[0], weights)]
+    A_costs = [path_length(graph, A[0], weights, 'AkSP')]
     print "A-costs", A_costs
 
     # Initialize heap to store potential Kth shortest path
@@ -971,11 +971,12 @@ lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
 print "longest", lonpa
 """
 
-"""
-res, cos_res = AkSP(M, '00:00:05', '00:00:06', 3, 'delay')
+
+res, cos_res = AkSP(M, '00:00:05', '00:00:07', 2, 'bandwidth')
 print "res", res
-print "cos_res", cos_res
-"""
+cost, keys = cos_res
+print "cos_res", cost, keys
+
 
 """
 res, cos_res = AkLP(M, '00:00:05', '00:00:06', 1, 'bandwidth')
