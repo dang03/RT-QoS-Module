@@ -117,7 +117,7 @@ def path_length(graph, path, weight=None, algorithm=None):
                     edgekey = edge.keys()[i]
                     print "edge key", edgekey
                     print weight
-                    print "item", graph.edge[node1][node2][edgekey][weight]
+                    #print "item", graph.edge[node1][node2][edgekey][weight]
                     try:
                         if algorithm == 'AkLP':
                             edge_cost = graph.edge[node1][node2][edgekey][weight]
@@ -161,10 +161,12 @@ def path_length(graph, path, weight=None, algorithm=None):
 
                     except:
                         # no weight attribute, then edge counter
-                        if node1 == nodeback1 and node2 == nodeback2:
+                        if node1 != nodeback1 and node2 != nodeback2:
                             pathLength += 1
                             print "COSTEe2:", pathLength
+                            keyPathe.append(edgekey)
                         else:
+                            keyPathe.append(edgekey)
                             continue
 
                     nodeback1 = node1
@@ -196,23 +198,30 @@ def path_length(graph, path, weight=None, algorithm=None):
                 except:
                     # no weight attribute, then edge counter
                     pathLength += 1
+                    keyPath.append(edgekey)
                     print "COSTE2:", pathLength
 
     if multiPathLength is not None:
-        # TODO: sum path costs for multiedges
+
         if algorithm is None:
-            finalPathLength = []
+            # not implemented; algorithm = None will return the end-to-end sum of all edges
+            # recommended for weight = None to return the hop-count
             for l in range(len(multiPathLength)):
                 pathLength += multiPathLength[l]
 
+            print "return", multiPathLength, keyPath
+            return multiPathLength, keyPath
 
         else:
             for j in range(len(multiPathLength)):
                 pathLength += multiPathLength[j]
                 print "final sum"
+            print "return", multiPathLength, keyPath
+            return multiPathLength, keyPath
 
-    print "COSTE3:", pathLength
-    return multiPathLength, keyPath
+    else:
+        print "return", pathLength, keyPath
+        return pathLength, keyPath
 
 
 # ####################
@@ -488,7 +497,8 @@ def AkLP(graph, source, target, num_k, weight):
 
         #print "INDEX", [A.index(path)]
         print "algo", A[A.index(path)]
-        cost = path_length(graph, A[A.index(path)], weight)
+        cost = path_length(graph, A[A.index(path)])
+        #cost = path_length(graph, A[A.index(path)], weight, 'AkLP')
         print "cost", cost
         avgCost = cost / (len(path) - 1)
 
