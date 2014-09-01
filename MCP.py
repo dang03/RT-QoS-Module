@@ -972,10 +972,13 @@ print "longest", lonpa
 """
 
 
-res, cos_res = AkSP(M, '00:00:05', '00:00:07', 2, 'bandwidth')
+res, cos_res = AkSP(M, '00:00:05', '00:00:08', 2, 'bandwidth')
 print "res", res
-cost, keys = cos_res
-print "cos_res", cost, keys
+print "cos_res", cos_res
+#TODO: separate costs and keys from AkSP algorithm result
+cost, keys = cos_res[0][0], cos_res[0][1]
+print "keys", keys
+print "cost", cost
 
 
 """
