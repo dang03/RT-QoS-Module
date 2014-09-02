@@ -284,8 +284,10 @@ def AkSP(grapho, source, target, num_k, weights):
     # shortest path from source to destination
     A = [list(nx.all_shortest_paths(graph, source, target, weight=weights))[0]]
     print "A", A
-    A_costs = [path_length(graph, A[0], weights, 'AkSP')]
+    A_costs, A_keys = path_length(graph, A[0], weights, 'AkSP')
+    A_costs = [A_costs]
     print "A-costs", A_costs
+    print "A-keys", A_keys
 
     # Initialize heap to store potential Kth shortest path
     B = Queue.PriorityQueue()
@@ -358,9 +360,11 @@ def AkSP(grapho, source, target, num_k, weights):
                     totalPath = rootPath + spurPath
                     print "total", totalPath
                     print "WEIGHT", weights
-                    totalPathCost = path_length(graph, totalPath, weights)
+                    totalPathCost, totalPathKeys = path_length(graph, totalPath, weights, 'AkSP')
                     # add the potential k-shortest path to the heap
-                    B.put((totalPathCost, totalPath))
+                    print "2_costs", totalPathCost
+                    print "2_keys", totalPathKeys
+                    B.put((totalPathCost, totalPathKeys, totalPath))
 
                 # add back the edges that were removed from the graph
                 for u, v, edata in graph.edges(data=True):
@@ -390,19 +394,20 @@ def AkSP(grapho, source, target, num_k, weights):
             while True:
 
                 try:
-                    cost_, path_ = B.get_nowait()
+                    cost_, keys_, path_ = B.get_nowait()
                 except:
                     break
 
-                print cost_, path_
+                print cost_, keys_, path_
 
                 if path_ not in A:
                     # Found new path to add
                     A.append(path_)
                     A_costs.append(cost_)
+                    A_keys.append(keys_)
                     break
 
-            return A, A_costs
+            return A, A_keys, A_costs
 
         # Sort the potential k-shortest paths by cost
         # B is already sorted
@@ -410,19 +415,20 @@ def AkSP(grapho, source, target, num_k, weights):
         while True:
 
             try:
-                cost_, path_ = B.get_nowait()
+                cost_, keys_, path_ = B.get_nowait()
             except:
                 break
 
-            print cost_, path_
+            print cost_, keys_, path_
 
             if path_ not in A:
                 # Found new path to add
                 A.append(path_)
                 A_costs.append(cost_)
+                A_keys.append(keys_)
                 break
 
-    return A, A_costs
+    return A, A_keys, A_costs
 
 
 #####################
@@ -972,13 +978,11 @@ print "longest", lonpa
 """
 
 
-res, cos_res = AkSP(M, '00:00:05', '00:00:08', 2, 'bandwidth')
+res, key_res, cos_res = AkSP(M, '00:00:05', '00:00:08', 2, 'bandwidth')
 print "res", res
+print "key_res", key_res
 print "cos_res", cos_res
-#TODO: separate costs and keys from AkSP algorithm result
-cost, keys = cos_res[0][0], cos_res[0][1]
-print "keys", keys
-print "cost", cost
+
 
 
 """
