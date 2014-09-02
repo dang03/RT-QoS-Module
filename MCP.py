@@ -881,7 +881,7 @@ $$$TEST ZONE$$$
 
 M = nx.MultiGraph()
 
-
+"""
 M.add_edge('00:00:05', '00:00:06', key='k1', srcPort='A', dstPort='B', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='k2', srcPort='B', dstPort='A', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 
@@ -898,15 +898,15 @@ M.add_edge('00:00:06', '00:00:08', key='k9', srcPort='I', dstPort='J', bandwidth
 M.add_edge('00:00:08', '00:00:06', key='k10', srcPort='J', dstPort='I', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
 M.add_edge('00:00:07', '00:00:08', key='k11', srcPort='K', dstPort='L', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', key='k12', srcPort='L', dstPort='K', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
-
 """
+
 M.add_edge('00:00:05', '00:00:06', key='5-6:1', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:1', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:06', key='5-6:2', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:2', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:07', key='6-7:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:07', '00:00:06', key='7-6:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
-"""
+
 """
 data = json_graph.node_link_data(M)
 dato = json_graph.adjacency_data(M)
@@ -992,6 +992,18 @@ print "Found", x, "node-path, defined by", y, "edges, with", z, "total cost valu
 res, cos_res = AkLP(M, '00:00:05', '00:00:06', 1, 'bandwidth')
 print "PATH", res
 print "COST", cos_res
+"""
+"""
+for u, v, key, data in M.edges_iter(data=True, keys=True):
+        if data['bandwidth'] <= 11:
+            print "node start", u
+            print "node end", v
+            print "key", key
+            print "data", data
+
+            M.remove_edge(u, v, key=key)
+
+print M.edges(data=True)
 """
 
 """

@@ -245,9 +245,27 @@ if 'bandwidth' in k:
     # Remove edges - Bottleneck QoS parameters. Links that does not satisfy bandwidth
     # constraints are removed from the graph. Minimum bandwidth rule: available_bandwidth
     # value must be GREATER than requested value to avoid removing
+    """
     for u, v, data in G.edges_iter(data=True):
         if data['bandwidth'] <= reqBand:
             G.remove_edge(u, v)
+    """
+    #TODO: Upgrade Pathfinder algorithm to consider edge-keys
+    for u, v, key, data in G.edges_iter(data=True, keys=True):
+        if data['bandwidth'] <= reqBand:
+            print "node start", u
+            print "node end", v
+            print "key", key
+            print "data", data
+
+            G.remove_edge(u, v, key=key)
+
+
+
+
+
+
+
 
 hostList = [srcSwitch, dstSwitch]
 # plot topology graph structure (optional)
