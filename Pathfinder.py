@@ -341,12 +341,12 @@ if isPath:
         # Single constraint request; list(k) can contain any requested QoS parameter
         # Calculate path total bandwidth per minimum hop count, selects kth path
         if 'bandwidth' in k:
-            #AkLP
+            #Use of AkLP algorithm for k-longest paths
             kPaths, kCosts = AkLP(M, srcSwitch, dstSwitch, k_sel, 'bandwidth')
             print "PATH", kPaths
             print "COST", kCosts
 
-            #ALP
+            #Optional use of ALP algorithm for the longest path
             """
             maxPath, length = ALP(M, srcSwitch, dstSwitch, 'bandwidth')
             print "path", maxPath
@@ -358,7 +358,7 @@ if isPath:
 
         # Calculate minimum delay k paths
         if 'delay' in k:
-            #AkSP
+            #Use of AkSP algorithm for k-shortest paths
             kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'delay')
             print "PATH", kPaths
             print "COST", kCosts

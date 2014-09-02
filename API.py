@@ -17,7 +17,22 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 
-# Query last Pathfindr result: returns last QoS path returned
+"""
+#############
+REST service
+#############
+HTTP Method     URI                     Action
+------------    --------------------    -------
+index           /pathfinder/
+GET             /pathfinder/get_path    Retrieve latest found QoS path
+GET             /pathfinder/get_qosDb   Retrieve stored QoS paths
+POST            /pathfinder/...         ...
+...
+
+
+"""
+
+# Query last Pathfinder result: returns last QoS path returned
 @app.route('/pathfinder/get_path')
 def get_path():
     #url = ''
@@ -49,12 +64,6 @@ def get_qosDb():
         r = {}
 
     return json.dumps(r, indent=4)
-
-
-
-
-
-
 
 
 
