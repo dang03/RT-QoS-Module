@@ -978,14 +978,15 @@ lonpa = longestPath(M, '00:00:05', '00:00:06', 'weight')
 print "longest", lonpa
 """
 
-
+"""
 res, key_res, cos_res = AkSP(M, '00:00:05', '00:00:08', 3, 'bandwidth')
 print "res", res
 print "key_res", key_res
 print "cos_res", cos_res
 
-selected = path_select(res, key_res, cos_res, 2)
-print selected
+x, y, z = path_select(res, key_res, cos_res, 2)
+print "Found", x, "node-path, defined by", y, "edges, with", z, "total cost value."
+"""
 
 """
 res, cos_res = AkLP(M, '00:00:05', '00:00:06', 1, 'bandwidth')
