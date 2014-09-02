@@ -8,7 +8,8 @@ Critical functions and computation algorithms for Pathfinder main process
 Functions and algorithms are NetworkX graph based
 """
 
-__all__ = ['path_length',
+__all__ = ['multiEdgeKey',
+           'path_length',
            'path_select',
            'plot_path',
            'maxLength_path',
@@ -250,7 +251,7 @@ Enables to select custom path item from result list and checks its validity
 """
 
 
-def path_select(res, cos_res, kPath):
+def path_select(res, key_res, cos_res, kPath):
     kRange = range(len(res))
     kCheck = len(res)
     print "rango:", kRange
@@ -260,13 +261,13 @@ def path_select(res, cos_res, kPath):
         print "ERROR: Invalid k value"
         path = None
         pathCost = None
-
+        keys = None
 
     else:
         path = res[kPath - 1]
         pathCost = cos_res[kPath - 1]
-
-    return path, pathCost
+        keys = key_res[kPath - 1]
+    return path, keys, pathCost
 
 #####################
 """
@@ -978,12 +979,13 @@ print "longest", lonpa
 """
 
 
-res, key_res, cos_res = AkSP(M, '00:00:05', '00:00:08', 2, 'bandwidth')
+res, key_res, cos_res = AkSP(M, '00:00:05', '00:00:08', 3, 'bandwidth')
 print "res", res
 print "key_res", key_res
 print "cos_res", cos_res
 
-
+selected = path_select(res, key_res, cos_res, 2)
+print selected
 
 """
 res, cos_res = AkLP(M, '00:00:05', '00:00:06', 1, 'bandwidth')
