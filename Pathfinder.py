@@ -376,6 +376,7 @@ if isPath:
             kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'delay')
             print "PATH", kPaths
             print "COST", kCosts
+            print "KEYS", kKeys
 
             maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
@@ -386,6 +387,7 @@ if isPath:
             kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'jitter')
             print "PATH", kPaths
             print "COST", kCosts
+            print "KEYS", kKeys
 
             maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
@@ -396,6 +398,7 @@ if isPath:
             kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'packetLoss')
             print "PATH", kPaths
             print "COST", kCosts
+            print "KEYS", kKeys
 
             maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
@@ -429,6 +432,7 @@ if isPath:
         plot_path(M, maxPath, hostList, None, None, 'total')
 
         print "QoS path = %s\n" % maxPath
+        print "QoS key path = %s\n" % keyPath
         print "QoS length = %s\n" % length
 
 
@@ -468,6 +472,7 @@ auxPath = []    # auxiliar to store path ports
 
 print "switches to configure: %s" % maxPath
 
+"""
 getEdgePath = to_edge_path(maxPath, M)
 print "PATH", getEdgePath
 
@@ -477,7 +482,7 @@ for link in getEdgePath:
 
     linkData = M.get_edge_data(node1, node2)
     print "edgeData", linkData
-
+"""
 
 
 
