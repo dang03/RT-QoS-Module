@@ -34,6 +34,10 @@ delta_sec = 2        # seconds to delay in time.sleep
 check_freq = 10     # seconds to check requests
 k_sel = 3            # selected k path
 
+global reqBand
+global reqDelay
+global reqJitter
+global reqPacketLoss
 
 # def startTime
 startTime = time.time()
@@ -250,21 +254,11 @@ if 'bandwidth' in k:
         if data['bandwidth'] <= reqBand:
             G.remove_edge(u, v)
     """
-    #TODO: Upgrade Pathfinder algorithm to consider edge-keys
+    # Now step-I considers multiedges between two nodes
     for u, v, key, data in G.edges_iter(data=True, keys=True):
         if data['bandwidth'] <= reqBand:
-            print "node start", u
-            print "node end", v
-            print "key", key
-            print "data", data
 
             G.remove_edge(u, v, key=key)
-
-
-
-
-
-
 
 
 hostList = [srcSwitch, dstSwitch]
@@ -300,20 +294,20 @@ Further implementation may work with any kind of constraint (Additive-class).
 """
 
 if 'delay' in k:
-    for u, v, data in G.edges_iter(data=True):
+    for u, v, key, data in G.edges_iter(data=True, keys=True):
         if data['delay'] > reqDelay:
-            G.remove_edge(u, v)
+            G.remove_edge(u, v, key=key)
 
 if 'jitter' in k:
-    for u, v, data in G.edges_iter(data=True):
+    for u, v, key, data in G.edges_iter(data=True, keys=True):
         if data['delay'] > reqJitter:
-            G.remove_edge(u, v)
+            G.remove_edge(u, v, key=key)
 
 if 'packet-loss' in k:
-    for u, v, data in G.edges_iter(data=True):
+    for u, v, key, data in G.edges_iter(data=True, keys=True):
         #print data
         if data['packetLoss'] > reqPacketLoss:
-            G.remove_edge(u, v)
+            G.remove_edge(u, v, key=key)
 
 """
 for u, v, data in G.edges_iter(data=True):
