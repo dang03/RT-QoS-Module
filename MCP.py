@@ -679,11 +679,12 @@ def stAggregate(graph):
     newGraph = nx.MultiGraph()
 
     for edge1, edge2, key, data in graph.edges_iter(data=True, keys=True):
-        print 'EDGE', edge1, "-", edge2,":", key, data
+        print 'EDGE', edge1, "-", edge2, ":", key, data
+
         total = 1
 
         try:
-            delay = graph[edge1][edge2].values()[0]['delay']
+            delay = graph[edge1][edge2][key]['delay']
 
             """
             print edgeData.keys()[0]
@@ -702,7 +703,7 @@ def stAggregate(graph):
             continue
 
         try:
-            jitter = graph[edge1][edge2].values()[0]['jitter']
+            jitter = graph[edge1][edge2][key]['jitter']
             print 'jitter', jitter
             if jitter == 0:
                 jitter = 1
@@ -712,7 +713,7 @@ def stAggregate(graph):
             pass
 
         try:
-            ploss = graph[edge1][edge2].values()[0]['packet-loss']
+            ploss = graph[edge1][edge2][key]['packet-loss']
             print 'packet-loss', ploss
             if ploss == 0:
                 ploss = 1
@@ -722,7 +723,7 @@ def stAggregate(graph):
             pass
 
         try:
-            bandwidth = graph[edge1][edge2].values()[0]['bandwidth']
+            bandwidth = graph[edge1][edge2][key]['bandwidth']
             print 'bandwidth', bandwidth
             if bandwidth == 0:
                 bandwidth = 1
@@ -732,9 +733,9 @@ def stAggregate(graph):
             pass
 
         print "Total", total
-        newGraph.add_edge(edge1, edge2, total=total)
+        newGraph.add_edge(edge1, edge2, key=key, total=total)
 
-    for link in newGraph.edges_iter(data=True):
+    for link in newGraph.edges_iter(data=True, keys=True):
         print "newGraph.edge", link
 
     for node in newGraph.nodes_iter(data=True):
@@ -961,7 +962,7 @@ for edge in A.edges_iter(data=True):
 
 agGraph = stAggregate(M)
 
-for edge in agGraph.edges_iter(data=True):
+for edge in agGraph.edges_iter(data=True, keys=True):
     print "aggregated", edge
 
 """
