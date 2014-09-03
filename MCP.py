@@ -678,9 +678,8 @@ MCP edge stats Aggregator Function for multiple constraints graph and QoS reques
 def stAggregate(graph):
     newGraph = nx.MultiGraph()
 
-    for edge in nx.edges_iter(graph):
-        print 'EDGE', edge
-        edge1, edge2 = edge
+    for edge1, edge2, key, data in graph.edges_iter(data=True, keys=True):
+        print 'EDGE', edge1, "-", edge2,":", key, data
         total = 1
 
         try:
@@ -959,12 +958,12 @@ for edge in A.edges_iter(data=True):
     A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
 """
 
-"""
+
 agGraph = stAggregate(M)
 
 for edge in agGraph.edges_iter(data=True):
     print "aggregated", edge
-"""
+
 """
 res, key_res, cos_res = AkLP(M, '00:00:05', '00:00:07', 3, 'bandwidth')
 print "res", res
