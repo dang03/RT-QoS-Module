@@ -333,8 +333,9 @@ plot_path(G, None, hostList, None, None, 'bandwidth')
 
 ################################################################################
 
-global maxPath  # will store result of QoS path
+global maxPath  # vars to store result of QoS path
 global length   # and total cost-length value of QoS path
+global keyPath  # and distinct edge keys for multiedges and port assignation
 
 # If isPath returns True, there's src-dst connection on topology graph
 # Calculate all feasible paths meeting requested requirements, then select the optimal path
@@ -354,9 +355,10 @@ if isPath:
         # Calculate path total bandwidth per minimum hop count, selects kth path
         if 'bandwidth' in k:
             #Use of AkLP algorithm for k-longest paths
-            kPaths, kCosts = AkLP(M, srcSwitch, dstSwitch, k_sel, 'bandwidth')
+            kPaths, kKeys, kCosts = AkLP(M, srcSwitch, dstSwitch, k_sel, 'bandwidth')
             print "PATH", kPaths
             print "COST", kCosts
+            print "KEYS", kKeys
 
             #Optional use of ALP algorithm for the longest path
             """
@@ -365,42 +367,43 @@ if isPath:
             print "cost", length
             """
 
-            maxPath, length = path_select(kPaths, kCosts, len(kPaths))
+            maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, len(kPaths))
 
 
         # Calculate minimum delay k paths
         if 'delay' in k:
             #Use of AkSP algorithm for k-shortest paths
-            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'delay')
+            kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'delay')
             print "PATH", kPaths
             print "COST", kCosts
 
-            maxPath, length = path_select(kPaths, kCosts, 1)
+            maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
 
         # Calculate minimum jitter k paths,
         if 'jitter' in k:
             #AkSP
-            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'jitter')
+            kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'jitter')
             print "PATH", kPaths
             print "COST", kCosts
 
-            maxPath, length = path_select(kPaths, kCosts, 1)
+            maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
 
         # Calculate minimum packet-loss k paths
         if 'packet-loss' in k:
             #AkSP
-            kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'packetLoss')
+            kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'packetLoss')
             print "PATH", kPaths
             print "COST", kCosts
 
-            maxPath, length = path_select(kPaths, kCosts, 1)
+            maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
         # plot topology graph structure (optional)
         plot_path(M, maxPath, hostList, None, None, 'bandwidth')
 
         print "QoS path = %s\n" % maxPath
+        print "QoS key path = %s\n" % keyPath
         print "QoS length = %s\n" % length
 
     else:
@@ -409,19 +412,19 @@ if isPath:
         print mcolors.OKGREEN+"MCP: Searching feasible paths available... Multiple Constraints Path\n"+mcolors.ENDC
 
         M = stAggregate(G)
-        for edge in M.edges_iter(data=True):
+        for edge in M.edges_iter(data=True, keys=True):
             print "Aggregated Cost", edge
 
         # plot topology graph structure (optional)
         plot_path(M, None, hostList, None, None, 'total')
 
 
-        kPaths, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
+        kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
 
         print "QoS k paths = %s\n" % kPaths
         print "QoS k lengths = %s\n" % kCosts
 
-        maxPath, length = path_select(kPaths, kCosts, 1)
+        maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
         plot_path(M, maxPath, hostList, None, None, 'total')
 
@@ -474,10 +477,6 @@ for link in getEdgePath:
 
     linkData = M.get_edge_data(node1, node2)
     print "edgeData", linkData
-
-
-
-
 
 
 
