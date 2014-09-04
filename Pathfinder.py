@@ -472,17 +472,24 @@ auxPath = []    # auxiliar to store path ports
 
 print "switches to configure: %s" % maxPath
 
-"""
+
 getEdgePath = to_edge_path(maxPath, M)
 print "PATH", getEdgePath
 
 for link in getEdgePath:
     node1, node2 = link
     print "nodes", node1, node2
-
+    for idkey in keyPath:
+        print "idkey", idkey
+        if idkey in G.get_edge_data(node1, node2):
+            print "FOUND:", idkey, "=", node1, node2
+            break
+        else:
+            print "NOT MATCH", idkey, "x", node1, node2
+    """
     linkData = M.get_edge_data(node1, node2)
     print "edgeData", linkData
-"""
+    """
 
 
 
@@ -491,11 +498,17 @@ checkedList = []
 idx = 0
 midSwitches = defaultdict(list)
 for nodeSwitch in maxPath:
+    print "WHATIS", (len(maxPath)-1)
     if idx == (len(maxPath)-1):
         nextNodeSwitch = maxPath[idx-1]
+        print "nextNodeSwitch", nextNodeSwitch
     else:
         idx = (idx + 1)
         nextNodeSwitch = maxPath[idx]
+        print "nextNodeSwitch", nextNodeSwitch
+
+
+
 
         for i in range(len(rtTopo)):
             # Get all the edges/links
