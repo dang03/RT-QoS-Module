@@ -881,7 +881,7 @@ $$$TEST ZONE$$$
 
 M = nx.MultiGraph()
 
-"""
+
 M.add_edge('00:00:05', '00:00:06', key='k1', srcPort='A', dstPort='B', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='k2', srcPort='B', dstPort='A', bandwidth=4, delay=0.7, jitter=0.5, loss=30)
 
@@ -898,15 +898,15 @@ M.add_edge('00:00:06', '00:00:08', key='k9', srcPort='I', dstPort='J', bandwidth
 M.add_edge('00:00:08', '00:00:06', key='k10', srcPort='J', dstPort='I', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
 M.add_edge('00:00:07', '00:00:08', key='k11', srcPort='K', dstPort='L', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', key='k12', srcPort='L', dstPort='K', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
-"""
 
+"""
 M.add_edge('00:00:05', '00:00:06', key='5-6:1', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:1', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:05', '00:00:06', key='5-6:2', srcPort='2', dstPort='1', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:2', srcPort='1', dstPort='2', bandwidth=11, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:07', key='6-7:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
 M.add_edge('00:00:07', '00:00:06', key='7-6:1', srcPort='1', dstPort='1', bandwidth=13, delay=0.3, jitter=0.5, loss=30)
-
+"""
 """
 data = json_graph.node_link_data(M)
 dato = json_graph.adjacency_data(M)
@@ -947,7 +947,7 @@ print "res", res
 print "cos_res", cos_res
 """
 
-"""
+
 A = nx.dorogovtsev_goltsev_mendes_graph(2)
 
 for edge in A.edges_iter(data=True):
@@ -957,7 +957,7 @@ for edge in A.edges_iter(data=True):
     jtr = random.uniform(1, 5)
     pls = random.randrange(0, 100)
     A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
-"""
+
 
 """
 agGraph = stAggregate(M)
@@ -965,11 +965,15 @@ agGraph = stAggregate(M)
 for edge in agGraph.edges_iter(data=True, keys=True):
     print "aggregated", edge
 """
+
 """
 res, key_res, cos_res = AkLP(M, '00:00:05', '00:00:07', 3, 'bandwidth')
 print "res", res
 print "key_res", key_res
 print "cos_res", cos_res
+
+x, y, z = path_select(res, key_res, cos_res, len(res)-1)
+print "Found", x, "node-path, defined by", y, "edges, with", z, "total cost value."
 """
 
 """

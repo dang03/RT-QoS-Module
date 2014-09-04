@@ -486,12 +486,13 @@ for link in getEdgePath:
             break
         else:
             print "NOT MATCH", idkey, "x", node1, node2
-    """
-    linkData = M.get_edge_data(node1, node2)
-    print "edgeData", linkData
-    """
 
-
+idy = 0
+for idy in range(len(getEdgePath)):
+    node1, node2 = getEdgePath[idy]
+    print "2nodes", node1, node2
+    idkey = keyPath[idy]
+    print "idkey", idkey
 
 #configString = ""
 checkedList = []
