@@ -473,7 +473,8 @@ linkKey = None
 
 print "switches to configure: %s" % maxPath
 
-
+#edgeFormat = True
+auxPath2 = []   #an alternative list for QOS path in edge format style
 getEdgePath = to_edge_path(maxPath, M)
 print "PATH(edge format)", getEdgePath
 
@@ -516,9 +517,35 @@ for idx in range(len(getEdgePath)):
     print "edgeDstPort", edgeDstPort
     #print key, "\n"
 
-
     #configString = ""
     checkedList = []    #the check list is unused
+
+
+    if edgeSrcSwitch == srcSwitch:
+            qosNode2 = {'switch': srcSwitch, 'port': srcPort}
+            auxPath2.append(qosNode2)
+
+
+    elif edgeDstSwitch == srcSwitch:
+            qosNode2 = {'switch': srcSwitch, 'port': srcPort}
+            auxPath2.append(qosNode2)
+
+    elif edgeSrcSwitch == dstSwitch:
+            qosNode2 = {'switch': dstSwitch, 'port': dstPort}
+            auxPath2.append(qosNode2)
+
+
+    elif edgeDstSwitch == dstSwitch:
+            qosNode2 = {'switch': dstSwitch, 'port': dstPort}
+            auxPath2.append(qosNode2)
+
+    qosNode2 = {'switch': edgeSrcSwitch, 'port': edgeSrcPort}
+    auxPath2.append(qosNode2)
+    qosNode2 = {'switch': edgeDstSwitch, 'port': edgeDstPort}
+    auxPath2.append(qosNode2)
+
+
+
     """
     idx = 0
     midSwitches = defaultdict(list)
@@ -764,7 +791,7 @@ def path_sort(path, aux):
 
 qosPath = path_sort(maxPath, auxPath)
 print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
-
+print "Alternative style", auxPath2
 
 if os.path.exists('./path.json'):
     pathRes = open('./path.json', 'r')
