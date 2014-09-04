@@ -469,48 +469,69 @@ print "QoS path = %s\n" % maxPath
 # dynamic configuration
 
 auxPath = []    # auxiliar to store path ports
+linkKey = None
 
 print "switches to configure: %s" % maxPath
 
 
 getEdgePath = to_edge_path(maxPath, M)
-print "PATH", getEdgePath
+print "PATH(edge format)", getEdgePath
 
-for link in getEdgePath:
-    node1, node2 = link
-    print "nodes", node1, node2
-    for idkey in keyPath:
-        print "idkey", idkey
-        if idkey in G.get_edge_data(node1, node2):
-            print "FOUND:", idkey, "=", node1, node2
-            break
-        else:
-            print "NOT MATCH", idkey, "x", node1, node2
-
-idy = 0
-for idy in range(len(getEdgePath)):
-    node1, node2 = getEdgePath[idy]
-    print "2nodes", node1, node2
-    idkey = keyPath[idy]
-    print "idkey", idkey
-
-#configString = ""
-checkedList = []
-idx = 0
 midSwitches = defaultdict(list)
-for nodeSwitch in maxPath:
-    print "WHATIS", (len(maxPath)-1)
-    if idx == (len(maxPath)-1):
-        nextNodeSwitch = maxPath[idx-1]
-        print "nextNodeSwitch", nextNodeSwitch
-    else:
-        idx = (idx + 1)
-        nextNodeSwitch = maxPath[idx]
-        print "nextNodeSwitch", nextNodeSwitch
+idx = 0
+# Get node end points for each edge in maxPath list to first check if maxPath nodes are
+# bound to the edge keys from keyPath list and its matching
+for idx in range(len(getEdgePath)):
+    node1, node2 = getEdgePath[idx]
+    print "2nodes", node1, node2
+    for idx in range(len(keyPath)):
+        linkKey = keyPath[idx]
+        print "linkKey", linkKey
+        if linkKey in G.get_edge_data(node1, node2):
+            print "FOUND:", linkKey, "=", node1, node2
+            break
+    # For the maxPath node and keyPath key matching, next step is to split edge key string to
+    # get switch::port data for each edge in its correct order
+
+    edgePoints = linkKey.split('-')
+    print "edgePoints", edgePoints
+
+    edgeSrc = edgePoints[0].split('::')
+    edgeDst = edgePoints[1].split('::')
+
+    print "edgeSrc", edgeSrc
+    print "edgeDst", edgeDst
 
 
+    # Then the switch::ports items are parsed and added to the final QoS path response
+    # Get all the links switch::ports data first
+    edgeSrcSwitch = edgeSrc[0]
+    edgeDstSwitch = edgeDst[0]
+    edgeSrcPort = edgeSrc[1]
+    edgeDstPort = edgeDst[1]
+
+    print "edgeSrcSwitch", edgeSrcSwitch
+    print "edgeDstSwitch", edgeDstSwitch
+    print "edgeSrcPort", edgeSrcPort
+    print "edgeDstPort", edgeDstPort
+    #print key, "\n"
 
 
+    #configString = ""
+    checkedList = []    #the check list is unused
+    """
+    idx = 0
+    midSwitches = defaultdict(list)
+    for nodeSwitch in maxPath:
+        if idx == (len(maxPath)-1):
+            nextNodeSwitch = maxPath[idx-1]
+            print "nextNodeSwitch", nextNodeSwitch
+        else:
+            idx = (idx + 1)
+            nextNodeSwitch = maxPath[idx]
+            print "nextNodeSwitch", nextNodeSwitch
+    """
+    """
         for i in range(len(rtTopo)):
             # Get all the edges/links
             edgeSrcSwitch = rtTopo[i]['src-switch']
@@ -524,8 +545,9 @@ for nodeSwitch in maxPath:
             print edgeSrcPort
             print edgeDstPort
             #print key, "\n"
+    """
 
-            if edgeSrcSwitch == nodeSwitch and edgeDstSwitch == nextNodeSwitch:
+    if (edgeSrcSwitch == node1 or node2) and (edgeDstSwitch == node1 or node2):
                 print edgeSrcSwitch, edgeDstSwitch
                 print edgeSrcPort, edgeDstPort
                 if edgeSrcSwitch == srcSwitch:
@@ -634,6 +656,43 @@ for nodeSwitch in maxPath:
                     if edgeSrcSwitch != srcSwitch:
                         midSwitches[edgeSrcSwitch].append(edgeSrcPort)
 
+                elif edgeDstSwitch == srcSwitch and edgeDstSwitch not in checkedList:
+
+                    # Switch Queues Configuration
+                    """
+                    srcSwitchName = G.node[srcSwitch]['name']
+                    print dstSwitchName
+                    configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, srcPort)
+                    configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, edgeSrcPort)
+                    """
+
+                    qosNode = {'switch': srcSwitch, 'portA': srcPort, 'portB': edgeDstPort}
+                    auxPath.append(qosNode)
+                    print auxPath
+
+                    #switch is the destination host connected switch
+                    """
+                    command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".f", srcAddress, dstAddress, "0x800", edgeDstPort, dstPort, controllerRestIp)
+                    result = os.popen(command).read()
+                    print command
+
+                    command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".farp", "0x806", edgeDstPort, dstPort, controllerRestIp)
+                    result = os.popen(command).read()
+                    print command
+
+                    command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".r", dstAddress, srcAddress, "0x800", dstPort, edgeDstPort, controllerRestIp)
+                    result = os.popen(command).read()
+                    print command
+
+                    command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".rarp", "0x806", dstPort, edgeDstPort, controllerRestIp)
+                    result = os.popen(command).read()
+                    print command
+                    """
+                    if edgeSrcSwitch != dstSwitch:
+                        midSwitches[edgeSrcSwitch].append(edgeSrcPort)
+
+
+
                 else:
                     #switch is between other switches; create a dict with switch - ports (midSwitch : port-pair)
                     #maxPath contains route order, then midSwitches are stored in path order
@@ -655,7 +714,7 @@ for midSwitch, midPorts in midSwitches.iteritems():
         configString += " -- set Port %s-eth%s qos=@newqos" % (midSwitchName, str(midPorts[1]))
         """
 
-        qosNode = {'switch': midSwitch, 'port1': str(midPorts[0]), 'port2': str(midPorts[1])}
+        qosNode = {'switch': midSwitch, 'portA': str(midPorts[0]), 'portB': str(midPorts[1])}
         auxPath.append(qosNode)
         print auxPath
 
