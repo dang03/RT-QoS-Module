@@ -791,6 +791,7 @@ def path_sort(path, aux):
 
 qosPath = path_sort(maxPath, auxPath)
 print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
+
 print "Alternative style", auxPath2
 
 if os.path.exists('./path.json'):
@@ -801,7 +802,7 @@ else:
     lines = {}
 
 # requestID is an optional field but must be provided
-qosPath.append({"requestID": reqID})
+qosPath.append({"requestID": reqID})    # requestID may be provided along with the QoS path list
 pathRes = open('./path.json', 'w')
 to_serial = qosPath
 serial = json.dumps(to_serial)
@@ -820,3 +821,5 @@ qosDb.write(str+"\n")
 """
 duration = time.time()-startTime
 print("SPG End Time ", duration, " seconds")
+
+
