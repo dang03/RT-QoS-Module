@@ -834,9 +834,12 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
 
         print eFail
 
-        edgeLabels = dict([((u, v,), d[qos])
+        if qos is None:
+            edgeLabels = dict([((u, v,), '')
                         for u, v, d in agGraph.edges(data=True)])
-
+        else:
+            edgeLabels = dict([((u, v,), d[qos])
+                        for u, v, d in agGraph.edges(data=True)])
 
         #print "HERE", edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
         #edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
@@ -849,15 +852,20 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
         nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=0.6, edge_color='r')
         nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
 
-        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, label_pos=0.35, font_family='sans-serif')
+        nx.draw_networkx_labels(agGraph, pos, font_size=14, font_family='sans-serif')
 
         plt.axis('off')
         plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
         plt.show()  # display
 
     else:
-        edgeLabels = dict([((u, v,), d[qos])
+
+        if qos is None:
+            edgeLabels = dict([((u, v,), '')
+                        for u, v, d in agGraph.edges(data=True)])
+        else:
+            edgeLabels = dict([((u, v,), d[qos])
                         for u, v, d in agGraph.edges(data=True)])
 
         pos = nx.spring_layout(agGraph)  # positions for all nodes
@@ -871,8 +879,8 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
         if eFail is not None:
             nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5, edge_color='b', style='dashed')
 
-        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
-        nx.draw_networkx_labels(agGraph, pos, font_size=20, font_family='sans-serif')
+        nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, label_pos=0.35, font_family='sans-serif')
+        nx.draw_networkx_labels(agGraph, pos, font_size=14, font_family='sans-serif')
 
         plt.axis('off')
         plt.savefig(("/home/i2cat/Documents/test.png"))  # save as png
@@ -884,7 +892,7 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
 $$$TEST ZONE$$$
 ------------------------------------------------------------------------------
 """
-
+"""
 M = nx.MultiGraph()
 
 
@@ -904,7 +912,7 @@ M.add_edge('00:00:06', '00:00:08', key='k9', srcPort='I', dstPort='J', bandwidth
 M.add_edge('00:00:08', '00:00:06', key='k10', srcPort='J', dstPort='I', bandwidth=30, delay=0.4, jitter=0.2, loss=20)
 M.add_edge('00:00:07', '00:00:08', key='k11', srcPort='K', dstPort='L', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
 M.add_edge('00:00:08', '00:00:07', key='k12', srcPort='L', dstPort='K', bandwidth=30, delay=0.2, jitter=0.1, loss=5)
-
+"""
 """
 M.add_edge('00:00:05', '00:00:06', key='5-6:1', srcPort='1', dstPort='2', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
 M.add_edge('00:00:06', '00:00:05', key='6-5:1', srcPort='2', dstPort='1', bandwidth=15, delay=0.7, jitter=0.5, loss=30)
@@ -1016,7 +1024,7 @@ for u, v, key, data in M.edges_iter(data=True, keys=True):
 print M.edges(data=True)
 """
 
-
+"""
 res, key_res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "key_res", key_res
@@ -1024,7 +1032,7 @@ print "cost", cos_res
 
 path_JSON = json.dumps(res)
 print path_JSON
-
+"""
 
 """
 command = "curl -s http://127.0.0.1:5000/pathfinder/"
@@ -1052,4 +1060,6 @@ print 'selectedPATH', maxPath
 print 'selectedKeyPATH', keyPath
 print 'selectedCOST', length
 """
-plot_path(M, None, None, None, None, 'bandwidth')
+"""
+plot_path(M, res, None, None, None, 'bandwidth')
+"""

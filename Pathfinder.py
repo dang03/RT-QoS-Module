@@ -829,4 +829,4 @@ def pathfinder_algorithm():
 
 
 if __name__ == '__main__':
-    print pathfinder_algorithm()
+    pathfinder_algorithm()
