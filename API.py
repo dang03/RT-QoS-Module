@@ -4,13 +4,17 @@
 __author__ = 'Dani'
 
 import os
-# Using Flask since Python doesn't have built-in session management
+# Using Flask micro-framework, since Python doesn't have built-in session management
+# This REST API is a proof of concept and restful capabilites test for Pathfinder
 from flask import Flask, session, render_template, jsonify
+import flask_restful
 # Our target library
 import requests
 import json
+import Pathfinder
 
 app = Flask(__name__)
+api = flask_restful.Api(app)
 
 
 # Generate a secret random key for the session
@@ -86,6 +90,7 @@ def run_app():
 
     return json.dumps(r.json(), indent=4)
     """
+
     queueString = "sudo python Pathfinder.py"
     result = os.popen(queueString).read()
     return result

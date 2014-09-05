@@ -32,12 +32,33 @@ from MCP import *
 # main vars
 delta_sec = 2        # seconds to delay in time.sleep
 check_freq = 10     # seconds to check requests
-k_sel = 3            # selected k path
+
+
+# Switch sort to provide QoS path from source to destination
+def path_sort(path, aux):
+    sortedPath = []
+    for i in range(len(path)):
+        print "i", path[i]
+        for j in range(len(aux)):
+
+            print aux[j]['switch']
+            if path[i] == aux[j]['switch']:
+
+                sortedPath.append(aux[j])
+
+            else:
+                continue
+    return sortedPath
+
+
+
+
 
 global reqBand
 global reqDelay
 global reqJitter
 global reqPacketLoss
+k_sel = 3            # CUSTOMIZABLE VALUE: selected k path
 
 # def startTime
 startTime = time.time()
@@ -772,22 +793,6 @@ print "queue string:", queueString
 print "qResult:", qResult
 queueDb.write(qResult+"\n")
 """
-
-# Switch sort to provide QoS path from source to destination
-def path_sort(path, aux):
-    sortedPath = []
-    for i in range(len(path)):
-        print "i", path[i]
-        for j in range(len(aux)):
-
-            print aux[j]['switch']
-            if path[i] == aux[j]['switch']:
-
-                sortedPath.append(aux[j])
-
-            else:
-                continue
-    return sortedPath
 
 qosPath = path_sort(maxPath, auxPath)
 print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
