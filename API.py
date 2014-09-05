@@ -11,7 +11,7 @@ import flask_restful
 # Our target library
 import requests
 import json
-import Pathfinder
+from Pathfinder import pathfinder_algorithm
 
 app = Flask(__name__)
 api = flask_restful.Api(app)
@@ -36,6 +36,7 @@ POST            /pathfinder/...         ...
 
 """
 
+# REQUESTS dispatching
 # Query last Pathfinder result: returns last QoS path returned
 @app.route('/pathfinder/get_path')
 def get_path():
@@ -57,8 +58,8 @@ def get_path():
     return json.dumps(r, indent=4)
 
 # Query qosDb log
-@app.route('/pathfinder/get_qosDb')
-def get_qosDb():
+@app.route('/pathfinder/get_qos_log')
+def get_qos_log():
 
     if os.path.exists('./qosDb.json'):
         qosDb = open('./qosDb.json', 'r')
