@@ -92,9 +92,12 @@ def run_app():
     return json.dumps(r.json(), indent=4)
     """
 
-    queueString = "sudo python Pathfinder.py"
-    result = os.popen(queueString).read()
-    return result
+    result = pathfinder_algorithm()
+
+    #result = os.popen(queueString).read()
+
+    return json.dumps(result, indent=4)
+
 
 # Define a route for the webserver
 @app.route('/pathfinder/')

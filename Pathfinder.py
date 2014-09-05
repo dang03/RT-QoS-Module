@@ -827,6 +827,8 @@ def pathfinder_algorithm():
     duration = time.time()-startTime
     print("SPG End Time ", duration, " seconds")
 
+    return qosPath
 
 if __name__ == '__main__':
-    pathfinder_algorithm()
+    result = pathfinder_algorithm()
+    print "result", result
