@@ -813,7 +813,7 @@ def stAggregate_test(graph):
 #####################
 
 def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
-    edgeLabels = {}
+    #edgeLabels = {}
 
     if e2e is None and maxPath is not None:
         e2e = []
@@ -834,14 +834,19 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
 
         print eFail
 
-        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
+        edgeLabels = dict([((u, v,), d[qos])
+                        for u, v, d in agGraph.edges(data=True)])
+
+
+        #print "HERE", edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
+        #edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
 
         pos = nx.spring_layout(agGraph)  # positions for all nodes
         nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
         nx.draw_networkx_nodes(agGraph, pos, nodelist=maxPath, node_size=700, node_color='r')
         nx.draw_networkx_nodes(agGraph, pos, nodelist=e2e, node_color='y', node_shape='s')
 
-        nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=1, edge_color='r')
+        nx.draw_networkx_edges(agGraph, pos, edgelist=maxPathList, width=6, alpha=0.6, edge_color='r')
         nx.draw_networkx_edges(agGraph, pos, edgelist=eFail, width=2, alpha=0.5)
 
         nx.draw_networkx_edge_labels(agGraph, pos, font_size=10, edge_labels=edgeLabels, font_family='sans-serif')
@@ -852,7 +857,8 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
         plt.show()  # display
 
     else:
-        edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
+        edgeLabels = dict([((u, v,), d[qos])
+                        for u, v, d in agGraph.edges(data=True)])
 
         pos = nx.spring_layout(agGraph)  # positions for all nodes
         nx.draw_networkx_nodes(agGraph, pos, node_size=700, node_color='b')
@@ -947,7 +953,7 @@ print "res", res
 print "cos_res", cos_res
 """
 
-
+"""
 A = nx.dorogovtsev_goltsev_mendes_graph(2)
 
 for edge in A.edges_iter(data=True):
@@ -957,7 +963,7 @@ for edge in A.edges_iter(data=True):
     jtr = random.uniform(1, 5)
     pls = random.randrange(0, 100)
     A.add_edge(edge1, edge2, bandwidth=bnd, delay=dly, jitter=jtr, loss=pls)
-
+"""
 
 """
 agGraph = stAggregate(M)
@@ -1010,7 +1016,7 @@ for u, v, key, data in M.edges_iter(data=True, keys=True):
 print M.edges(data=True)
 """
 
-"""
+
 res, key_res, cos_res = ALP(M, '00:00:05', '00:00:06', 'bandwidth')
 print "path", res
 print "key_res", key_res
@@ -1018,7 +1024,7 @@ print "cost", cos_res
 
 path_JSON = json.dumps(res)
 print path_JSON
-"""
+
 
 """
 command = "curl -s http://127.0.0.1:5000/pathfinder/"
@@ -1041,10 +1047,9 @@ print "cost", ulti_cost
 """
 
 """
-maxPath, length = path_select(res, cos_res, len(res))
+maxPath, keyPath, length = path_select(res, key_res, cos_res, len(res))
 print 'selectedPATH', maxPath
+print 'selectedKeyPATH', keyPath
 print 'selectedCOST', length
-
-
-plot_path(M, maxPath)
 """
+plot_path(M, None, None, None, None, 'bandwidth')
