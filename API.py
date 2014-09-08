@@ -11,6 +11,7 @@ import flask_restful
 # Our target library
 import requests
 import json
+import datetime
 from Pathfinder import pathfinder_algorithm
 
 app = Flask(__name__)
@@ -28,9 +29,17 @@ mime_types = {'json_renderer': ('application/json',),
 
 class APIEncoder(json.JSONEncoder):
     def default(self, obj):
-        
+        if isinstance(obj, datetime.datetime):
+            return obj.strftime('%m/%d/%Y')
 
+        """
+        elif isinstance(obj, requestId):
+            return str(obj)
+        """
+        return json.JSONEncoder.default(self, obj)
 
+def json_renderer(**data):
+    return json.dumps(data, cls=APIEncoder)
 
 
 
