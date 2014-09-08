@@ -21,6 +21,19 @@ api = flask_restful.Api(app)
 app.secret_key = os.urandom(24)
 
 
+mime_types = {'json_renderer': ('application/json',),
+              'xml_renderer': ('application/xml', 'text/xml',
+                                'application/x-xml',)}          # xml could be an alternative data format
+
+
+class APIEncoder(json.JSONEncoder):
+    def default(self, obj):
+        
+
+
+
+
+
 """
 #############
 REST service
@@ -47,26 +60,27 @@ def get_path():
     # this issues a GET to the url. replace "get" with "post", "head",
     # "put", "patch"... to make a request using a different method
     #r = requests.get(url)
-
+    r = {}
     if os.path.exists('./path.json'):
         pathRes = open('./path.json', 'r')
         r = pathRes.readlines()
         pathRes.close()
     else:
-        r = {}
+        flask_restful.abort(404)
 
     return json.dumps(r, indent=4)
+
 
 # Query qosDb log
 @app.route('/pathfinder/get_qos_log')
 def get_qos_log():
-
+    r = {}
     if os.path.exists('./qosDb.json'):
         qosDb = open('./qosDb.json', 'r')
         r = qosDb.readlines()
         qosDb.close()
     else:
-        r = {}
+        flask_restful.abort(404)
 
     return json.dumps(r, indent=4)
 
