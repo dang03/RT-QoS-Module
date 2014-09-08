@@ -69,7 +69,7 @@ def get_path():
     # this issues a GET to the url. replace "get" with "post", "head",
     # "put", "patch"... to make a request using a different method
     #r = requests.get(url)
-    r = {}
+    #r = {}
     if os.path.exists('./path.json'):
         pathRes = open('./path.json', 'r')
         r = pathRes.readlines()
@@ -77,7 +77,8 @@ def get_path():
     else:
         flask_restful.abort(404)
 
-    return json.dumps(r, indent=4)
+    #return json.dumps(r, indent=4)
+    return r
 
 
 # Query qosDb log
@@ -122,12 +123,14 @@ def run_app():
     return json.dumps(result, indent=4)
 
 
+
+
 # Define a route for the webserver
 @app.route('/pathfinder/')
 def index():
     #return render_template('index.html')
 
-    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned"}, {'get_qosDb': "Query QoS log returned"}, {'example': "More to be implemented"}]}}
+    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned"}, {'get_qos_log': "Query QoS log returned"}, {'example': "More to be implemented"}]}}
 
     return jsonify(json_index)
 
