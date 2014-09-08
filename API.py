@@ -39,7 +39,7 @@ class APIEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 def json_renderer(**data):
-    return json.dumps(data, ensure_ascii=False, cls=APIEncoder, encoding='utf8')
+    return json.dumps(data, ensure_ascii=False, cls=APIEncoder, indent=4, encoding='utf8')
 
 
 
@@ -77,7 +77,7 @@ def get_path():
             res = json.load(path, encoding='utf8')
             path.close()
 
-            res = json_renderer(data=res)
+            res = jsonify(PATH=res)
             return res
     else:
         flask_restful.abort(404)
@@ -89,15 +89,40 @@ def get_path():
 # Query qosDb log
 @app.route('/pathfinder/get_qos_log')
 def get_qos_log():
-    r = {}
+    res = []
+    #res = {}
     if os.path.exists('./qosDb.json'):
         qosDb = open('./qosDb.json', 'r')
-        r = qosDb.readlines()
+        for line in qosDb:
+            res.append(json.loads(line))
+
+        #res = qosDb.readlines()
+        #[{'c': True, 'd': False}, None]
+
         qosDb.close()
+
+        return jsonify(LOG=res)
+        #return json.dumps(json.JSONDecoder().decode(r))
+
+
     else:
         flask_restful.abort(404)
 
-    return json.dumps(r, indent=4)
+
+
+
+"""
+if os.path.exists('./path.json'):
+        with open('./path.json', 'r') as path:
+            # r = pathRes.readlines()
+            res = json.load(path, encoding='utf8')
+            path.close()
+
+            res = json_renderer(data=res)
+            return res
+"""
+
+
 
 
 
