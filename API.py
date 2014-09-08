@@ -39,7 +39,7 @@ class APIEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 def json_renderer(**data):
-    return json.dumps(data, cls=APIEncoder)
+    return json.dumps(data, ensure_ascii=False, cls=APIEncoder, encoding='utf8')
 
 
 
@@ -51,7 +51,8 @@ HTTP Method     URI                     Action
 ------------    --------------------    -------
 index           /pathfinder/
 GET             /pathfinder/get_path    Retrieve latest found QoS path
-GET             /pathfinder/get_qosDb   Retrieve stored QoS paths
+GET             /pathfinder/get_qos_log Retrieve stored QoS paths
+POST            /pathfinder/run_app     Trigger pathfinder to return a QoS path
 POST            /pathfinder/...         ...
 ...
 
@@ -71,14 +72,18 @@ def get_path():
     #r = requests.get(url)
     #r = {}
     if os.path.exists('./path.json'):
-        pathRes = open('./path.json', 'r')
-        r = pathRes.readlines()
-        pathRes.close()
+        with open('./path.json', 'r') as path:
+            # r = pathRes.readlines()
+            res = json.load(path, encoding='utf8')
+            path.close()
+
+            res = json_renderer(data=res)
+            return res
     else:
         flask_restful.abort(404)
 
-    #return json.dumps(r, indent=4)
-    return r
+
+
 
 
 # Query qosDb log
