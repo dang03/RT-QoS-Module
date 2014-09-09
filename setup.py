@@ -4,6 +4,7 @@ setup(
     name='PathfinderProject',
     version='0.1.1',
     packages=[''],
+    package_data={'pathfinder': ['*.json']},
     url='None',
     license='None',
     author='Daniel',
