@@ -61,7 +61,9 @@ POST            /pathfinder/...         ...
 
 # REQUESTS dispatching
 # Query last Pathfinder result: returns last QoS path returned
-@app.route('/pathfinder/get_path')
+
+
+@app.route('/pathfinder/get_path', methods=['GET'])
 def get_path():
     #url = ''
     # example to actually run
@@ -83,11 +85,8 @@ def get_path():
         flask_restful.abort(404)
 
 
-
-
-
 # Query qosDb log
-@app.route('/pathfinder/get_qos_log')
+@app.route('/pathfinder/get_qos_log', methods=['GET'])
 def get_qos_log():
     res = []
     #res = {}
@@ -121,14 +120,7 @@ if os.path.exists('./path.json'):
             return res
 """
 
-
-
-
-
-
-
-
-@app.route('/pathfinder/run_app')
+@app.route('/pathfinder/run_app', methods=['POST'])
 def run_app():
     """
     url = ''
@@ -159,7 +151,7 @@ def run_app():
 def index():
     #return render_template('index.html')
 
-    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned"}, {'get_qos_log': "Query QoS log returned"}, {'example': "More to be implemented"}]}}
+    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned", 'get_qos_log': "Query QoS log returned", 'example': "More to be implemented"}]}}
 
     return jsonify(json_index)
 
