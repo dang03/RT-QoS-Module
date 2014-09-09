@@ -6,7 +6,7 @@ __author__ = 'Dani'
 import os
 # Using Flask micro-framework, since Python doesn't have built-in session management
 # This REST API is a proof of concept and restful capabilites test for Pathfinder
-from flask import Flask, session, render_template, jsonify
+from flask import Flask, session, render_template, jsonify, make_response
 import flask_restful
 # Our target library
 import requests
@@ -40,6 +40,11 @@ class APIEncoder(json.JSONEncoder):
 
 def json_renderer(**data):
     return json.dumps(data, ensure_ascii=False, cls=APIEncoder, indent=4, encoding='utf8')
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 

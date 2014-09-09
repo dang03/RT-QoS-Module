@@ -1,10 +1,10 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='PathfinderProject',
     version='0.1.1',
     packages=[''],
-    package_data={'data': ['/*.json']},
+    package_data={'data': ['*.json']},
     url='None',
     license='None',
     author='Daniel',
@@ -15,7 +15,7 @@ setup(
         'collections',
         'flask',
         'flask_RESTful',
-        'json',
+        'simplejson',
         'matplotlib',
         'networkX',
         'numpy'
