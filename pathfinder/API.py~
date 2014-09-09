@@ -150,11 +150,14 @@ def run_app():
 @app.route('/pathfinder/run_app2', methods=['POST'])
 def run_app2():
 
-    if not request.json
+    if not request.json:
 	flask_restful.abort(400)
     
     pfInput = json.load(request.json)
-    result = pathfinder_algorithm(pfInput)
+    try:
+        result = pathfinder_algorithm(pfInput)
+    except:
+        return make_response(jsonify({'error': sys.exec_info()[0]}), 500)
 
     return json.dumps(result, indent=4), 200
 

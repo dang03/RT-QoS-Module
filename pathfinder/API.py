@@ -4,6 +4,7 @@
 __author__ = 'Dani'
 
 import os
+import sys
 # Using Flask micro-framework, since Python doesn't have built-in session management
 # This REST API is a proof of concept and restful capabilites test for Pathfinder
 from flask import Flask, jsonify, make_response
@@ -154,7 +155,10 @@ def run_app2():
 	flask_restful.abort(400)
     
     pfInput = json.load(request.json)
-    result = pathfinder_algorithm(pfInput)
+    try:
+        result = pathfinder_algorithm(pfInput)
+    except:
+        return make_response(jsonify({'error': sys.exec_info()[0]}), 500)
 
     return json.dumps(result, indent=4), 200
 
