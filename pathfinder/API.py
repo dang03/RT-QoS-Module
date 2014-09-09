@@ -78,8 +78,8 @@ def get_path():
     # "put", "patch"... to make a request using a different method
     #r = requests.get(url)
     #r = {}
-    if os.path.exists('./path.json'):
-        with open('./path.json', 'r') as path:
+    if os.path.exists('./pathfinder/path.json'):
+        with open('./pathfinder/path.json', 'r') as path:
             # r = pathRes.readlines()
             res = json.load(path, encoding='utf8')
             path.close()
@@ -152,13 +152,15 @@ def run_app():
 def run_app2():
 
     if not request.json:
-	flask_restful.abort(400)
+        flask_restful.abort(400)
     
     pfInput = json.load(request.json)
+
     try:
         result = pathfinder_algorithm(pfInput)
+
     except:
-        return make_response(jsonify({'error': sys.exec_info()[0]}), 500)
+        return make_response(jsonify({'error': sys.exc_info()[0]}), 500)
 
     return json.dumps(result, indent=4), 200
 
@@ -178,7 +180,7 @@ if __name__ == '__main__':
     app.run(
         # host="0.0.0.0",
         #port=int("80")
-        debug=True
+        debug=False
     )
 
 """

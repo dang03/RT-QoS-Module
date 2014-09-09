@@ -51,7 +51,7 @@ def path_sort(path, aux):
     return sortedPath
 
 def pathfinder_algorithm_from_file():
-    with open("PFinput.json", 'r') as PFinput:
+    with open("pathfinder/PFinput.json", 'r') as PFinput:
         reqData = json.load(PFinput)
     
     return pathfinder_algorithm(reqData)
@@ -800,8 +800,8 @@ def pathfinder_algorithm(reqData):
 
     print "Alternative style", auxPath2
 
-    if os.path.exists('./path.json'):
-        pathRes = open('./path.json', 'r')
+    if os.path.exists('.pathfinder//path.json'):
+        pathRes = open('.pathfinder//path.json', 'r')
         lines = pathRes.readlines()
         pathRes.close()
     else:
@@ -809,7 +809,7 @@ def pathfinder_algorithm(reqData):
 
     # requestID is an optional field but must be provided
     qosPath.append({"requestID": reqID})    # requestID may be provided along with the QoS path list
-    pathRes = open('./path.json', 'w')
+    pathRes = open('pathfinder/path.json', 'w')
     to_serial = qosPath
     serial = json.dumps(to_serial)
     #serial = json.dumps(to_serial, indent=2, separators=(',', ': '))
@@ -831,5 +831,5 @@ def pathfinder_algorithm(reqData):
     return qosPath
 
 if __name__ == '__main__':
-    result = pathfinder_algorithm()
+    result = pathfinder_algorithm_from_file()
     print "result", result
