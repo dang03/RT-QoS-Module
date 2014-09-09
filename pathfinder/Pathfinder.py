@@ -23,10 +23,10 @@ import json
 import datetime
 import time
 import sys
-from PathDrawer import to_edge_path
+from pathfinder.PathDrawer import to_edge_path
 #from fractions import Fraction
 from collections import defaultdict
-from MCP import *
+from pathfinder.MCP import *
 
 
 # main vars

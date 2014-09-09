@@ -4,8 +4,11 @@
 __author__ = 'Dani'
 
 import json
+
 import networkx as nx
-from MCP import plot_path
+
+from pathfinder.MCP import plot_path
+
 
 with open("PFinput.json", 'r') as PFinput:
     reqData = json.load(PFinput)

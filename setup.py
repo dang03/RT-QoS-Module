@@ -3,8 +3,8 @@ from setuptools import setup
 setup(
     name='PathfinderProject',
     version='0.1.1',
-    packages=[''],
-    package_data={'data': ['*.json']},
+    packages=['pathfinder'],
+    package_data={'data': ['pathfinder/*.json']},
     url='None',
     license='None',
     author='Daniel',

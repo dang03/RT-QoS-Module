@@ -22,11 +22,10 @@ __all__ = ['multiEdgeKey',
            'stAggregate_test']
 
 import networkx as nx
-from networkx.readwrite import json_graph
-from PathDrawer import to_edge_path, to_node_path
-import json
+
+from pathfinder.PathDrawer import to_edge_path, to_node_path
+
 #import os
-import random
 import matplotlib.pyplot as plt
 
 
