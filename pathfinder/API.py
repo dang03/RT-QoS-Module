@@ -7,12 +7,12 @@ import os
 import sys
 # Using Flask micro-framework, since Python doesn't have built-in session management
 # This REST API is a proof of concept and restful capabilites test for Pathfinder
-from flask import Flask, jsonify, make_response
+from flask import Flask, jsonify, make_response, request
 import flask_restful
 # Our target library
 import json
 import datetime
-from pathfinder.Pathfinder import pathfinder_algorithm
+from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
 app = Flask(__name__)
 api = flask_restful.Api(app)
