@@ -9,5 +9,15 @@ setup(
     license='None',
     author='Daniel',
     author_email='dani.guija@i2cat.net',
-    description='Algorithm to find a suitable path for a QoS request'
+    description='Algorithm to find a suitable path for a QoS request',
+    install_requires=[
+        'networkX',
+        'collections',
+        'flask',
+        'flask_RESTful',
+        'json',
+        'matplotlib',
+        'networkX',
+        'numpy'
+    ]
 )
