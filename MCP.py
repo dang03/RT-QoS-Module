@@ -25,7 +25,7 @@ import networkx as nx
 from networkx.readwrite import json_graph
 from PathDrawer import to_edge_path, to_node_path
 import json
-import os
+#import os
 import random
 import matplotlib.pyplot as plt
 

@@ -11,27 +11,27 @@ __author__ = 'Daniel'
 
 # Import libraries
 import os
-import io
-import subprocess
-import argparse
+#import io
+#import subprocess
+#import argparse
 
 import networkx as nx
-import matplotlib.pyplot as plt
-import numpy
-from networkx.readwrite import json_graph
+#import matplotlib.pyplot as plt
+#import numpy
+#from networkx.readwrite import json_graph
 import json
 import datetime
 import time
 import sys
 from PathDrawer import to_edge_path
-from fractions import Fraction
+#from fractions import Fraction
 from collections import defaultdict
 from MCP import *
 
 
 # main vars
-delta_sec = 2        # seconds to delay in time.sleep
-check_freq = 10     # seconds to check requests
+#delta_sec = 2        # seconds to delay in time.sleep
+#check_freq = 10     # seconds to check requests
 
 
 # Switch sort to provide QoS path from source to destination

@@ -110,7 +110,6 @@ def get_qos_log():
 
 
 
-
 """
 if os.path.exists('./path.json'):
         with open('./path.json', 'r') as path:
