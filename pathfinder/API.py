@@ -173,9 +173,10 @@ def run_app2():
     """
 
     #if not request.json or not 'test' in request.json:
+
     if not request.json:
         flask_restful.abort(400)
-    
+
     PFInput = json.load(request.json)
 
     result = pathfinder_algorithm(PFInput)
