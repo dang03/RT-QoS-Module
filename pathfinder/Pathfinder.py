@@ -547,28 +547,29 @@ def pathfinder_algorithm(reqData):
 
 
         if edgeSrcSwitch == srcSwitch:
-                qosNode2 = {'switch': srcSwitch, 'port': srcPort}
+                qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
                 auxPath2.append(qosNode2)
 
 
         elif edgeDstSwitch == srcSwitch:
-                qosNode2 = {'switch': srcSwitch, 'port': srcPort}
+                qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
                 auxPath2.append(qosNode2)
 
         elif edgeSrcSwitch == dstSwitch:
-                qosNode2 = {'switch': dstSwitch, 'port': dstPort}
+                qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
                 auxPath2.append(qosNode2)
 
 
         elif edgeDstSwitch == dstSwitch:
-                qosNode2 = {'switch': dstSwitch, 'port': dstPort}
+                qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
                 auxPath2.append(qosNode2)
 
-        qosNode2 = {'switch': edgeSrcSwitch, 'port': edgeSrcPort}
+        qosNode2 = ({'switch': edgeSrcSwitch, 'port': edgeSrcPort}, {'switch': edgeDstSwitch, 'port': edgeDstPort})
         auxPath2.append(qosNode2)
+        """
         qosNode2 = {'switch': edgeDstSwitch, 'port': edgeDstPort}
         auxPath2.append(qosNode2)
-
+        """
 
 
         """
@@ -832,6 +833,7 @@ def pathfinder_algorithm(reqData):
     print("SPG End Time ", duration, " seconds")
 
     return qosPath
+    #return auxPath2
 
 if __name__ == '__main__':
     result = pathfinder_algorithm_from_file()

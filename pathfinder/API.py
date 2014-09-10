@@ -10,6 +10,7 @@ import sys
 from flask import Flask, jsonify, make_response, request, render_template
 import flask_restful
 from werkzeug.debug import get_current_traceback
+import traceback
 # Our target library
 import json
 import datetime
@@ -48,16 +49,19 @@ def json_renderer(**data):
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+
+
 @app.errorhandler(Exception)
 def internal_error(error):
-    app.logger.error("Exception:\n" + str(error))
-    message = {
-    'status': 500,
-    'message': 'Internal Server Error: ' + str(error)}
+    """
+    app.logger.error("Exception:\n" + str())
+    """
+    message = dict(status=500, message='Internal Server Error: ' + str(traceback.format_exc()))
     resp = jsonify(message)
     resp.status_code = 500
 
-    return make_response(resp)
+    return make_response(resp, 500)
+
 
 
 """
@@ -137,7 +141,8 @@ if os.path.exists('./path.json'):
             return res
 """
 
-@app.route('/pathfinder/run_app', methods=['GET', 'POST'])
+@app.route('/pathfinder/run_app', methods=['POST'])
+#@app.route('/pathfinder/run_app', methods=['GET', 'POST'])
 def run_app():
     """
     url = ''
@@ -155,11 +160,10 @@ def run_app():
     """
 
     result = pathfinder_algorithm_from_file()
-    return json.dumps(result, indent=4)
-"""
-    except:
-        print sys.exc_info()[0]
-"""
+
+    #return json.dumps(result, indent=4), 200
+    return jsonify(PATH=result), 200
+
 
 @app.route('/pathfinder/run_app2', methods=['POST'])
 def run_app2():
@@ -169,13 +173,10 @@ def run_app2():
     
     pfInput = json.load(request.json)
 
-    try:
-        result = pathfinder_algorithm(pfInput)
-
-    except:
-        return make_response(jsonify({'error': sys.exc_info()[0]}), 500)
+    result = pathfinder_algorithm(pfInput)
 
     return json.dumps(result, indent=4), 200
+
 
 
 # Define a route for the webserver
