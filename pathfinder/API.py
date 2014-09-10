@@ -145,6 +145,7 @@ if os.path.exists('./path.json'):
 #@app.route('/pathfinder/run_app', methods=['GET', 'POST'])
 def run_app():
     """
+    usage: curl -i -H "Content-Type: application/json" -X POST http://127.0.0.1:5000/pathfinder/run_app
     url = ''
     # example to actually run
     # url = 'http://httpbin.org/post'
@@ -167,13 +168,17 @@ def run_app():
 
 @app.route('/pathfinder/run_app2', methods=['POST'])
 def run_app2():
+    """
+    usage: curl -i -H "Content-Type: application/json" -X POST -d '{"test":"data"}' http://127.0.0.1:5000/pathfinder/run_app2
+    """
 
+    #if not request.json or not 'test' in request.json:
     if not request.json:
         flask_restful.abort(400)
     
-    pfInput = json.load(request.json)
+    PFInput = json.load(request.json)
 
-    result = pathfinder_algorithm(pfInput)
+    result = pathfinder_algorithm(PFInput)
 
     return json.dumps(result, indent=4), 200
 
