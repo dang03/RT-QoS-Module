@@ -7,14 +7,16 @@ import os
 import sys
 # Using Flask micro-framework, since Python doesn't have built-in session management
 # This REST API is a proof of concept and restful capabilites test for Pathfinder
-from flask import Flask, jsonify, make_response, request
+from flask import Flask, jsonify, make_response, request, render_template
 import flask_restful
+from werkzeug.debug import get_current_traceback
 # Our target library
 import json
 import datetime
 from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
 app = Flask(__name__)
+app.config['PROPAGATE_EXCEPTIONS'] = True
 api = flask_restful.Api(app)
 
 
@@ -26,26 +28,36 @@ mime_types = {'json_renderer': ('application/json',),
               'xml_renderer': ('application/xml', 'text/xml',
                                 'application/x-xml',)}          # xml could be an alternative data format
 
-
+"""
 class APIEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
             return obj.strftime('%m/%d/%Y')
 
-        """
+
         elif isinstance(obj, requestId):
             return str(obj)
-        """
+
         return json.JSONEncoder.default(self, obj)
 
 def json_renderer(**data):
     return json.dumps(data, ensure_ascii=False, cls=APIEncoder, indent=4, encoding='utf8')
-
+"""
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+@app.errorhandler(Exception)
+def internal_error(error):
+    app.logger.error("Exception:\n" + str(error))
+    message = {
+    'status': 500,
+    'message': 'Internal Server Error: ' + str(error)}
+    resp = jsonify(message)
+    resp.status_code = 500
+
+    return make_response(resp)
 
 
 """
@@ -125,7 +137,7 @@ if os.path.exists('./path.json'):
             return res
 """
 
-@app.route('/pathfinder/run_app', methods=['POST'])
+@app.route('/pathfinder/run_app', methods=['GET', 'POST'])
 def run_app():
     """
     url = ''
@@ -143,10 +155,11 @@ def run_app():
     """
 
     result = pathfinder_algorithm_from_file()
-
-    #result = os.popen(queueString).read()
-
     return json.dumps(result, indent=4)
+"""
+    except:
+        print sys.exc_info()[0]
+"""
 
 @app.route('/pathfinder/run_app2', methods=['POST'])
 def run_app2():
@@ -164,12 +177,13 @@ def run_app2():
 
     return json.dumps(result, indent=4), 200
 
+
 # Define a route for the webserver
 @app.route('/pathfinder/')
 def index():
     #return render_template('index.html')
 
-    json_index = {'Pathfinder REST API Index':{'Methods':[{'get_path': "Query last QoS path returned", 'get_qos_log': "Query QoS log returned", 'example': "More to be implemented"}]}}
+    json_index = {'Pathfinder REST API Index': {'Methods': [{'get_path': "Query last QoS path returned", 'get_qos_log': "Query QoS log returned", 'example': "More to be implemented"}]}}
 
     return jsonify(json_index)
 

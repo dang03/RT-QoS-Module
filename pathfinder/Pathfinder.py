@@ -52,9 +52,12 @@ def path_sort(path, aux):
 
 def pathfinder_algorithm_from_file():
     with open("pathfinder/PFinput.json", 'r') as PFinput:
+
         reqData = json.load(PFinput)
-    
-    return pathfinder_algorithm(reqData)
+
+        return pathfinder_algorithm(reqData)
+
+
 
 def pathfinder_algorithm(reqData):
 
