@@ -169,8 +169,10 @@ def run_app():
 @app.route('/pathfinder/run_app2', methods=['POST'])
 def run_app2():
     """
-    usage: curl -i -H "Content-Type: application/json" -X POST -d '{"test":"data"}' http://127.0.0.1:5000/pathfinder/run_app2
+    usage:
+    curl -i -H "Content-Type: application/json" -X POST -d '{"test":"data"}' http://127.0.0.1:5000/pathfinder/run_app2
     curl -i -H "Content-Type: application/json" -X POST --data-binary @/pathfinder/PFinput.json http://127.0.0.1:5000/pathfinder/run_app2
+    curl -i -H "Content-Type: application/json" -vX POST -d @PFinput.json http://127.0.0.1:5000/pathfinder/run_app2
     """
 
     #if not request.json or not 'test' in request.json:
@@ -178,7 +180,7 @@ def run_app2():
     if not request.json:
         flask_restful.abort(400)
 
-    PFinput = json.load(request.json)
+    PFinput = request.json
 
     result = pathfinder_algorithm(PFinput)
 
