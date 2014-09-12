@@ -804,12 +804,16 @@ def pathfinder_algorithm(reqData):
 
     print "Alternative style", auxPath2
 
-    if os.path.exists('.pathfinder//path.json'):
-        pathRes = open('.pathfinder//path.json', 'r')
+    if os.path.exists('.pathfinder/path.json'):
+        pathRes = open('.pathfinder/path.json', 'r')
         lines = pathRes.readlines()
         pathRes.close()
+
     else:
         lines = {}
+        print "Path log file not found. Creating new log file.\n"
+        with open('path.json', 'wb') as path_log:
+            json.dump(lines, path_log)
 
     # requestID is an optional field but must be provided
     qosPath.append({"requestID": reqID})    # requestID may be provided along with the QoS path list
