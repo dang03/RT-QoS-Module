@@ -141,8 +141,8 @@ if os.path.exists('./path.json'):
             return res
 """
 
-@app.route('/pathfinder/run_app', methods=['POST'])
-#@app.route('/pathfinder/run_app', methods=['GET', 'POST'])
+#@app.route('/pathfinder/run_app', methods=['POST'])
+@app.route('/pathfinder/run_app', methods=['GET', 'POST'])
 def run_app():
     """
     usage: curl -i -H "Content-Type: application/json" -X POST http://127.0.0.1:5000/pathfinder/run_app
@@ -184,7 +184,8 @@ def run_app2():
 
     result = pathfinder_algorithm(PFinput)
 
-    return json.dumps(result, indent=4), 200
+    #return json.dumps(result, indent=4), 200
+    return jsonify(PATH=result), 200
 
 
 
