@@ -42,7 +42,28 @@ class mcolors:
         self.FAIL = ''
         self.ENDC = ''
 
-# First it checks if a local request source file exists, called PFinput2.json for testing purposes
+#
+# INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
+# that will include QoS requirements plus necessary data unavailable from the controller
+
+if os.path.exists('./PFinput2.json'):
+    PFinput = open('./PFinput2.json', 'r')
+    lines = PFinput.readlines()
+    PFinput.close()
+else:
+    lines = {}
+    print "QoS-Request file not found. Creating new request file.\n"
+    with open('PFinput2.json', 'wb') as PFinput:
+        json.dump(lines, PFinput)
+
+print(lines)
+
+
+
+
+# OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
+# It will store the PFinput file, as a output result to be sent to Pathfinder REST API
+# or locally processed by Pathfinder algorithm
 
 if os.path.exists('./PFinput2.json'):
     PFinput = open('./PFinput2.json', 'r')
