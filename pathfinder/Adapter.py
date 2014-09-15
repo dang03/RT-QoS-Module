@@ -2,7 +2,8 @@
 # encoding: utf-8
 
 """
-Adapter:
+Adapter App: Collects data from different sources to build up a QoS request that
+ Pathfinder algorithm can understand.
 
 """
 
@@ -12,7 +13,6 @@ __author__ = 'Dani'
 import os
 import argparse
 import json
-import datetime
 import time
 import sys
 from collections import defaultdict
@@ -42,7 +42,7 @@ class mcolors:
         self.FAIL = ''
         self.ENDC = ''
 
-# first check if a local request file exists, which needs to be updated after data gathering
+# First it checks if a local request source file exists, called PFinput2.json for testing purposes
 
 if os.path.exists('./PFinput2.json'):
     PFinput = open('./PFinput2.json', 'r')
@@ -76,6 +76,7 @@ with open("QoS_Request.json") as qosRequest:
     reqID = reqData['requestID']
     reqAlarm = reqData['alarm']
     print "QoS Request ID: %s\n" % reqID
+    """
     if dataID == reqID:
         if reqAlarm == 0:
             print mcolors.FAIL + "QoS Request ID: %s already exists. A new ID is required to initialize.\n" % reqID
@@ -84,8 +85,8 @@ with open("QoS_Request.json") as qosRequest:
             sys.exit()
     if reqAlarm != 0:
         print mcolors.OKGREEN + "QoS Request Alarm: %s re-route requested\n" % reqID, mcolors.ENDC
+    """
 
-    #TODO: change to new input data structure (PFinput.json)
     with open("QoS_Request.json") as qosRequest:
         reqData = json.load(qosRequest)
 
@@ -93,34 +94,34 @@ with open("QoS_Request.json") as qosRequest:
             if reqData['bandwidth'] is not 0:
                 reqBand = reqData['bandwidth']
                 print "Requested minimum bandwidth: %s" % reqBand
-                k.append('bandwidth')
+                #k.append('bandwidth')
 
         if 'delay' in reqData:
             if reqData['delay'] is not 0:
                 reqDelay = reqData['delay']
                 print "Requested maximum delay: %s" % reqDelay
-                k.append('delay')
+                #k.append('delay')
 
         if 'jitter' in reqData:
             if reqData['jitter'] is not 0:
                 reqJitter = reqData['jitter']
                 print "Requested maximum jitter: %s" % reqJitter
-                k.append('jitter')
+                #k.append('jitter')
 
         if 'packet-loss' in reqData:
             if reqData['packet-loss'] is not 0:
                 reqPacketLoss = reqData['packet-loss']
                 print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
-                k.append('packet-loss')
+                #k.append('packet-loss')
 
-        print "Number of constraints: %s\n" % len(k)
+
         print("QoS Request data loaded.\n")
 
 
 
 # retrieve source and destination device attachment points
-# using DeviceManager rest API
-#TODO: change to new input data structure (PFinput.json)
+# using Floodlight's DeviceManager REST API
+
 with open("QoS_Request.json") as qosRequest:
     reqData = json.load(qosRequest)
     srcAddress = reqData['ip-src']
@@ -140,8 +141,6 @@ try:
 
 except:
     print mcolors.FAIL + "Error: Controller could not find SRC attachment point!"
-    duration = time.time()-startTime
-    print "SPG End Time: ", duration, " seconds"
     sys.exit()
 
 
@@ -155,8 +154,6 @@ try:
 
 except:
     print mcolors.FAIL + "Error: Controller could not find DST attachment point!"
-    duration = time.time()-startTime
-    print "SPG End Time: ", duration, " seconds"
     sys.exit()
 
 print srcSwitch, "\n", srcPort, "\n", dstSwitch, "\n", dstPort
