@@ -27,7 +27,8 @@ import networkx as nx
 
 parser = argparse.ArgumentParser(description='Suitable Path Generator')
 parser.add_argument('--controller', dest='controllerRestIp', action='store', default='localhost:8080', help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
-parser.add_argument('--input', dest='fileName', default='None', help='Optional request file path', metavar='FILE')
+parser.add_argument('--input', dest='fileName', default='None', help='Optional request file path, e.g., pathfinder/request.json', metavar='FILE')
+parser.add_argument('--topo', dest='topoStats', default='None', help='Optional topology file path, e.g., pathfinder/topology.json', metavar='FILE')
 args = parser.parse_args()
 print args, "\n"
 
@@ -50,22 +51,21 @@ class mcolors:
 # that will include QoS requirements plus necessary data unavailable from the controller
 if args.fileName is not None:
 
-    if os.path.exists('./request.json'):
-        PFinput = open('./request.json', 'r')
+    # if os.path.exists('./request.json'):
+    if os.path.exists(args.fileName):
+        # PFinput = open('./request.json', 'r')
+        PFinput = open(args.fileName, 'r')
         lines = PFinput.readlines()
         PFinput.close()
 
     else:
-        lines = {}
-        print "QoS-Request file not found. Creating new request file.\n"
-        with open('request.json', 'wb') as PFinput:
-            json.dump(lines, PFinput)
+        raise Exception("The file %s does not exist" % args.fileName)
 
     print(lines)
 
 
 
-
+"""
 # OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
 # It will store the PFinput file, as a output result to be sent to Pathfinder REST API
 # or locally processed by Pathfinder algorithm
@@ -74,6 +74,7 @@ if os.path.exists('./PFinput2.json'):
     PFinput = open('./PFinput2.json', 'r')
     lines = PFinput.readlines()
     PFinput.close()
+
 else:
     lines = {}
     print "QoS-Request file not found. Creating new request file.\n"
@@ -83,10 +84,10 @@ else:
 print(lines)
 
 
-
 """
-# load qos request ID to compare with qosDb and check its availability
-#TODO: add new function to enable new request interface (requestLoader.py)
+
+# load request data to build up output PFinput.json
+
 reqID = None
 reqAlarm = None     # Check if request is a re-route / duplicated request
 reqBand = None
@@ -95,7 +96,7 @@ reqPacketLoss = None
 reqJitter = None    # Not used, QoS parameter to consider
 reqCost = None      # Not used, QoS link average state
 k = []               # To stack number of constraints used to calculate a path
-"""
+
 """
 #TODO: change to new input data structure (PFinput.json)
 with open("QoS_Request.json") as qosRequest:
