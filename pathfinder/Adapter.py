@@ -27,10 +27,13 @@ import networkx as nx
 
 parser = argparse.ArgumentParser(description='Suitable Path Generator')
 parser.add_argument('--controller', dest='controllerRestIp', action='store', default='localhost:8080', help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
+parser.add_argument('--input', dest='fileName', default='None', help='Optional request file path', metavar='FILE')
 args = parser.parse_args()
 print args, "\n"
 
 controllerRestIp = args.controllerRestIp
+inputfile = args.fileName
+
 
 class mcolors:
     OKGREEN = '\033[92m'
@@ -45,18 +48,20 @@ class mcolors:
 #
 # INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
 # that will include QoS requirements plus necessary data unavailable from the controller
+if args.fileName is not None:
 
-if os.path.exists('./PFinput2.json'):
-    PFinput = open('./PFinput2.json', 'r')
-    lines = PFinput.readlines()
-    PFinput.close()
-else:
-    lines = {}
-    print "QoS-Request file not found. Creating new request file.\n"
-    with open('PFinput2.json', 'wb') as PFinput:
-        json.dump(lines, PFinput)
+    if os.path.exists('./request.json'):
+        PFinput = open('./request.json', 'r')
+        lines = PFinput.readlines()
+        PFinput.close()
 
-print(lines)
+    else:
+        lines = {}
+        print "QoS-Request file not found. Creating new request file.\n"
+        with open('request.json', 'wb') as PFinput:
+            json.dump(lines, PFinput)
+
+    print(lines)
 
 
 
@@ -78,6 +83,7 @@ else:
 print(lines)
 
 
+
 """
 # load qos request ID to compare with qosDb and check its availability
 #TODO: add new function to enable new request interface (requestLoader.py)
@@ -90,14 +96,15 @@ reqJitter = None    # Not used, QoS parameter to consider
 reqCost = None      # Not used, QoS link average state
 k = []               # To stack number of constraints used to calculate a path
 """
-
+"""
 #TODO: change to new input data structure (PFinput.json)
 with open("QoS_Request.json") as qosRequest:
     reqData = json.load(qosRequest)
     reqID = reqData['requestID']
     reqAlarm = reqData['alarm']
     print "QoS Request ID: %s\n" % reqID
-    """
+"""
+"""
     if dataID == reqID:
         if reqAlarm == 0:
             print mcolors.FAIL + "QoS Request ID: %s already exists. A new ID is required to initialize.\n" % reqID
@@ -106,8 +113,8 @@ with open("QoS_Request.json") as qosRequest:
             sys.exit()
     if reqAlarm != 0:
         print mcolors.OKGREEN + "QoS Request Alarm: %s re-route requested\n" % reqID, mcolors.ENDC
-    """
-
+"""
+"""
     with open("QoS_Request.json") as qosRequest:
         reqData = json.load(qosRequest)
 
@@ -218,3 +225,4 @@ for parsedResult in json.loads(rtTopo):
 print("Topology data loaded")
 
 #######################################################################
+"""
