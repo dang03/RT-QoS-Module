@@ -88,60 +88,61 @@ print(lines)
 
 # load request data to build up output PFinput.json
 
-reqID = None
-reqAlarm = None     # Check if request is a re-route / duplicated request
-reqBand = None
-reqDelay = None     # Data gathering not yet implemented
-reqPacketLoss = None
-reqJitter = None    # Not used, QoS parameter to consider
-reqCost = None      # Not used, QoS link average state
-k = []               # To stack number of constraints used to calculate a path
+global reqID
+global reqAlarm    # Check if request is a re-route / duplicated request
+global reqBand
+global reqDelay    # Data gathering not yet implemented
+global reqPacketLoss
+global reqJitter   # Not used, QoS parameter to consider
+global reqCost     # Not used, QoS link average state
+               # To stack number of constraints used to calculate a path
 
-"""
-#TODO: change to new input data structure (PFinput.json)
-with open("QoS_Request.json") as qosRequest:
+
+with open("request.json") as qosRequest:
     reqData = json.load(qosRequest)
-    reqID = reqData['requestID']
-    reqAlarm = reqData['alarm']
-    print "QoS Request ID: %s\n" % reqID
-"""
-"""
-    if dataID == reqID:
-        if reqAlarm == 0:
-            print mcolors.FAIL + "QoS Request ID: %s already exists. A new ID is required to initialize.\n" % reqID
-            duration = time.time()-startTime
-            print "SPG End Time: ", duration, " seconds"
-            sys.exit()
-    if reqAlarm != 0:
-        print mcolors.OKGREEN + "QoS Request Alarm: %s re-route requested\n" % reqID, mcolors.ENDC
-"""
-"""
-    with open("QoS_Request.json") as qosRequest:
-        reqData = json.load(qosRequest)
+    #reqID = reqData['requestID']
+    #reqAlarm = reqData['alarm']
+    print "reqData", reqData
+    #print "QoS Request ID: %s\n" % reqID
 
-        if 'bandwidth' in reqData:
-            if reqData['bandwidth'] is not 0:
-                reqBand = reqData['bandwidth']
-                print "Requested minimum bandwidth: %s" % reqBand
-                #k.append('bandwidth')
 
-        if 'delay' in reqData:
-            if reqData['delay'] is not 0:
-                reqDelay = reqData['delay']
-                print "Requested maximum delay: %s" % reqDelay
-                #k.append('delay')
+    if 'ip-src' in reqData:
+        if reqData['ip-src']:
+                print "works"
+            #reqBand = reqData['bandwidth']
+            #print "Requested minimum bandwidth: %s" % reqBand
+            #k.append('bandwidth')
 
-        if 'jitter' in reqData:
-            if reqData['jitter'] is not 0:
-                reqJitter = reqData['jitter']
-                print "Requested maximum jitter: %s" % reqJitter
-                #k.append('jitter')
+    if 'ip-dst' in reqData:
+        if reqData['bandwidth'] is not 0:
+            reqBand = reqData['bandwidth']
+            print "Requested minimum bandwidth: %s" % reqBand
+            #k.append('bandwidth')
 
-        if 'packet-loss' in reqData:
-            if reqData['packet-loss'] is not 0:
-                reqPacketLoss = reqData['packet-loss']
-                print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
-                #k.append('packet-loss')
+
+    if 'bandwidth' in reqData:
+        if reqData['bandwidth'] is not 0:
+            reqBand = reqData['bandwidth']
+            print "Requested minimum bandwidth: %s" % reqBand
+            #k.append('bandwidth')
+
+    if 'delay' in reqData:
+        if reqData['delay'] is not 0:
+            reqDelay = reqData['delay']
+            print "Requested maximum delay: %s" % reqDelay
+            #k.append('delay')
+
+    if 'jitter' in reqData:
+        if reqData['jitter'] is not 0:
+            reqJitter = reqData['jitter']
+            print "Requested maximum jitter: %s" % reqJitter
+            #k.append('jitter')
+
+    if 'packet-loss' in reqData:
+        if reqData['packet-loss'] is not 0:
+            reqPacketLoss = reqData['packet-loss']
+            print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
+            #k.append('packet-loss')
 
 
         print("QoS Request data loaded.\n")
@@ -150,7 +151,7 @@ with open("QoS_Request.json") as qosRequest:
 
 # retrieve source and destination device attachment points
 # using Floodlight's DeviceManager REST API
-
+"""
 with open("QoS_Request.json") as qosRequest:
     reqData = json.load(qosRequest)
     srcAddress = reqData['ip-src']
