@@ -24,6 +24,7 @@ import networkx as nx
 # parse controller address.
 # Syntax:
 # *FLOODLIGHT* --controller {IP:REST_PORT}
+# Usage from CLI, e.g.: python Adapter.py --input request.json
 
 parser = argparse.ArgumentParser(description='Suitable Path Generator')
 parser.add_argument('--controller', dest='controllerRestIp', action='store', default='localhost:8080',
@@ -74,7 +75,7 @@ if args.fileName is not None:
 if os.path.exists('./PFinput2.json'):
     PFinput = open('./PFinput2.json', 'r')
     lines = PFinput.readlines()
-    PFinput.close()
+    PFinput2.close()
 
 else:
     lines = {}
@@ -304,10 +305,6 @@ for parsedResult in json.loads(rtTopo):
                      "dst-port-state": edgeDstPortState,
                      "type": edgeType})
 """
-"""
-input_data = {"topology": rtTopo}
-input_data["data"] = rtTopo
-"""
 
 # The topology QoS stats data must be stored on a file, or called as a parameter by
 # Adapter.py, just as the request data.
@@ -325,8 +322,26 @@ with open("topology.json") as topo_json:
         linkDstPort = link_s['dst-port']
         for link_d in rtTopo:
             if linkSrcSwitch == link_d['src-switch'] and linkSrcPort == link_d['src-port'] and linkDstSwitch == link_d['dst-switch'] and linkDstPort == link_d['dst-port']:
-                print link_s['bandwidth']
 
+                link_d['bandwidth'] = link_s['bandwidth']
+                link_d['delay'] = link_s['delay']
+                link_d['jitter'] = link_s['jitter']
+                link_d['packet-loss'] = link_s['packet-loss']
+
+
+
+input_data = {"src": {"srcSwitch": srcSwitch, "srcPort": srcPort}}
+
+input_data["dst"] = {"dstSwitch": dstSwitch, "dstPort": dstPort}
+
+
+
+
+
+
+with open('PFinput2.json', 'wb') as PFinput2:
+        json.dump(input_data, PFinput2, indent=4)
+        PFinput2.close()
 
 """
 
@@ -334,11 +349,13 @@ with open("topology.json") as topo_json:
 
 
 
+
+
 # Link QoS parameters
-        edgeBand = rtTopo[i]['bandwidth']
-        edgeDelay = rtTopo[i]['delay']
-        edgeJitter = rtTopo[i]['jitter']
-        edgePLoss = rtTopo[i]['packet-loss']
+
+        link_d['delay'] = link_s['delay']
+        link_d['jitter'] = link_s['jitter']
+        link_d['packet-loss'] = link_s['packet-loss']
 
 
 """
