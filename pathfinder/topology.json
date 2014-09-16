@@ -1,4 +1,4 @@
-{"topology": [
+[
             {
                     "src-switch":"00:00:00:00:00:00:00:05",
                     "src-port":1,
@@ -119,4 +119,4 @@
                     "jitter":0,
                     "packet-loss":8
             }
-]}
+]

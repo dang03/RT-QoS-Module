@@ -279,7 +279,7 @@ for parsedResult in json.loads(result):
 
 # Get all the edges/links
 command = "curl -s http://%s//wm/topology/links/json" % args.controllerRestIp
-rtTopo = os.popen(command).read()
+rtTopo = json.loads((os.popen(command).read()))
 print rtTopo
 print command+"\n"
 """
@@ -304,7 +304,40 @@ for parsedResult in json.loads(rtTopo):
                      "dst-port-state": edgeDstPortState,
                      "type": edgeType})
 """
+"""
+input_data = {"topology": rtTopo}
+input_data["data"] = rtTopo
+"""
 
-print("Topology data loaded")
+# The topology QoS stats data must be stored on a file, or called as a parameter by
+# Adapter.py, just as the request data.
 
-#######################################################################
+with open("topology.json") as topo_json:
+    topo_stats = json.load(topo_json)
+    # reqID = reqData['requestID']
+    #reqAlarm = reqData['alarm']
+    print "topoStats", topo_stats
+
+    for link_s in topo_stats:
+        linkSrcSwitch = link_s['src-switch']
+        linkDstSwitch = link_s['dst-switch']
+        linkSrcPort = link_s['src-port']
+        linkDstPort = link_s['dst-port']
+        for link_d in rtTopo:
+            if linkSrcSwitch == link_d['src-switch'] and linkSrcPort == link_d['src-port'] and linkDstSwitch == link_d['dst-switch'] and linkDstPort == link_d['dst-port']:
+                print link_s['bandwidth']
+
+"""
+
+
+
+
+
+# Link QoS parameters
+        edgeBand = rtTopo[i]['bandwidth']
+        edgeDelay = rtTopo[i]['delay']
+        edgeJitter = rtTopo[i]['jitter']
+        edgePLoss = rtTopo[i]['packet-loss']
+
+
+"""
