@@ -327,6 +327,7 @@ with open("topology.json") as topo_json:
             if linkSrcSwitch == link_d['src-switch'] and linkSrcPort == link_d['src-port'] and linkDstSwitch == link_d['dst-switch'] and linkDstPort == link_d['dst-port']:
                 print link_s['bandwidth']
 
+
 """
 
 
