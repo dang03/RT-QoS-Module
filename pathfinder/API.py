@@ -194,7 +194,15 @@ def run_app2():
 def index():
     #return render_template('index.html')
 
-    json_index = {'Pathfinder REST API Index': {'Methods': [{'get_path': "Query last QoS path returned", 'get_qos_log': "Query QoS log returned", 'example': "More to be implemented"}]}}
+    json_index = {'Pathfinder REST API Index': {
+        'Methods': [
+            {'get_path': "Query last QoS path returned",
+             'get_qos_log': "Query QoS log returned",
+             'run_app': "Run Pathfinder for a locally stored QoS request",
+             'run_app2': "Mode2 not available through web, only on CLI ",
+             'example': "More to be implemented"}
+        ]
+    }}
 
     return jsonify(json_index)
 
@@ -205,7 +213,7 @@ if __name__ == '__main__':
     app.run(
         # host="0.0.0.0",
         #port=int("80")
-        debug=True
+        debug=False
     )
 
 """
