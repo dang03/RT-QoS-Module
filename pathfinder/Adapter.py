@@ -222,7 +222,9 @@ print "SRC switch: ", srcSwitch, "\n", "SRC port: ", srcPort, "\n", "DST switch:
 
 # Get all the nodes/switches
 """
-[{
+Available switch information fields from Floodlight controller:
+
+{
 "inetAddress":"/127.0.0.1:57246",
 "role":null,
 "ports":[
@@ -247,7 +249,18 @@ print "SRC switch: ", srcSwitch, "\n", "SRC port: ", srcPort, "\n", "DST switch:
 "tables":-1,
 "actions":4095,
 "dpid":"00:00:00:00:00:00:00:06",
-"attributes":{"supportsOfppFlood":true,"FastWildcards":4194303,"DescriptionData":{"serialNumber":"None","hardwareDescription":"Open vSwitch","softwareDescription":"1.4.6","datapathDescription":"None","manufacturerDescription":"Nicira Networks, Inc.","length":1056},"supportsOfppTable":true}},
+"attributes":{
+    "supportsOfppFlood":true,
+    "FastWildcards":4194303,
+    "DescriptionData":{
+        "serialNumber":"None",
+        "hardwareDescription":"Open vSwitch",
+        "softwareDescription":"1.4.6",
+        "datapathDescription":"None",
+        "manufacturerDescription":"Nicira Networks, Inc.",
+        "length":1056},
+    "supportsOfppTable":true}
+}
 """
 command = "curl -s http://%s//wm/core/controller/switches/json" % args.controllerRestIp
 result = os.popen(command).read()
@@ -267,7 +280,9 @@ for parsedResult in json.loads(result):
 # Get all the edges/links
 command = "curl -s http://%s//wm/topology/links/json" % args.controllerRestIp
 rtTopo = os.popen(command).read()
+print rtTopo
 print command+"\n"
+"""
 edgeList = list()
 for parsedResult in json.loads(rtTopo):
     edgeSrcSwitch = parsedResult['src-switch']
@@ -288,7 +303,7 @@ for parsedResult in json.loads(rtTopo):
                      "dst-port": edgeDstPort,
                      "dst-port-state": edgeDstPortState,
                      "type": edgeType})
-
+"""
 
 print("Topology data loaded")
 
