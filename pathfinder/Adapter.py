@@ -92,21 +92,22 @@ print(lines)
 
 global srcAddress
 global dstAddress
-"""
-global reqID
-global reqAlarm    # Check if request is a re-route / duplicated request
+parameters = {}
+
+#global reqID
+#global reqAlarm    # Check if request is a re-route / duplicated request
 global reqBand
 global reqDelay    # Data gathering not yet implemented
 global reqPacketLoss
 global reqJitter   # Not used, QoS parameter to consider
-global reqCost     # Not used, QoS link average state
+#global reqCost     # Not used, QoS link average state
                # To stack number of constraints used to calculate a path
-"""
+
 # Load request.json data from file to turn JSON object into python and parse data
 with open("request.json") as qosRequest:
     reqData = json.load(qosRequest)
-    # reqID = reqData['requestID']
-    #reqAlarm = reqData['alarm']
+    reqID = reqData['requestID']
+    # reqAlarm = reqData['alarm']
     print "reqData", reqData
     #print "QoS Request ID: %s\n" % reqID
 
@@ -144,28 +145,31 @@ with open("request.json") as qosRequest:
     # QoS requirements data parsing; a QoS stat must be higher than '0' to be requested
     # Bandwidth
     if 'bandwidth' in reqData:
-        if reqData['bandwidth'] is not 0:
+        #if reqData['bandwidth'] is not 0:
             reqBand = reqData['bandwidth']
             print "Requested minimum bandwidth: %s" % reqBand
+            parameters.update({"bandwidth": reqBand})
 
     # Delay
     if 'delay' in reqData:
-        if reqData['delay'] is not 0:
+        #if reqData['delay'] is not 0:
             reqDelay = reqData['delay']
             print "Requested maximum delay: %s" % reqDelay
+            parameters.update({"delay": reqDelay})
 
     # Jitter
     if 'jitter' in reqData:
-        if reqData['jitter'] is not 0:
+        #if reqData['jitter'] is not 0:
             reqJitter = reqData['jitter']
             print "Requested maximum jitter: %s" % reqJitter
+            parameters.update({"jitter": reqJitter})
 
     # Packet-Loss
     if 'packet-loss' in reqData:
-        if reqData['packet-loss'] is not 0:
+        #if reqData['packet-loss'] is not 0:
             reqPacketLoss = reqData['packet-loss']
             print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
-
+            parameters.update({"packet-loss": reqPacketLoss})
 
     # Request may provide an ID, it will be included in the PF input
     if 'requestID' in reqData:
@@ -330,13 +334,13 @@ with open("topology.json") as topo_json:
 
 
 
-input_data = {"src": {"srcSwitch": srcSwitch, "srcPort": srcPort}}
+input_data = {"requestID": reqID, "src": {"srcSwitch": srcSwitch, "srcPort": srcPort}}
 
 input_data["dst"] = {"dstSwitch": dstSwitch, "dstPort": dstPort}
 
+input_data["parameters"] = parameters
 
-
-
+input_data["topology"] = rtTopo
 
 
 with open('PFinput2.json', 'wb') as PFinput2:

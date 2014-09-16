@@ -113,7 +113,7 @@ def pathfinder_algorithm(reqData):
     reqID = reqData['requestID']
     srcAddress = reqData['src']     # retrieve source and destination device points
     dstAddress = reqData['dst']
-    reqAlarm = reqData['alarm']     # Check if request is a re-route / duplicated request
+    #reqAlarm = reqData['alarm']     # Check if request is a re-route / duplicated request
     reqParameters = reqData['parameters']
 
     rtTopo = reqData['topology']
