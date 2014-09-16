@@ -300,7 +300,8 @@ def pathfinder_algorithm(reqData):
 
     else:
         print mcolors.FAIL+"Failure: No path available\n"+mcolors.ENDC
-        sys.exit()
+        return "Failure: No path available"
+
 
     # Remove edges - additive QoS parameters: If provided and requested, links that does
     # not satisfy other constraints of additive class are removed from the graph.
