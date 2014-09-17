@@ -18,28 +18,6 @@ import sys
 
 
 
-
-# parse controller address.
-# Syntax:
-# *FLOODLIGHT* --controller {IP:REST_PORT}
-# Usage from CLI, e.g.: python Adapter.py --input request.json
-
-parser = argparse.ArgumentParser(description='Suitable Path Generator')
-parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
-                    help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
-parser.add_argument('--request', '-r', dest='fileName', default=None,
-                    help='Optional request file path, e.g., pathfinder/request.json', metavar='FILE')
-parser.add_argument('--topo', '-t', dest='topoStats', default=None,
-                    help='Optional topology file path, e.g., pathfinder/topology.json', metavar='FILE')
-args = parser.parse_args()
-print args, "\n"
-
-
-controllerRestIp = args.controllerRestIp
-inputfile = args.fileName
-tpofile = args.topoStats
-
-
 class mcolors:
     OKGREEN = '\033[92m'
     FAIL = '\033[91m'
@@ -50,58 +28,42 @@ class mcolors:
         self.FAIL = ''
         self.ENDC = ''
 
-#
-# INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
-# that will include QoS requirements plus necessary data unavailable from the controller
-if args.fileName is not None:
+"""
+def adapter_from_file():
+    result = adapter(controllerRestIp, inputfile, topofile)
+    return result
+"""
 
-    # if os.path.exists('./request.json'):
-    if os.path.exists(args.fileName):
-        # PFinput = open('./request.json', 'r')
-        PFinput = open(args.fileName, 'r')
-        RElines = PFinput.readlines()
-        PFinput.close()
+def adapter(controller, reqData, topo):
+    # load request data to build up output PFinput.json
+    global srcAddress
+    global dstAddress
+    parameters = {}
 
-    else:
-        raise Exception("The file %s does not exist" % args.fileName)
+    global reqID
+    #global reqAlarm    # Check if request is a re-route / duplicated request
+    global reqBand
+    global reqDelay    # Data gathering not yet implemented
+    global reqPacketLoss
+    global reqJitter   # Not used, QoS parameter to consider
+    #global reqCost     # Not used, QoS link average state
+                   # To stack number of constraints used to calculate a path
 
-    print(RElines)
+    # Load request.json data from file to turn JSON object into python and parse data
 
-
-if args.topoStats is not None:
-
-    if os.path.exists(args.topoStats):
-        PFtopo = open(args.topoStats, 'r')
-        TOlines = PFtopo.readlines()
-        PFtopo.close()
-
-    else:
-        raise Exception("The file %s does not exist" % args.topoStats)
-
-    print(TOlines)
-
-
-# load request data to build up output PFinput.json
-global srcAddress
-global dstAddress
-parameters = {}
-
-#global reqID
-#global reqAlarm    # Check if request is a re-route / duplicated request
-global reqBand
-global reqDelay    # Data gathering not yet implemented
-global reqPacketLoss
-global reqJitter   # Not used, QoS parameter to consider
-#global reqCost     # Not used, QoS link average state
-               # To stack number of constraints used to calculate a path
-
-# Load request.json data from file to turn JSON object into python and parse data
-with open('request.json') as qosRequest:
-    reqData = json.load(qosRequest)
-    reqID = reqData['requestID']
     # reqAlarm = reqData['alarm']
-    print "reqData", reqData
-    #print "QoS Request ID: %s\n" % reqID
+
+    # Request must provide an ID or token number, it will be included in the PF input
+    if 'requestID' in reqData:
+        if reqData['requestID']:
+            reqID = reqData['requestID']
+            #print "QoS Request ID: %s\n" % reqID
+        else:
+            raise Exception(mcolors.FAIL + "Request identifier is not valid" + mcolors.ENDC)
+
+    else:
+        raise Exception(mcolors.FAIL + "Request identifier not found" + mcolors.ENDC)
+
 
     # Source and destination data parsing
     # A source point or address is required by PF input
@@ -113,9 +75,7 @@ with open('request.json') as qosRequest:
 
         else:
             raise Exception(mcolors.FAIL + "Source address is not valid" + mcolors.ENDC)
-            #reqBand = reqData['bandwidth']
-            #print "Requested minimum bandwidth: %s" % reqBand
-            #k.append('bandwidth')
+
     else:
         raise Exception(mcolors.FAIL + "Source address not found" + mcolors.ENDC)
 
@@ -128,8 +88,7 @@ with open('request.json') as qosRequest:
 
         else:
             raise Exception(mcolors.FAIL + "Destination address is not valid" + mcolors.ENDC)
-            #print "Requested minimum bandwidth: %s" % reqBand
-            #k.append('bandwidth')
+
     else:
         raise Exception(mcolors.FAIL + "Destination address not found" + mcolors.ENDC)
 
@@ -163,10 +122,6 @@ with open('request.json') as qosRequest:
             print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
             parameters.update({"packet-loss": reqPacketLoss})
 
-    # Request may provide an ID, it will be included in the PF input
-    if 'requestID' in reqData:
-        if reqData['requestID']:
-            ReqID = reqData['requestID']
 
 
 
@@ -184,129 +139,128 @@ with open('request.json') as qosRequest:
 
 
 
-# retrieve source and destination device attachment points
-# using Floodlight's DeviceManager REST API
+    # retrieve source and destination device attachment points
+    # using Floodlight's DeviceManager REST API
 
-command = "curl -s http://%s/wm/device/?ipv4=%s" % (args.controllerRestIp, srcAddress)
-result = os.popen(command).read()
-try:
+    command = "curl -s http://%s/wm/device/?ipv4=%s" % (controller, srcAddress)
+    result = os.popen(command).read()
+    try:
+        parsedResult = json.loads(result)
+        print command + "\n"
+
+        srcSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
+        srcPort = parsedResult[0]['attachmentPoint'][0]['port']
+
+    except:
+        print mcolors.FAIL + "Error: Controller could not find SRC attachment point!" + mcolors.ENDC
+        sys.exit()
+
+    command = "curl -s http://%s/wm/device/?ipv4=%s" % (controller, dstAddress)
+    result = os.popen(command).read()
     parsedResult = json.loads(result)
     print command + "\n"
+    try:
+        dstSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
+        dstPort = parsedResult[0]['attachmentPoint'][0]['port']
 
-    srcSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
-    srcPort = parsedResult[0]['attachmentPoint'][0]['port']
+    except:
+        print mcolors.FAIL + "Error: Controller could not find DST attachment point!" + mcolors.ENDC
+        sys.exit()
 
-except:
-    print mcolors.FAIL + "Error: Controller could not find SRC attachment point!" + mcolors.ENDC
-    sys.exit()
+    print srcSwitch, "\n", srcPort, "\n", dstSwitch, "\n", dstPort
 
-command = "curl -s http://%s/wm/device/?ipv4=%s" % (args.controllerRestIp, dstAddress)
-result = os.popen(command).read()
-parsedResult = json.loads(result)
-print command + "\n"
-try:
-    dstSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
-    dstPort = parsedResult[0]['attachmentPoint'][0]['port']
-
-except:
-    print mcolors.FAIL + "Error: Controller could not find DST attachment point!" + mcolors.ENDC
-    sys.exit()
-
-print srcSwitch, "\n", srcPort, "\n", dstSwitch, "\n", dstPort
-
-print "SRC switch: ", srcSwitch, "\n", "SRC port: ", srcPort, "\n", "DST switch: ", dstSwitch, "\n", "DST port: ", dstPort
+    print "SRC switch: ", srcSwitch, "\n", "SRC port: ", srcPort, "\n", "DST switch: ", dstSwitch, "\n", "DST port: ", dstPort
 
 
-# Get all the nodes/switches
-"""
-Available switch information fields from Floodlight controller:
+    # Get all the nodes/switches
+    """
+    Available switch information fields from Floodlight controller:
 
-{
-"inetAddress":"/127.0.0.1:57246",
-"role":null,
-"ports":[
-    {"hardwareAddress":"26:7d:b5:d6:63:40",
-    "portNumber":65534,
-    "config":1,
-    "currentFeatures":0,
-    "advertisedFeatures":0,
-    "supportedFeatures":0,
-    "peerFeatures":0,
-    "name":"s6",
-    "state":1}
-],
-"buffers":256,
-"featuresReplyFromSwitch":{
-    "transactionId":8,
-    "cancelled":false,
-    "done":true
-},
-"connectedSince":1410862280715,
-"capabilities":199,
-"tables":-1,
-"actions":4095,
-"dpid":"00:00:00:00:00:00:00:06",
-"attributes":{
-    "supportsOfppFlood":true,
-    "FastWildcards":4194303,
-    "DescriptionData":{
-        "serialNumber":"None",
-        "hardwareDescription":"Open vSwitch",
-        "softwareDescription":"1.4.6",
-        "datapathDescription":"None",
-        "manufacturerDescription":"Nicira Networks, Inc.",
-        "length":1056},
-    "supportsOfppTable":true}
-}
-"""
-command = "curl -s http://%s//wm/core/controller/switches/json" % args.controllerRestIp
-result = os.popen(command).read()
-print command + "\n"
-print result
-nodeList = list()
-for parsedResult in json.loads(result):
-    switchID = parsedResult['dpid']
-    switchName = parsedResult['ports'][0]['name']
-    print switchID
-    print switchName
-    nodeList.append(({'switch_DPID': switchID,
-                     'sw_name': switchName}))
-    print nodeList
+    {
+    "inetAddress":"/127.0.0.1:57246",
+    "role":null,
+    "ports":[
+        {"hardwareAddress":"26:7d:b5:d6:63:40",
+        "portNumber":65534,
+        "config":1,
+        "currentFeatures":0,
+        "advertisedFeatures":0,
+        "supportedFeatures":0,
+        "peerFeatures":0,
+        "name":"s6",
+        "state":1}
+    ],
+    "buffers":256,
+    "featuresReplyFromSwitch":{
+        "transactionId":8,
+        "cancelled":false,
+        "done":true
+    },
+    "connectedSince":1410862280715,
+    "capabilities":199,
+    "tables":-1,
+    "actions":4095,
+    "dpid":"00:00:00:00:00:00:00:06",
+    "attributes":{
+        "supportsOfppFlood":true,
+        "FastWildcards":4194303,
+        "DescriptionData":{
+            "serialNumber":"None",
+            "hardwareDescription":"Open vSwitch",
+            "softwareDescription":"1.4.6",
+            "datapathDescription":"None",
+            "manufacturerDescription":"Nicira Networks, Inc.",
+            "length":1056},
+        "supportsOfppTable":true}
+    }
+    """
+    command = "curl -s http://%s//wm/core/controller/switches/json" % controller
+    result = os.popen(command).read()
+    print command + "\n"
+    print result
+    nodeList = list()
+    for parsedResult in json.loads(result):
+        switchID = parsedResult['dpid']
+        switchName = parsedResult['ports'][0]['name']
+        print switchID
+        print switchName
+        nodeList.append(({'switch_DPID': switchID,
+                         'sw_name': switchName}))
+        print nodeList
 
 
-# Get all the edges/links
-command = "curl -s http://%s//wm/topology/links/json" % args.controllerRestIp
-rtTopo = json.loads((os.popen(command).read()))
-print rtTopo
-print command+"\n"
-"""
-edgeList = list()
-for parsedResult in json.loads(rtTopo):
-    edgeSrcSwitch = parsedResult['src-switch']
-    edgeDstSwitch = parsedResult['dst-switch']
-    edgeSrcPort = parsedResult['src-port']
-    edgeDstPort = parsedResult['dst-port']
-    edgeSrcPortState = parsedResult['']
-    edgeDstPortState = parsedResult['']
-    edgeType = parsedResult['']
-    print edgeSrcSwitch, "\n"
-    print edgeDstSwitch, "\n"
-    print edgeSrcPort, "\n"
-    print edgeDstPort, "\n"
-    edgeList.append({"src-switch": edgeSrcSwitch,
-                     "src-port": edgeSrcPort,
-                     "src-port-state": edgeSrcPortState,
-                     "dst-switch": edgeDstSwitch,
-                     "dst-port": edgeDstPort,
-                     "dst-port-state": edgeDstPortState,
-                     "type": edgeType})
-"""
+    # Get all the edges/links
+    command = "curl -s http://%s//wm/topology/links/json" % controller
+    rtTopo = json.loads((os.popen(command).read()))
+    print rtTopo
+    print command+"\n"
+    """
+    edgeList = list()
+    for parsedResult in json.loads(rtTopo):
+        edgeSrcSwitch = parsedResult['src-switch']
+        edgeDstSwitch = parsedResult['dst-switch']
+        edgeSrcPort = parsedResult['src-port']
+        edgeDstPort = parsedResult['dst-port']
+        edgeSrcPortState = parsedResult['']
+        edgeDstPortState = parsedResult['']
+        edgeType = parsedResult['']
+        print edgeSrcSwitch, "\n"
+        print edgeDstSwitch, "\n"
+        print edgeSrcPort, "\n"
+        print edgeDstPort, "\n"
+        edgeList.append({"src-switch": edgeSrcSwitch,
+                         "src-port": edgeSrcPort,
+                         "src-port-state": edgeSrcPortState,
+                         "dst-switch": edgeDstSwitch,
+                         "dst-port": edgeDstPort,
+                         "dst-port-state": edgeDstPortState,
+                         "type": edgeType})
+    """
 
-# The topology QoS stats data must be stored on a file, or called as a parameter by
-# Adapter.py, just as the request data.
+    # The topology QoS stats data must be stored on a file, or called as a parameter by
+    # Adapter.py, just as the request data.
 
-with open("topology.json") as topo_json:
-    topo_stats = json.load(topo_json)
+    topo_stats = topo
     # reqID = reqData['requestID']
     #reqAlarm = reqData['alarm']
     print "topoStats", topo_stats
@@ -326,20 +280,83 @@ with open("topology.json") as topo_json:
 
 
 
-input_data = {"requestID": reqID, "src": {"srcSwitch": srcSwitch, "srcPort": srcPort}}
+    input_data = {"requestID": reqID, "src": {"srcSwitch": srcSwitch, "srcPort": srcPort}}
 
-input_data["dst"] = {"dstSwitch": dstSwitch, "dstPort": dstPort}
+    input_data["dst"] = {"dstSwitch": dstSwitch, "dstPort": dstPort}
 
-input_data["parameters"] = parameters
+    input_data["parameters"] = parameters
 
-input_data["topology"] = rtTopo
+    input_data["topology"] = rtTopo
 
+    return input_data
+
+
+
+
+
+
+
+
+# if __name__ == '__main__':
+
+# parse controller address.
+# Syntax:
+# *FLOODLIGHT* --controller {IP:REST_PORT}
+# Usage from CLI, e.g.: python Adapter.py --input request.json
+
+parser = argparse.ArgumentParser(description='Suitable Path Generator')
+parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
+                    help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
+parser.add_argument('--request', '-r', dest='fileName', default=None,
+                    help='Optional request file path, e.g., pathfinder/request.json', metavar='FILE')
+parser.add_argument('--topo', '-t', dest='topoStats', default=None,
+                    help='Optional topology file path, e.g., pathfinder/topology.json', metavar='FILE')
+args = parser.parse_args()
+print args, "\n"
+
+global inputfile
+global topofile
+
+# INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
+# that will include QoS requirements plus necessary data unavailable from the controller
+if args.fileName and args.topoStats is not None:
+
+    # if os.path.exists('./request.json'):
+    if os.path.exists(args.fileName):
+        with open(args.fileName, 'r') as PFinput:
+            #PFinput = open(args.fileName, 'r')
+            inputfile = json.load(PFinput)
+            PFinput.close()
+
+    else:
+        raise Exception("The file %s does not exist" % args.fileName)
+
+    print(inputfile)
+
+
+    if os.path.exists(args.topoStats):
+        with open(args.topoStats, 'r') as PFtopo:
+            #PFtopo = open(args.topoStats, 'r')
+            topofile = json.load(PFtopo)
+            PFtopo.close()
+
+    else:
+        raise Exception("The file %s does not exist" % args.topoStats)
+
+    print(topofile)
+
+else:
+     raise Exception(mcolors.FAIL + "A QoS request and topology data must be provided" + mcolors.ENDC)
+
+controllerRestIp = args.controllerRestIp
+
+adaptedRequest = adapter(controllerRestIp, inputfile, topofile)
 
 # OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
 # It will store the PFinput file, as a output result to be sent to Pathfinder REST API
 # or locally processed by Pathfinder algorithm
 print "Creating new request file.\n"
 with open('PFinput2.json', 'wb') as PFinput2:
-        json.dump(input_data, PFinput2, indent=4)
-        PFinput2.close()
+    json.dump(adaptedRequest, PFinput2, indent=4)
+    PFinput2.close()
 
