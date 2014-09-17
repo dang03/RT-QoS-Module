@@ -22,9 +22,7 @@ __all__ = ['multiEdgeKey',
            'stAggregate_test']
 
 import networkx as nx
-
-from pathfinder.PathDrawer import to_edge_path, to_node_path
-
+from PathDrawer import to_edge_path, to_node_path
 #import os
 import matplotlib.pyplot as plt
 

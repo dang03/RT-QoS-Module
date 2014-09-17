@@ -14,6 +14,7 @@ import os
 import argparse
 import json
 import sys
+import Pathfinder
 #from collections import defaultdict
 
 
@@ -360,3 +361,12 @@ with open('PFinput2.json', 'wb') as PFinput2:
     json.dump(adaptedRequest, PFinput2, indent=4)
     PFinput2.close()
 
+command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
+result = os.popen(command).read()
+print command + "\n"
+print result
+
+"""
+path = Pathfinder.pathfinder_algorithm(adaptedRequest)
+print path
+"""

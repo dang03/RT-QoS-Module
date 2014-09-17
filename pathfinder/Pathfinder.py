@@ -23,10 +23,14 @@ import json
 import datetime
 import time
 import sys
-from pathfinder.PathDrawer import to_edge_path
+
 #from fractions import Fraction
+from PathDrawer import to_edge_path
+#from pathfinder.PathDrawer import to_edge_path
+from MCP import *
+#from pathfinder.MCP import *
 from collections import defaultdict
-from pathfinder.MCP import *
+
 
 
 # main vars
@@ -805,8 +809,8 @@ def pathfinder_algorithm(reqData):
 
     print "Alternative style", auxPath2
 
-    if os.path.exists('.pathfinder/path.json'):
-        pathRes = open('.pathfinder/path.json', 'r')
+    if os.path.exists('./path.json'):
+        pathRes = open('./path.json', 'r')
         lines = pathRes.readlines()
         pathRes.close()
 
@@ -818,7 +822,7 @@ def pathfinder_algorithm(reqData):
 
     # requestID is an optional field but must be provided
     qosPath.append({"requestID": reqID})    # requestID may be provided along with the QoS path list
-    pathRes = open('pathfinder/path.json', 'w')
+    pathRes = open('./path.json', 'w')
     to_serial = qosPath
     serial = json.dumps(to_serial)
     #serial = json.dumps(to_serial, indent=2, separators=(',', ': '))

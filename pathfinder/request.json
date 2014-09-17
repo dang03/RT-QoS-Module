@@ -1,1 +1,1 @@
-{"requestID": "r3qu357", "ip-src": "10.0.0.1", "ip-dst": "10.0.0.2", "bandwidth": 20, "delay":0, "packet-loss":0, "jitter":0, "alarm":1}
+{"requestID": "r3qu357", "ip-src": "10.0.0.1", "ip-dst": "10.0.0.2", "bandwidth": 8, "delay":0, "packet-loss":0, "jitter":0, "alarm":1}
