@@ -13,11 +13,9 @@ __author__ = 'Dani'
 import os
 import argparse
 import json
-import time
 import sys
-from collections import defaultdict
+#from collections import defaultdict
 
-import networkx as nx
 
 
 
@@ -27,17 +25,19 @@ import networkx as nx
 # Usage from CLI, e.g.: python Adapter.py --input request.json
 
 parser = argparse.ArgumentParser(description='Suitable Path Generator')
-parser.add_argument('--controller', dest='controllerRestIp', action='store', default='localhost:8080',
+parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
                     help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
-parser.add_argument('--input', dest='fileName', default='None',
+parser.add_argument('--request', '-r', dest='fileName', default=None,
                     help='Optional request file path, e.g., pathfinder/request.json', metavar='FILE')
-parser.add_argument('--topo', dest='topoStats', default='None',
+parser.add_argument('--topo', '-t', dest='topoStats', default=None,
                     help='Optional topology file path, e.g., pathfinder/topology.json', metavar='FILE')
 args = parser.parse_args()
 print args, "\n"
 
+
 controllerRestIp = args.controllerRestIp
 inputfile = args.fileName
+tpofile = args.topoStats
 
 
 class mcolors:
@@ -59,37 +59,29 @@ if args.fileName is not None:
     if os.path.exists(args.fileName):
         # PFinput = open('./request.json', 'r')
         PFinput = open(args.fileName, 'r')
-        lines = PFinput.readlines()
+        RElines = PFinput.readlines()
         PFinput.close()
 
     else:
         raise Exception("The file %s does not exist" % args.fileName)
 
-    print(lines)
-
-"""
-# OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
-# It will store the PFinput file, as a output result to be sent to Pathfinder REST API
-# or locally processed by Pathfinder algorithm
-
-if os.path.exists('./PFinput2.json'):
-    PFinput = open('./PFinput2.json', 'r')
-    lines = PFinput.readlines()
-    PFinput2.close()
-
-else:
-    lines = {}
-    print "QoS-Request file not found. Creating new request file.\n"
-    with open('PFinput2.json', 'wb') as PFinput:
-        json.dump(lines, PFinput)
-
-print(lines)
+    print(RElines)
 
 
-"""
+if args.topoStats is not None:
+
+    if os.path.exists(args.topoStats):
+        PFtopo = open(args.topoStats, 'r')
+        TOlines = PFtopo.readlines()
+        PFtopo.close()
+
+    else:
+        raise Exception("The file %s does not exist" % args.topoStats)
+
+    print(TOlines)
+
 
 # load request data to build up output PFinput.json
-
 global srcAddress
 global dstAddress
 parameters = {}
@@ -104,7 +96,7 @@ global reqJitter   # Not used, QoS parameter to consider
                # To stack number of constraints used to calculate a path
 
 # Load request.json data from file to turn JSON object into python and parse data
-with open("request.json") as qosRequest:
+with open('request.json') as qosRequest:
     reqData = json.load(qosRequest)
     reqID = reqData['requestID']
     # reqAlarm = reqData['alarm']
@@ -343,23 +335,11 @@ input_data["parameters"] = parameters
 input_data["topology"] = rtTopo
 
 
+# OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
+# It will store the PFinput file, as a output result to be sent to Pathfinder REST API
+# or locally processed by Pathfinder algorithm
+print "Creating new request file.\n"
 with open('PFinput2.json', 'wb') as PFinput2:
         json.dump(input_data, PFinput2, indent=4)
         PFinput2.close()
 
-"""
-
-
-
-
-
-
-
-# Link QoS parameters
-
-        link_d['delay'] = link_s['delay']
-        link_d['jitter'] = link_s['jitter']
-        link_d['packet-loss'] = link_s['packet-loss']
-
-
-"""
