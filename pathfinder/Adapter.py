@@ -5,6 +5,9 @@
 Adapter App: Collects data from different sources to build up a QoS request that
  Pathfinder algorithm can understand.
 
+ Some help: usage e.g.:  "python Adapter.py -r request.json -t topology.json"
+ where -r, -t must point to the data filepath
+
 """
 
 __author__ = 'Dani'

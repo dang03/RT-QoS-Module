@@ -197,7 +197,7 @@ def pathfinder_algorithm(reqData):
         print mcolors.FAIL + "Error: SRC attachment point could not be loaded!"
         duration = time.time()-startTime
         print "SPG End Time: ", duration, " seconds"
-        sys.exit()
+        return "Error: SRC attachment point could not be loaded!"
 
 
     try:
@@ -208,7 +208,7 @@ def pathfinder_algorithm(reqData):
         print mcolors.FAIL + "Error: DST attachment point could not be loaded!"
         duration = time.time()-startTime
         print "SPG End Time: ", duration, " seconds"
-        sys.exit()
+        return "Error: DST attachment point could not be loaded!"
 
 
     print "SRC switch: ", srcSwitch, "\n", "SRC port: ", srcPort, "\n", "DST switch: ", dstSwitch, "\n", "DST port: ", dstPort
@@ -352,7 +352,7 @@ def pathfinder_algorithm(reqData):
 
     else:
         print mcolors.FAIL+"Failure: No path available [Additive constraints]\n"+mcolors.ENDC
-        sys.exit()
+        return "Failure: No path available (Additive constraints)"
 
     # plot topology graph structure (optional)
     plot_path(G, None, hostList, None, None, 'bandwidth')
@@ -468,7 +468,7 @@ def pathfinder_algorithm(reqData):
 
     else:
         print mcolors.FAIL + "Failure: No path available\n"+mcolors.ENDC
-        sys.exit()
+        return "Failure: No path available"
 
 
     # Earlier bandwidth computation trick for SPG for bidirectional dijkstra application (disabled)
