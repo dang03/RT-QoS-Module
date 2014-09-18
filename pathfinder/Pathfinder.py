@@ -807,6 +807,11 @@ def pathfinder_algorithm(reqData):
     qosPath = path_sort(maxPath, auxPath)
     print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
 
+    # The alternative style path refers to a link/edge composed path. Pathfinder is able
+    # to return a result in this format too. If this is needed, next code must be enabled:
+    #
+    # qosPath = auxPath2
+    #
     print "Alternative style", auxPath2
 
     if os.path.exists('./path.json'):
