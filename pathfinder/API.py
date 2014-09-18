@@ -69,13 +69,6 @@ POST            /pathfinder/run_app2    Send a request to summon pathfinder to r
 
 @app.route('/pathfinder/get_path', methods=['GET'])
 def get_path():
-    #url = ''
-    # example to actually run
-    #url = 'https://api.github.com/users/runnable'
-
-    # this issues a GET to the url. replace "get" with "post", "head",
-    # "put", "patch"... to make a request using a different method
-    #r = requests.get(url)
 
     if os.path.exists('./pathfinder/path.json'):
         with open('./pathfinder/path.json', 'r') as path:

@@ -322,6 +322,7 @@ with open('PFinput2.json', 'wb') as PFinput2:
     json.dump(adaptedRequest, PFinput2, indent=4)
     PFinput2.close()
 
+
 # Call Pathfinder through REST API (command line customizable!)
 command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
 result = os.popen(command).read()
