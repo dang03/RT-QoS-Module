@@ -17,7 +17,6 @@ import argparse
 import json
 import sys
 import Pathfinder
-#from collections import defaultdict
 
 
 
@@ -31,11 +30,6 @@ class mcolors:
         self.FAIL = ''
         self.ENDC = ''
 
-"""
-def adapter_from_file():
-    result = adapter(controllerRestIp, inputfile, topofile)
-    return result
-"""
 
 def adapter(controller, reqData, topo):
     # load request data to build up output PFinput.json
@@ -44,17 +38,11 @@ def adapter(controller, reqData, topo):
     parameters = {}
 
     global reqID
-    #global reqAlarm    # Check if request is a re-route / duplicated request
     global reqBand
-    global reqDelay    # Data gathering not yet implemented
+    global reqDelay
     global reqPacketLoss
-    global reqJitter   # Not used, QoS parameter to consider
-    #global reqCost     # Not used, QoS link average state
-                   # To stack number of constraints used to calculate a path
+    global reqJitter
 
-    # Load request.json data from file to turn JSON object into python and parse data
-
-    # reqAlarm = reqData['alarm']
 
     # Request must provide an ID or token number, it will be included in the PF input
     if 'requestID' in reqData:
@@ -126,8 +114,6 @@ def adapter(controller, reqData, topo):
             parameters.update({"packet-loss": reqPacketLoss})
 
 
-
-
     # A request may include additional data fields, such an alarm flag for duplicated
     # QoS requests. To add more data fields, just add next code lines for each additional
     # string data field, e.g. 'alarm':
@@ -139,7 +125,6 @@ def adapter(controller, reqData, topo):
     """
 
     print(mcolors.OKGREEN + "QoS Request data loaded.\n" + mcolors.ENDC)
-
 
 
     # retrieve source and destination device attachment points
@@ -237,35 +222,13 @@ def adapter(controller, reqData, topo):
     rtTopo = json.loads((os.popen(command).read()))
     print rtTopo
     print command+"\n"
-    """
-    edgeList = list()
-    for parsedResult in json.loads(rtTopo):
-        edgeSrcSwitch = parsedResult['src-switch']
-        edgeDstSwitch = parsedResult['dst-switch']
-        edgeSrcPort = parsedResult['src-port']
-        edgeDstPort = parsedResult['dst-port']
-        edgeSrcPortState = parsedResult['']
-        edgeDstPortState = parsedResult['']
-        edgeType = parsedResult['']
-        print edgeSrcSwitch, "\n"
-        print edgeDstSwitch, "\n"
-        print edgeSrcPort, "\n"
-        print edgeDstPort, "\n"
-        edgeList.append({"src-switch": edgeSrcSwitch,
-                         "src-port": edgeSrcPort,
-                         "src-port-state": edgeSrcPortState,
-                         "dst-switch": edgeDstSwitch,
-                         "dst-port": edgeDstPort,
-                         "dst-port-state": edgeDstPortState,
-                         "type": edgeType})
-    """
+
 
     # The topology QoS stats data must be stored on a file, or called as a parameter by
     # Adapter.py, just as the request data.
 
     topo_stats = topo
-    # reqID = reqData['requestID']
-    #reqAlarm = reqData['alarm']
+
     print "topoStats", topo_stats
 
     for link_s in topo_stats:
@@ -273,7 +236,9 @@ def adapter(controller, reqData, topo):
         linkDstSwitch = link_s['dst-switch']
         linkSrcPort = link_s['src-port']
         linkDstPort = link_s['dst-port']
+
         for link_d in rtTopo:
+
             if linkSrcSwitch == link_d['src-switch'] and linkSrcPort == link_d['src-port'] and linkDstSwitch == link_d['dst-switch'] and linkDstPort == link_d['dst-port']:
 
                 link_d['bandwidth'] = link_s['bandwidth']
@@ -294,12 +259,6 @@ def adapter(controller, reqData, topo):
     return input_data
 
 
-
-
-
-
-
-
 # if __name__ == '__main__':
 
 # parse controller address.
@@ -317,17 +276,17 @@ parser.add_argument('--topo', '-t', dest='topoStats', default=None,
 args = parser.parse_args()
 print args, "\n"
 
+
 global inputfile
 global topofile
+
 
 # INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
 # that will include QoS requirements plus necessary data unavailable from the controller
 if args.fileName and args.topoStats is not None:
 
-    # if os.path.exists('./request.json'):
     if os.path.exists(args.fileName):
         with open(args.fileName, 'r') as PFinput:
-            #PFinput = open(args.fileName, 'r')
             inputfile = json.load(PFinput)
             PFinput.close()
 
@@ -339,7 +298,6 @@ if args.fileName and args.topoStats is not None:
 
     if os.path.exists(args.topoStats):
         with open(args.topoStats, 'r') as PFtopo:
-            #PFtopo = open(args.topoStats, 'r')
             topofile = json.load(PFtopo)
             PFtopo.close()
 
@@ -355,6 +313,7 @@ controllerRestIp = args.controllerRestIp
 
 adaptedRequest = adapter(controllerRestIp, inputfile, topofile)
 
+
 # OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
 # It will store the PFinput file, as a output result to be sent to Pathfinder REST API
 # or locally processed by Pathfinder algorithm
@@ -363,12 +322,14 @@ with open('PFinput2.json', 'wb') as PFinput2:
     json.dump(adaptedRequest, PFinput2, indent=4)
     PFinput2.close()
 
+# Call Pathfinder through REST API (command line customizable!)
 command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
 result = os.popen(command).read()
 print command + "\n"
-print result
+print "QoS Request:", result
 
+# Or call Pathfinder direct function (locally)(uncomment to enable and comment API command)
 """
-path = Pathfinder.pathfinder_algorithm(adaptedRequest)
-print path
+result = Pathfinder.pathfinder_algorithm(adaptedRequest)
+print "QoS Request:", result
 """

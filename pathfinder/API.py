@@ -3,17 +3,16 @@
 
 __author__ = 'Dani'
 
-import os
-import sys
-# Using Flask micro-framework, since Python doesn't have built-in session management
+
 # This REST API is a proof of concept and restful capabilites test for Pathfinder
-from flask import Flask, jsonify, make_response, request, render_template
+
+# Using Flask micro-framework, since Python doesn't have built-in session management
+
+from flask import Flask, jsonify, make_response, request
 import flask_restful
-from werkzeug.debug import get_current_traceback
 import traceback
-# Our target library
 import json
-import datetime
+import os
 from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
 app = Flask(__name__)
@@ -29,21 +28,6 @@ mime_types = {'json_renderer': ('application/json',),
               'xml_renderer': ('application/xml', 'text/xml',
                                 'application/x-xml',)}          # xml could be an alternative data format
 
-"""
-class APIEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.strftime('%m/%d/%Y')
-
-
-        elif isinstance(obj, requestId):
-            return str(obj)
-
-        return json.JSONEncoder.default(self, obj)
-
-def json_renderer(**data):
-    return json.dumps(data, ensure_ascii=False, cls=APIEncoder, indent=4, encoding='utf8')
-"""
 
 @app.errorhandler(404)
 def not_found(error):
@@ -73,8 +57,8 @@ HTTP Method     URI                     Action
 index           /pathfinder/
 GET             /pathfinder/get_path    Retrieve latest found QoS path
 GET             /pathfinder/get_qos_log Retrieve stored QoS paths
-POST            /pathfinder/run_app     Trigger pathfinder to return a QoS path
-POST            /pathfinder/...         ...
+GET, POST       /pathfinder/run_app     Trigger pathfinder to return a QoS path
+POST            /pathfinder/run_app2    Send a request to summon pathfinder to return a QoS path
 ...
 
 
@@ -82,7 +66,6 @@ POST            /pathfinder/...         ...
 
 # REQUESTS dispatching
 # Query last Pathfinder result: returns last QoS path returned
-
 
 @app.route('/pathfinder/get_path', methods=['GET'])
 def get_path():
@@ -93,10 +76,10 @@ def get_path():
     # this issues a GET to the url. replace "get" with "post", "head",
     # "put", "patch"... to make a request using a different method
     #r = requests.get(url)
-    #r = {}
+
     if os.path.exists('./pathfinder/path.json'):
         with open('./pathfinder/path.json', 'r') as path:
-            # r = pathRes.readlines()
+
             res = json.load(path, encoding='utf8')
             path.close()
 
@@ -106,28 +89,23 @@ def get_path():
         flask_restful.abort(404)
 
 
-# Query qosDb log
+# Query qos-Db log
 @app.route('/pathfinder/get_qos_log', methods=['GET'])
 def get_qos_log():
     res = []
-    #res = {}
+
     if os.path.exists('./qosDb.json'):
         qosDb = open('./qosDb.json', 'r')
         for line in qosDb:
             res.append(json.loads(line))
-
-        #res = qosDb.readlines()
-        #[{'c': True, 'd': False}, None]
 
         qosDb.close()
 
         return jsonify(LOG=res)
         #return json.dumps(json.JSONDecoder().decode(r))
 
-
     else:
         flask_restful.abort(404)
-
 
 
 """
@@ -150,19 +128,16 @@ def run_app():
     # example to actually run
     # url = 'http://httpbin.org/post'
 
-    data = {'a': 10, 'b': [{'c': True, 'd': False}, None]}
+    data = {}
     # example of JSON data
     #data = {'a': 10, 'b': [{'c': True, 'd': False}, None]}
     headers = {'Content-Type': 'application/json'}
-
     r = requests.post(url, data=json.dumps(data), headers=headers)
-
     return json.dumps(r.json(), indent=4)
     """
 
     result = pathfinder_algorithm_from_file()
 
-    #return json.dumps(result, indent=4), 200
     return jsonify(PATH=result), 200
 
 
@@ -174,8 +149,6 @@ def run_app2():
     curl -i -H "Content-Type: application/json" -X POST --data-binary @/pathfinder/PFinput.json http://127.0.0.1:5000/pathfinder/run_app2
     curl -i -H "Content-Type: application/json" -vX POST -d @PFinput.json http://127.0.0.1:5000/pathfinder/run_app2
     """
-
-    #if not request.json or not 'test' in request.json:
 
     if not request.json:
         flask_restful.abort(400)
