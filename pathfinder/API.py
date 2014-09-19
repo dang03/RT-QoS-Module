@@ -13,7 +13,8 @@ import flask_restful
 import traceback
 import json
 import os
-from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
+import Pathfinder
+#from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
 app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
@@ -129,7 +130,7 @@ def run_app():
     return json.dumps(r.json(), indent=4)
     """
 
-    result = pathfinder_algorithm_from_file()
+    result = Pathfinder.pathfinder_algorithm_from_file()
 
     return jsonify(PATH=result), 200
 
@@ -148,7 +149,7 @@ def run_app2():
 
     PFinput = request.json
 
-    result = pathfinder_algorithm(PFinput)
+    result = Pathfinder.pathfinder_algorithm(PFinput)
 
     #return json.dumps(result, indent=4), 200
     return jsonify(PATH=result), 200
