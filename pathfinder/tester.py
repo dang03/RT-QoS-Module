@@ -12,8 +12,12 @@ import json
 import sys
 import Pathfinder
 import random
+import re
+import httplib
+import time
+from datetime import datetime
 
-
+delta_sec = 2  # seconds to delay in time.sleep
 
 class mcolors:
     OKGREEN = '\033[92m'
@@ -38,10 +42,10 @@ def request_builder(controller):
 
     for link_d in rtTopo:
 
-                link_d['bandwidth'] = random.randrange(1, 100)
-                link_d['delay'] = random.uniform(1, 10)
-                link_d['jitter'] = random.uniform(1, 5)
-                link_d['packet-loss'] = random.randrange(1, 80)
+                link_d['bandwidth'] = random.randrange(20, 30)
+                link_d['delay'] = random.uniform(0.2, 0.8)
+                link_d['jitter'] = random.uniform(0.1, 0.4)
+                link_d['packet-loss'] = random.randrange(1, 10)
 
 
 
@@ -71,14 +75,17 @@ global topofile
 
 controllerRestIp = args.controllerRestIp
 
-topology = request_builder(controllerRestIp)
+while True:
+    time.sleep(delta_sec)
 
-"""
-testRequest_body = str({"src": {"srcSwitch": "00:00:00:00:00:00:00:05", "srcPort": 3}, "dst": {"dstSwitch": "00:00:00:00:00:00:00:06", "dstPort": 3}, "requestID": "r3qu357", "parameters": { "delay": 0, "bandwidth": 8, "packet-loss": 0, "jitter": 0},)
-testRequest_topo = {"topology": rtTopo}
-"""
+    topology = request_builder(controllerRestIp)
 
-print "Creating new request file.\n"
-with open('PFinput3.json', 'wb') as PFtester:
-    json.dump(topology, PFtester, indent=4)
-    PFtester.close()
+    """
+    testRequest_body = str({"src": {"srcSwitch": "00:00:00:00:00:00:00:05", "srcPort": 3}, "dst": {"dstSwitch": "00:00:00:00:00:00:00:06", "dstPort": 3}, "requestID": "r3qu357", "parameters": { "delay": 0, "bandwidth": 8, "packet-loss": 0, "jitter": 0},)
+    testRequest_topo = {"topology": rtTopo}
+    """
+
+    print "Creating new request file.\n"
+    with open('PFinput3.json', 'wb') as PFtester:
+        json.dump(topology, PFtester, indent=4)
+        PFtester.close()
