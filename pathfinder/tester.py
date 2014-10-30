@@ -17,7 +17,7 @@ import httplib
 import time
 from datetime import datetime
 
-delta_sec = 2  # seconds to delay in time.sleep
+delta_sec = 5  # seconds to delay in time.sleep
 
 class mcolors:
     OKGREEN = '\033[92m'
@@ -31,7 +31,7 @@ class mcolors:
 
 
 
-def request_builder(controller):
+def request_builder_rnd(controller):
 
     # Get all the edges/links
     command = "curl -s http://%s//wm/topology/links/json" % controller
@@ -78,7 +78,7 @@ controllerRestIp = args.controllerRestIp
 while True:
     time.sleep(delta_sec)
 
-    topology = request_builder(controllerRestIp)
+    topology = request_builder_rnd(controllerRestIp)
 
     """
     testRequest_body = str({"src": {"srcSwitch": "00:00:00:00:00:00:00:05", "srcPort": 3}, "dst": {"dstSwitch": "00:00:00:00:00:00:00:06", "dstPort": 3}, "requestID": "r3qu357", "parameters": { "delay": 0, "bandwidth": 8, "packet-loss": 0, "jitter": 0},)
@@ -89,3 +89,20 @@ while True:
     with open('PFinput3.json', 'wb') as PFtester:
         json.dump(topology, PFtester, indent=4)
         PFtester.close()
+
+
+    '''ADAPTER'''
+    '''codehere'''
+
+
+
+
+
+    command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
+    result = os.popen(command).read()
+    print command + "\n"
+    print "QoS Request:", result
+
+
+    '''GUI'''
+    '''codehere'''

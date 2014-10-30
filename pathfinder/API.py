@@ -14,6 +14,7 @@ import traceback
 import json
 import os
 import Pathfinder
+from BeautifulSoup import BeautifulSoup
 #from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
 app = Flask(__name__)
@@ -155,6 +156,42 @@ def run_app2():
     return jsonify(PATH=result), 200
 
 
+@app.route('/pathfinder/provisioner', methods=['POST'])
+def provisioner():
+    """
+    *NOT DEFINED YET* usage:
+    curl -i -H "Content-Type: application/xml" -X POST -d '{"test":"data"}' http://127.0.0.1:5000/pathfinder/provisioner
+    curl -i -H "Content-Type: application/xml" -X POST --data-binary @/pathfinder/PFinput.json http://127.0.0.1:5000/pathfinder/provisioner
+    curl -i -H "Content-Type: application/xml" -vX POST -d @PFinput.json http://127.0.0.1:5000/pathfinder/provisioner
+    """
+    if request.headers['Content-Type'] == 'application/xml':
+
+
+        parsed_data = BeautifulSoup(request.data)
+        src_ip = parsed_data.source.address.string
+        dst_ip = parsed_data.destination.address.string
+        src_port = parsed_data.source.linkport.string
+        dst_port = parsed_data.destination.linkport.string
+        max_delay = parsed_data.qos_policy.maxLatency
+        max_jitter = parsed_data.qos_policy.maxJitter
+        max_pLoss = parsed_data.qos_policy.maxPacketLoss
+        min_band = parsed_data.qos_policy.minThroughput
+
+
+        return str(src_ip+", "+dst_ip+", "+src_port+", "+dst_port+"\n")
+
+
+    else:
+        flask_restful.abort(400)
+
+    #PFinput = circuitRequest.xml
+
+    #result = Pathfinder.pathfinder_algorithm(PFinput)
+
+    #return json.dumps(result, indent=4), 200
+    #return jsonify(PATH=result), 200
+
+
 
 # Define a route for the webserver
 @app.route('/pathfinder/')
@@ -178,8 +215,8 @@ def index():
 
 if __name__ == '__main__':
     app.run(
-        # host="0.0.0.0",
-        #port=int("80")
+        #host="84.88.40.146",
+        port=int("5000"),
         debug=False
     )
 

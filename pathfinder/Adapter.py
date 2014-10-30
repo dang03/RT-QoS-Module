@@ -264,7 +264,7 @@ def adapter(controller, reqData, topo):
 # parse controller address.
 # Syntax:
 # *FLOODLIGHT* --controller {IP:REST_PORT}
-# Usage from CLI, e.g.: python Adapter.py --input request.json
+# Usage from CLI, e.g.: python Adapter.py --request request.json --topo topology.json
 
 parser = argparse.ArgumentParser(description='Suitable Path Generator')
 parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
@@ -324,7 +324,7 @@ with open('PFinput2.json', 'wb') as PFinput2:
 
 
 # Call Pathfinder through REST API (command line customizable!)
-command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput3.json http://127.0.0.1:5000/pathfinder/run_app2'
+command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
 result = os.popen(command).read()
 print command + "\n"
 print "QoS Request:", result
