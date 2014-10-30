@@ -170,8 +170,8 @@ def provisioner():
         parsed_data = BeautifulSoup(request.data)
         src_ip = parsed_data.source.address.string
         dst_ip = parsed_data.destination.address.string
-        src_port = parsed_data.source.linkport.string
-        dst_port = parsed_data.destination.linkport.string
+        src_port = parsed_data.source.linkport.string #considering
+        dst_port = parsed_data.destination.linkport.string #considering
         max_delay = parsed_data.qos_policy.maxLatency
         max_jitter = parsed_data.qos_policy.maxJitter
         max_pLoss = parsed_data.qos_policy.maxPacketLoss
