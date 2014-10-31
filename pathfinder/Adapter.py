@@ -137,7 +137,11 @@ def adapter(controller, reqData, topo):
         print command + "\n"
 
         srcSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
-        srcPort = parsedResult[0]['attachmentPoint'][0]['port']
+
+        if 'src-port' in reqData:
+            srcPort = reqData['src-port']
+        else:
+            srcPort = parsedResult[0]['attachmentPoint'][0]['port']
 
     except:
         print mcolors.FAIL + "Error: Controller could not find SRC attachment point!" + mcolors.ENDC
@@ -149,7 +153,11 @@ def adapter(controller, reqData, topo):
     print command + "\n"
     try:
         dstSwitch = parsedResult[0]['attachmentPoint'][0]['switchDPID']
-        dstPort = parsedResult[0]['attachmentPoint'][0]['port']
+
+        if 'dst-port' in reqData:
+            dstPort = reqData['dst-port']
+        else:
+            dstPort = parsedResult[0]['attachmentPoint'][0]['port']
 
     except:
         print mcolors.FAIL + "Error: Controller could not find DST attachment point!" + mcolors.ENDC
@@ -259,78 +267,79 @@ def adapter(controller, reqData, topo):
     return input_data
 
 
-# if __name__ == '__main__':
 
-# parse controller address.
-# Syntax:
-# *FLOODLIGHT* --controller {IP:REST_PORT}
-# Usage from CLI, e.g.: python Adapter.py --request request.json --topo topology.json
+if __name__ == '__main__':
 
-parser = argparse.ArgumentParser(description='Suitable Path Generator')
-parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
-                    help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
-parser.add_argument('--request', '-r', dest='fileName', default=None,
-                    help='Optional request file path, e.g., pathfinder/request.json', metavar='FILE')
-parser.add_argument('--topo', '-t', dest='topoStats', default=None,
-                    help='Optional topology file path, e.g., pathfinder/topology.json', metavar='FILE')
-args = parser.parse_args()
-print args, "\n"
+    # parse controller address.
+    # Syntax:
+    # *FLOODLIGHT* --controller {IP:REST_PORT}
+    # Usage from CLI, e.g.: python Adapter.py --request request.json --topo topology.json
 
-
-global inputfile
-global topofile
+    parser = argparse.ArgumentParser(description='Suitable Path Generator')
+    parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
+                        help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
+    parser.add_argument('--request', '-r', dest='fileName', default=None,
+                        help='Optional request file path, e.g., pathfinder/request.json', metavar='FILE')
+    parser.add_argument('--topo', '-t', dest='topoStats', default=None,
+                        help='Optional topology file path, e.g., pathfinder/topology.json', metavar='FILE')
+    args = parser.parse_args()
+    print args, "\n"
 
 
-# INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
-# that will include QoS requirements plus necessary data unavailable from the controller
-if args.fileName and args.topoStats is not None:
+    global inputfile
+    global topofile
 
-    if os.path.exists(args.fileName):
-        with open(args.fileName, 'r') as PFinput:
-            inputfile = json.load(PFinput)
-            PFinput.close()
+
+    # INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
+    # that will include QoS requirements plus necessary data unavailable from the controller
+    if args.fileName and args.topoStats is not None:
+
+        if os.path.exists(args.fileName):
+            with open(args.fileName, 'r') as PFinput:
+                inputfile = json.load(PFinput)
+                PFinput.close()
+
+        else:
+            raise Exception("The file %s does not exist" % args.fileName)
+
+        print(inputfile)
+
+
+        if os.path.exists(args.topoStats):
+            with open(args.topoStats, 'r') as PFtopo:
+                topofile = json.load(PFtopo)
+                PFtopo.close()
+
+        else:
+            raise Exception("The file %s does not exist" % args.topoStats)
+
+        print(topofile)
 
     else:
-        raise Exception("The file %s does not exist" % args.fileName)
+         raise Exception(mcolors.FAIL + "A QoS request and topology data must be provided" + mcolors.ENDC)
 
-    print(inputfile)
+    controllerRestIp = args.controllerRestIp
 
-
-    if os.path.exists(args.topoStats):
-        with open(args.topoStats, 'r') as PFtopo:
-            topofile = json.load(PFtopo)
-            PFtopo.close()
-
-    else:
-        raise Exception("The file %s does not exist" % args.topoStats)
-
-    print(topofile)
-
-else:
-     raise Exception(mcolors.FAIL + "A QoS request and topology data must be provided" + mcolors.ENDC)
-
-controllerRestIp = args.controllerRestIp
-
-adaptedRequest = adapter(controllerRestIp, inputfile, topofile)
+    adaptedRequest = adapter(controllerRestIp, inputfile, topofile)
 
 
-# OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
-# It will store the PFinput file, as a output result to be sent to Pathfinder REST API
-# or locally processed by Pathfinder algorithm
-print "Creating new request file.\n"
-with open('PFinput2.json', 'wb') as PFinput2:
-    json.dump(adaptedRequest, PFinput2, indent=4)
-    PFinput2.close()
+    # OUTPUT: A local request source file may exists, called PFinput2.json for testing purposes
+    # It will store the PFinput file, as a output result to be sent to Pathfinder REST API
+    # or locally processed by Pathfinder algorithm
+    print "Creating new request file.\n"
+    with open('PFinput2.json', 'wb') as PFinput2:
+        json.dump(adaptedRequest, PFinput2, indent=4)
+        PFinput2.close()
 
 
-# Call Pathfinder through REST API (command line customizable!)
-command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
-result = os.popen(command).read()
-print command + "\n"
-print "QoS Request:", result
+    # Call Pathfinder through REST API (command line customizable!)
+    command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
+    result = os.popen(command).read()
+    print command + "\n"
+    print "QoS Request:", result
 
-# Or call Pathfinder direct function (locally)(uncomment to enable and comment API command)
-"""
-result = Pathfinder.pathfinder_algorithm(adaptedRequest)
-print "QoS Request:", result
-"""
+    # Or call Pathfinder direct function (locally)(uncomment to enable and comment API command)
+    """
+    result = Pathfinder.pathfinder_algorithm(adaptedRequest)
+    print "QoS Request:", result
+    """

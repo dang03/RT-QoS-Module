@@ -263,7 +263,12 @@ def path_select(res, key_res, cos_res, kPath):
     else:
         path = res[kPath - 1]
         pathCost = cos_res[kPath - 1]
-        keys = key_res[kPath - 1]
+
+        if not key_res:
+            # If key_res is empty, means that path is just one switch and no edge(switch-switch)
+            keys = None
+        else:
+            keys = key_res[kPath - 1]
     return path, keys, pathCost
 
 #####################

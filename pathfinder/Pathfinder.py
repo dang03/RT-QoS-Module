@@ -158,25 +158,25 @@ def pathfinder_algorithm(reqData):
 
     if 'bandwidth' in reqParameters:
         reqBand = reqData['parameters']['bandwidth']
-        if reqBand is not 0:
+        if reqBand != '0' or reqBand is not 0:
             print "Requested minimum bandwidth: %s" % reqBand
             k.append('bandwidth')
 
     if 'delay' in reqParameters:
         reqDelay = reqData['parameters']['delay']
-        if reqDelay is not 0:
+        if reqDelay != '0' or reqDelay is not 0:
             print "Requested maximum delay: %s" % reqDelay
             k.append('delay')
 
     if 'jitter' in reqParameters:
         reqJitter = reqData['parameters']['jitter']
-        if reqJitter is not 0:
+        if reqJitter != '0' or reqJitter is not 0:
             print "Requested maximum jitter: %s" % reqJitter
             k.append('jitter')
 
     if 'packet-loss' in reqParameters:
         reqPacketLoss = reqData['parameters']['packet-loss']
-        if reqPacketLoss is not 0:
+        if reqPacketLoss != '0' or reqPacketLoss is not 0:
             print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
             k.append('packet-loss')
 
@@ -505,314 +505,321 @@ def pathfinder_algorithm(reqData):
 
     #edgeFormat = True
     auxPath2 = []   #an alternative list for QOS path in edge format style
-    getEdgePath = to_edge_path(maxPath, M)
-    print "PATH(edge format)", getEdgePath
 
-    midSwitches = defaultdict(list)
-    idx = 0
-    # Get node end points for each edge in maxPath list to first check if maxPath nodes are
-    # bound to the edge keys from keyPath list and its matching
-    for idx in range(len(getEdgePath)):
-        node1, node2 = getEdgePath[idx]
-        print "2nodes", node1, node2
-        for idx in range(len(keyPath)):
-            linkKey = keyPath[idx]
-            print "linkKey", linkKey
-            if linkKey in G.get_edge_data(node1, node2):
-                print "FOUND:", linkKey, "=", node1, node2
-                break
-        # For the maxPath node and keyPath key matching, next step is to split edge key string to
-        # get switch::port data for each edge in its correct order
+    if length != 0:
+        getEdgePath = to_edge_path(maxPath, M)
+        print "PATH(edge format)", getEdgePath
 
-        edgePoints = linkKey.split('-')
-        print "edgePoints", edgePoints
-
-        edgeSrc = edgePoints[0].split('::')
-        edgeDst = edgePoints[1].split('::')
-
-        print "edgeSrc", edgeSrc
-        print "edgeDst", edgeDst
-
-
-        # Then the switch::ports items are parsed and added to the final QoS path response
-        # Get all the links switch::ports data first
-        edgeSrcSwitch = edgeSrc[0]
-        edgeDstSwitch = edgeDst[0]
-        edgeSrcPort = edgeSrc[1]
-        edgeDstPort = edgeDst[1]
-
-        print "edgeSrcSwitch", edgeSrcSwitch
-        print "edgeDstSwitch", edgeDstSwitch
-        print "edgeSrcPort", edgeSrcPort
-        print "edgeDstPort", edgeDstPort
-        #print key, "\n"
-
-        #configString = ""
-        checkedList = []    #the check list is unused
-
-
-        if edgeSrcSwitch == srcSwitch:
-                qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
-                auxPath2.append(qosNode2)
-
-
-        elif edgeDstSwitch == srcSwitch:
-                qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
-                auxPath2.append(qosNode2)
-
-        elif edgeSrcSwitch == dstSwitch:
-                qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
-                auxPath2.append(qosNode2)
-
-
-        elif edgeDstSwitch == dstSwitch:
-                qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
-                auxPath2.append(qosNode2)
-
-        qosNode2 = ({'switch': edgeSrcSwitch, 'port': edgeSrcPort}, {'switch': edgeDstSwitch, 'port': edgeDstPort})
-        auxPath2.append(qosNode2)
-        """
-        qosNode2 = {'switch': edgeDstSwitch, 'port': edgeDstPort}
-        auxPath2.append(qosNode2)
-        """
-
-
-        """
-        idx = 0
         midSwitches = defaultdict(list)
-        for nodeSwitch in maxPath:
-            if idx == (len(maxPath)-1):
-                nextNodeSwitch = maxPath[idx-1]
-                print "nextNodeSwitch", nextNodeSwitch
-            else:
-                idx = (idx + 1)
-                nextNodeSwitch = maxPath[idx]
-                print "nextNodeSwitch", nextNodeSwitch
-        """
-        """
-            for i in range(len(rtTopo)):
-                # Get all the edges/links
-                edgeSrcSwitch = rtTopo[i]['src-switch']
-                edgeDstSwitch = rtTopo[i]['dst-switch']
-                edgeSrcPort = rtTopo[i]['src-port']
-                edgeDstPort = rtTopo[i]['dst-port']
-                #key = str(edgeSrcSwitch)+"::"+str(edgeSrcPort)+"-"+str(edgeDstSwitch)+"::"+str(edgeSrcPort)
+        idx = 0
+        # Get node end points for each edge in maxPath list to first check if maxPath nodes are
+        # bound to the edge keys from keyPath list and its matching
+        for idx in range(len(getEdgePath)):
+            node1, node2 = getEdgePath[idx]
+            print "2nodes", node1, node2
+            for idx in range(len(keyPath)):
+                linkKey = keyPath[idx]
+                print "linkKey", linkKey
+                if linkKey in G.get_edge_data(node1, node2):
+                    print "FOUND:", linkKey, "=", node1, node2
+                    break
+            # For the maxPath node and keyPath key matching, next step is to split edge key string to
+            # get switch::port data for each edge in its correct order
 
-                print edgeSrcSwitch
-                print edgeDstSwitch
-                print edgeSrcPort
-                print edgeDstPort
-                #print key, "\n"
-        """
+            edgePoints = linkKey.split('-')
+            print "edgePoints", edgePoints
 
-        if (edgeSrcSwitch == node1 or node2) and (edgeDstSwitch == node1 or node2):
-                    print edgeSrcSwitch, edgeDstSwitch
-                    print edgeSrcPort, edgeDstPort
-                    if edgeSrcSwitch == srcSwitch:
+            edgeSrc = edgePoints[0].split('::')
+            edgeDst = edgePoints[1].split('::')
 
-                        # Switch Queues Configuration
-                        """
-                        srcSwitchName = G.node[srcSwitch]['name']
-                        print srcSwitchName
+            print "edgeSrc", edgeSrc
+            print "edgeDst", edgeDst
 
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, srcPort)
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, edgeSrcPort)
-                        """
-                        qosNode = {'switch': srcSwitch, 'port1': srcPort, 'port2': edgeSrcPort}
-                        auxPath.append(qosNode)
-                        print auxPath
 
-                        #switch is the source host connected switch
-                        """
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".f", srcAddress, dstAddress, "0x800", srcPort, edgeSrcPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
+            # Then the switch::ports items are parsed and added to the final QoS path response
+            # Get all the links switch::ports data first
+            edgeSrcSwitch = edgeSrc[0]
+            edgeDstSwitch = edgeDst[0]
+            edgeSrcPort = edgeSrc[1]
+            edgeDstPort = edgeDst[1]
 
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".farp", "0x806", srcPort, edgeSrcPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
+            print "edgeSrcSwitch", edgeSrcSwitch
+            print "edgeDstSwitch", edgeDstSwitch
+            print "edgeSrcPort", edgeSrcPort
+            print "edgeDstPort", edgeDstPort
+            #print key, "\n"
 
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".r", dstAddress, srcAddress, "0x800", edgeSrcPort, srcPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
+            #configString = ""
+            checkedList = []    #the check list is unused
 
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".rarp", "0x806", edgeSrcPort, srcPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-                        """
-                        if edgeDstSwitch != dstSwitch:
+
+            if edgeSrcSwitch == srcSwitch:
+                    qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
+                    auxPath2.append(qosNode2)
+
+
+            elif edgeDstSwitch == srcSwitch:
+                    qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
+                    auxPath2.append(qosNode2)
+
+            elif edgeSrcSwitch == dstSwitch:
+                    qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
+                    auxPath2.append(qosNode2)
+
+
+            elif edgeDstSwitch == dstSwitch:
+                    qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
+                    auxPath2.append(qosNode2)
+
+            qosNode2 = ({'switch': edgeSrcSwitch, 'port': edgeSrcPort}, {'switch': edgeDstSwitch, 'port': edgeDstPort})
+            auxPath2.append(qosNode2)
+            """
+            qosNode2 = {'switch': edgeDstSwitch, 'port': edgeDstPort}
+            auxPath2.append(qosNode2)
+            """
+
+
+            """
+            idx = 0
+            midSwitches = defaultdict(list)
+            for nodeSwitch in maxPath:
+                if idx == (len(maxPath)-1):
+                    nextNodeSwitch = maxPath[idx-1]
+                    print "nextNodeSwitch", nextNodeSwitch
+                else:
+                    idx = (idx + 1)
+                    nextNodeSwitch = maxPath[idx]
+                    print "nextNodeSwitch", nextNodeSwitch
+            """
+            """
+                for i in range(len(rtTopo)):
+                    # Get all the edges/links
+                    edgeSrcSwitch = rtTopo[i]['src-switch']
+                    edgeDstSwitch = rtTopo[i]['dst-switch']
+                    edgeSrcPort = rtTopo[i]['src-port']
+                    edgeDstPort = rtTopo[i]['dst-port']
+                    #key = str(edgeSrcSwitch)+"::"+str(edgeSrcPort)+"-"+str(edgeDstSwitch)+"::"+str(edgeSrcPort)
+
+                    print edgeSrcSwitch
+                    print edgeDstSwitch
+                    print edgeSrcPort
+                    print edgeDstPort
+                    #print key, "\n"
+            """
+
+            if (edgeSrcSwitch == node1 or node2) and (edgeDstSwitch == node1 or node2):
+                        print edgeSrcSwitch, edgeDstSwitch
+                        print edgeSrcPort, edgeDstPort
+                        if edgeSrcSwitch == srcSwitch:
+
+                            # Switch Queues Configuration
+                            """
+                            srcSwitchName = G.node[srcSwitch]['name']
+                            print srcSwitchName
+
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, srcPort)
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, edgeSrcPort)
+                            """
+                            qosNode = {'switch': srcSwitch, 'port1': srcPort, 'port2': edgeSrcPort}
+                            auxPath.append(qosNode)
+                            print auxPath
+
+                            #switch is the source host connected switch
+                            """
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".f", srcAddress, dstAddress, "0x800", srcPort, edgeSrcPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".farp", "0x806", srcPort, edgeSrcPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".r", dstAddress, srcAddress, "0x800", edgeSrcPort, srcPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (srcSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".rarp", "0x806", edgeSrcPort, srcPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+                            """
+                            if edgeDstSwitch != dstSwitch:
+                                midSwitches[edgeDstSwitch].append(edgeDstPort)
+
+                        elif edgeSrcSwitch == dstSwitch and edgeSrcSwitch not in checkedList:
+
+                            # Switch Queues Configuration
+                            """
+                            dstSwitchName = G.node[dstSwitch]['name']
+                            print dstSwitchName
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, dstPort)
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
+                            """
+
+                            qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeSrcPort}
+                            auxPath.append(qosNode)
+                            print auxPath
+
+                            #switch is the destination host connected switch
+                            """
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".f", srcAddress, dstAddress, "0x800", edgeSrcPort, dstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".farp", "0x806", edgeSrcPort, dstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+edgeSrcSwitch+".r", dstAddress, srcAddress, "0x800", dstPort, edgeSrcPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+edgeSrcSwitch+".rarp", "0x806", dstPort, edgeSrcPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+                            """
+                            if edgeDstSwitch != srcSwitch:
+                                midSwitches[edgeDstSwitch].append(edgeDstPort)
+
+
+                        elif edgeDstSwitch == dstSwitch and edgeDstSwitch not in checkedList:
+
+                            # Switch Queues Configuration
+                            """
+                            dstSwitchName = G.node[dstSwitch]['name']
+                            print dstSwitchName
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, dstPort)
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
+                            """
+
+                            qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeDstPort}
+                            auxPath.append(qosNode)
+                            print auxPath
+
+                            #switch is the destination host connected switch
+                            """
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".f", srcAddress, dstAddress, "0x800", edgeDstPort, dstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".farp", "0x806", edgeDstPort, dstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".r", dstAddress, srcAddress, "0x800", dstPort, edgeDstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".rarp", "0x806", dstPort, edgeDstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+                            """
+                            if edgeSrcSwitch != srcSwitch:
+                                midSwitches[edgeSrcSwitch].append(edgeSrcPort)
+
+                        elif edgeDstSwitch == srcSwitch and edgeDstSwitch not in checkedList:
+
+                            # Switch Queues Configuration
+                            """
+                            srcSwitchName = G.node[srcSwitch]['name']
+                            print dstSwitchName
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, srcPort)
+                            configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, edgeSrcPort)
+                            """
+
+                            qosNode = {'switch': srcSwitch, 'portA': srcPort, 'portB': edgeDstPort}
+                            auxPath.append(qosNode)
+                            print auxPath
+
+                            #switch is the destination host connected switch
+                            """
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".f", srcAddress, dstAddress, "0x800", edgeDstPort, dstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".farp", "0x806", edgeDstPort, dstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".r", dstAddress, srcAddress, "0x800", dstPort, edgeDstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+
+                            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".rarp", "0x806", dstPort, edgeDstPort, controllerRestIp)
+                            result = os.popen(command).read()
+                            print command
+                            """
+                            if edgeSrcSwitch != dstSwitch:
+                                midSwitches[edgeSrcSwitch].append(edgeSrcPort)
+
+
+
+                        else:
+                            #switch is between other switches; create a dict with switch - ports (midSwitch : port-pair)
+                            #maxPath contains route order, then midSwitches are stored in path order
+                            midSwitches[edgeSrcSwitch].append(edgeSrcPort)
                             midSwitches[edgeDstSwitch].append(edgeDstPort)
 
-                    elif edgeSrcSwitch == dstSwitch and edgeSrcSwitch not in checkedList:
+        print midSwitches
 
-                        # Switch Queues Configuration
-                        """
-                        dstSwitchName = G.node[dstSwitch]['name']
-                        print dstSwitchName
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, dstPort)
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
-                        """
+        for midSwitch, midPorts in midSwitches.iteritems():
+            if midSwitch not in checkedList:
 
-                        qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeSrcPort}
-                        auxPath.append(qosNode)
-                        print auxPath
+                print "%s - %s, %s" % (str(midSwitch), str(midPorts[0]), str(midPorts[1]))
 
-                        #switch is the destination host connected switch
-                        """
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".f", srcAddress, dstAddress, "0x800", edgeSrcPort, dstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
+                # Switch Queues Configuration
+                """
+                midSwitchName = G.node[midSwitch]['name']
+                print midSwitchName
+                configString += " -- set Port %s-eth%s qos=@newqos" % (midSwitchName, str(midPorts[0]))
+                configString += " -- set Port %s-eth%s qos=@newqos" % (midSwitchName, str(midPorts[1]))
+                """
 
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeSrcSwitch+"-"+edgeDstSwitch+".farp", "0x806", edgeSrcPort, dstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
+                qosNode = {'switch': midSwitch, 'portA': str(midPorts[0]), 'portB': str(midPorts[1])}
+                auxPath.append(qosNode)
+                print auxPath
 
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+edgeSrcSwitch+".r", dstAddress, srcAddress, "0x800", dstPort, edgeSrcPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
+                #push midSwitches flowmods
+                """
+                command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[0]))+".f", srcAddress, dstAddress, "0x800", (str(midPorts[0])), (str(midPorts[1])), controllerRestIp)
+                result = os.popen(command).read()
+                print command
 
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+edgeSrcSwitch+".rarp", "0x806", dstPort, edgeSrcPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-                        """
-                        if edgeDstSwitch != srcSwitch:
-                            midSwitches[edgeDstSwitch].append(edgeDstPort)
+                command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[0]))+".farp", "0x806", (str(midPorts[0])), (str(midPorts[1])), controllerRestIp)
+                result = os.popen(command).read()
+                print command
 
+                command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[1]))+".r", dstAddress, srcAddress, "0x800", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
+                result = os.popen(command).read()
+                print command
 
-                    elif edgeDstSwitch == dstSwitch and edgeDstSwitch not in checkedList:
+                command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[1]))+".rarp", "0x806", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
+                result = os.popen(command).read()
+                print command
+                """
+        """
+        queueDb = open('./queueDb.txt', 'a')
+        print "config string:", configString
+        queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=30000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=30000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=20000000 other-config:priority=8" % configString
+        qResult = os.popen(queueString).read()
+        print "queue string:", queueString
+        print "qResult:", qResult
+        queueDb.write(qResult+"\n")
+        """
 
-                        # Switch Queues Configuration
-                        """
-                        dstSwitchName = G.node[dstSwitch]['name']
-                        print dstSwitchName
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, dstPort)
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
-                        """
+        qosPath = path_sort(maxPath, auxPath)
+        print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
 
-                        qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeDstPort}
-                        auxPath.append(qosNode)
-                        print auxPath
+        # The alternative style path refers to a link/edge composed path. Pathfinder is able
+        # to return a result in this format too. If this is needed, next code must be enabled:
+        #
+        # qosPath = auxPath2
+        #
+        print "Alternative style", auxPath2
 
-                        #switch is the destination host connected switch
-                        """
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".f", srcAddress, dstAddress, "0x800", edgeDstPort, dstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
+    else:
+        qosPath = [{'switch': srcSwitch, 'port1': srcPort, 'port2': dstPort}]
+        print "QoS Path of a single device: ", qosPath
 
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".farp", "0x806", edgeDstPort, dstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".r", dstAddress, srcAddress, "0x800", dstPort, edgeDstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".rarp", "0x806", dstPort, edgeDstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-                        """
-                        if edgeSrcSwitch != srcSwitch:
-                            midSwitches[edgeSrcSwitch].append(edgeSrcPort)
-
-                    elif edgeDstSwitch == srcSwitch and edgeDstSwitch not in checkedList:
-
-                        # Switch Queues Configuration
-                        """
-                        srcSwitchName = G.node[srcSwitch]['name']
-                        print dstSwitchName
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, srcPort)
-                        configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, edgeSrcPort)
-                        """
-
-                        qosNode = {'switch': srcSwitch, 'portA': srcPort, 'portB': edgeDstPort}
-                        auxPath.append(qosNode)
-                        print auxPath
-
-                        #switch is the destination host connected switch
-                        """
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".f", srcAddress, dstAddress, "0x800", edgeDstPort, dstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".farp", "0x806", edgeDstPort, dstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".r", dstAddress, srcAddress, "0x800", dstPort, edgeDstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-
-                        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % (dstSwitch, edgeDstSwitch+"-"+dstSwitchName+".rarp", "0x806", dstPort, edgeDstPort, controllerRestIp)
-                        result = os.popen(command).read()
-                        print command
-                        """
-                        if edgeSrcSwitch != dstSwitch:
-                            midSwitches[edgeSrcSwitch].append(edgeSrcPort)
-
-
-
-                    else:
-                        #switch is between other switches; create a dict with switch - ports (midSwitch : port-pair)
-                        #maxPath contains route order, then midSwitches are stored in path order
-                        midSwitches[edgeSrcSwitch].append(edgeSrcPort)
-                        midSwitches[edgeDstSwitch].append(edgeDstPort)
-
-    print midSwitches
-
-    for midSwitch, midPorts in midSwitches.iteritems():
-        if midSwitch not in checkedList:
-
-            print "%s - %s, %s" % (str(midSwitch), str(midPorts[0]), str(midPorts[1]))
-
-            # Switch Queues Configuration
-            """
-            midSwitchName = G.node[midSwitch]['name']
-            print midSwitchName
-            configString += " -- set Port %s-eth%s qos=@newqos" % (midSwitchName, str(midPorts[0]))
-            configString += " -- set Port %s-eth%s qos=@newqos" % (midSwitchName, str(midPorts[1]))
-            """
-
-            qosNode = {'switch': midSwitch, 'portA': str(midPorts[0]), 'portB': str(midPorts[1])}
-            auxPath.append(qosNode)
-            print auxPath
-
-            #push midSwitches flowmods
-            """
-            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[0]))+".f", srcAddress, dstAddress, "0x800", (str(midPorts[0])), (str(midPorts[1])), controllerRestIp)
-            result = os.popen(command).read()
-            print command
-
-            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[0]))+".farp", "0x806", (str(midPorts[0])), (str(midPorts[1])), controllerRestIp)
-            result = os.popen(command).read()
-            print command
-
-            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[1]))+".r", dstAddress, srcAddress, "0x800", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
-            result = os.popen(command).read()
-            print command
-
-            command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+"-"+(str(midPorts[1]))+".rarp", "0x806", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
-            result = os.popen(command).read()
-            print command
-            """
-    """
-    queueDb = open('./queueDb.txt', 'a')
-    print "config string:", configString
-    queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=30000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=30000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=20000000 other-config:priority=8" % configString
-    qResult = os.popen(queueString).read()
-    print "queue string:", queueString
-    print "qResult:", qResult
-    queueDb.write(qResult+"\n")
-    """
-
-    qosPath = path_sort(maxPath, auxPath)
-    print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
-
-    # The alternative style path refers to a link/edge composed path. Pathfinder is able
-    # to return a result in this format too. If this is needed, next code must be enabled:
-    #
-    # qosPath = auxPath2
-    #
-    print "Alternative style", auxPath2
 
     if os.path.exists('./path.json'):
         pathRes = open('./path.json', 'r')

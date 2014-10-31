@@ -13,7 +13,7 @@ import flask_restful
 import traceback
 import json
 import os
-import Pathfinder
+import Pathfinder, pathfinder.Adapter
 from BeautifulSoup import BeautifulSoup
 #from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
@@ -166,19 +166,47 @@ def provisioner():
     """
     if request.headers['Content-Type'] == 'application/xml':
 
-
+        #parse data from XML input to python
         parsed_data = BeautifulSoup(request.data)
+
+        #E2E ip addresses and ports
         src_ip = parsed_data.source.address.string
         dst_ip = parsed_data.destination.address.string
         src_port = parsed_data.source.linkport.string #considering
         dst_port = parsed_data.destination.linkport.string #considering
-        max_delay = parsed_data.qos_policy.maxLatency
-        max_jitter = parsed_data.qos_policy.maxJitter
-        max_pLoss = parsed_data.qos_policy.maxPacketLoss
-        min_band = parsed_data.qos_policy.minThroughput
+
+        #label = parsed_data.label.string
+
+        # requested QoS parameters
+        max_delay = int(parsed_data.qos_policy.maxlatency.string)
+        max_jitter = int(parsed_data.qos_policy.maxjitter.string)
+        max_pLoss = int(parsed_data.qos_policy.maxpacketloss.string)
+        min_band = int(parsed_data.qos_policy.minthroughput.string)
+
+        #identify the request
+        req_id = "FIBRE-test"
+
+        #request input data
+        input_data = {"requestID": req_id, "ip-src": src_ip, "ip-dst": dst_ip, "src-port": src_port, "dst-port": dst_port, "bandwidth": min_band, "delay": max_delay, "packet-loss": max_pLoss, "jitter": max_jitter}
+
+        #return jsonify(input_data), 200
+
+        with open('pathfinder/PFinput3.json', 'r') as PFtopo:
+           topofile = json.load(PFtopo)
+           PFtopo.close()
+
+        adapted_request = pathfinder.Adapter.adapter('localhost:8080', input_data, topofile)
+
+        #return jsonify(adapted_request), 200
+
+        result = Pathfinder.pathfinder_algorithm(adapted_request)
+
+        #return json.dumps(result, indent=4), 200
+        return jsonify(PATH=result), 200
 
 
-        return str(src_ip+", "+dst_ip+", "+src_port+", "+dst_port+"\n")
+
+        #return str(src_ip+"\n"+dst_ip+"\n"+src_port+"\n"+dst_port+"\n"+label+"\n"+max_delay+"\n")
 
 
     else:
