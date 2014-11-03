@@ -158,25 +158,25 @@ def pathfinder_algorithm(reqData):
 
     if 'bandwidth' in reqParameters:
         reqBand = reqData['parameters']['bandwidth']
-        if reqBand != '0' or reqBand is not 0:
+        if reqBand is not 0:
             print "Requested minimum bandwidth: %s" % reqBand
             k.append('bandwidth')
 
     if 'delay' in reqParameters:
         reqDelay = reqData['parameters']['delay']
-        if reqDelay != '0' or reqDelay is not 0:
+        if reqDelay is not 0:
             print "Requested maximum delay: %s" % reqDelay
             k.append('delay')
 
     if 'jitter' in reqParameters:
         reqJitter = reqData['parameters']['jitter']
-        if reqJitter != '0' or reqJitter is not 0:
+        if reqJitter is not 0:
             print "Requested maximum jitter: %s" % reqJitter
             k.append('jitter')
 
     if 'packet-loss' in reqParameters:
         reqPacketLoss = reqData['parameters']['packet-loss']
-        if reqPacketLoss != '0' or reqPacketLoss is not 0:
+        if reqPacketLoss is not 0:
             print "Requested maximum packet-loss: %s" % reqPacketLoss, "%"
             k.append('packet-loss')
 
@@ -456,6 +456,7 @@ def pathfinder_algorithm(reqData):
 
             print "QoS k paths = %s\n" % kPaths
             print "QoS k lengths = %s\n" % kCosts
+            print "QoS k Keys = %s\n" % kKeys
 
             maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
@@ -512,14 +513,25 @@ def pathfinder_algorithm(reqData):
 
         midSwitches = defaultdict(list)
         idx = 0
+
+        #if len(getEdgePath) == 1:
+                    #getEdgePath.append(getEdgePath[0])
+
         # Get node end points for each edge in maxPath list to first check if maxPath nodes are
         # bound to the edge keys from keyPath list and its matching
         for idx in range(len(getEdgePath)):
+
             node1, node2 = getEdgePath[idx]
             print "2nodes", node1, node2
+
             for idx in range(len(keyPath)):
+
+                print "keypath", keyPath, idx, range(len(keyPath))
+
                 linkKey = keyPath[idx]
+                #linkKey = keyPath
                 print "linkKey", linkKey
+
                 if linkKey in G.get_edge_data(node1, node2):
                     print "FOUND:", linkKey, "=", node1, node2
                     break
@@ -556,56 +568,33 @@ def pathfinder_algorithm(reqData):
             if edgeSrcSwitch == srcSwitch:
                     qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
                     auxPath2.append(qosNode2)
+                    print "auxPath2 append", auxPath2
 
 
             elif edgeDstSwitch == srcSwitch:
                     qosNode2 = {'switch': srcSwitch, 'port': srcPort}, ({'endpoint': 'endpointA'})
                     auxPath2.append(qosNode2)
+                    print "auxPath2 append", auxPath2
 
             elif edgeSrcSwitch == dstSwitch:
                     qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
                     auxPath2.append(qosNode2)
+                    print "auxPath2 append", auxPath2
 
 
-            elif edgeDstSwitch == dstSwitch:
+            if edgeDstSwitch == dstSwitch:
                     qosNode2 = {'switch': dstSwitch, 'port': dstPort}, ({'endpoint': 'endpointB'})
                     auxPath2.append(qosNode2)
+                    print "auxPath2 append", auxPath2
 
             qosNode2 = ({'switch': edgeSrcSwitch, 'port': edgeSrcPort}, {'switch': edgeDstSwitch, 'port': edgeDstPort})
             auxPath2.append(qosNode2)
+            print "auxPath2 append", auxPath2
             """
             qosNode2 = {'switch': edgeDstSwitch, 'port': edgeDstPort}
             auxPath2.append(qosNode2)
             """
 
-
-            """
-            idx = 0
-            midSwitches = defaultdict(list)
-            for nodeSwitch in maxPath:
-                if idx == (len(maxPath)-1):
-                    nextNodeSwitch = maxPath[idx-1]
-                    print "nextNodeSwitch", nextNodeSwitch
-                else:
-                    idx = (idx + 1)
-                    nextNodeSwitch = maxPath[idx]
-                    print "nextNodeSwitch", nextNodeSwitch
-            """
-            """
-                for i in range(len(rtTopo)):
-                    # Get all the edges/links
-                    edgeSrcSwitch = rtTopo[i]['src-switch']
-                    edgeDstSwitch = rtTopo[i]['dst-switch']
-                    edgeSrcPort = rtTopo[i]['src-port']
-                    edgeDstPort = rtTopo[i]['dst-port']
-                    #key = str(edgeSrcSwitch)+"::"+str(edgeSrcPort)+"-"+str(edgeDstSwitch)+"::"+str(edgeSrcPort)
-
-                    print edgeSrcSwitch
-                    print edgeDstSwitch
-                    print edgeSrcPort
-                    print edgeDstPort
-                    #print key, "\n"
-            """
 
             if (edgeSrcSwitch == node1 or node2) and (edgeDstSwitch == node1 or node2):
                         print edgeSrcSwitch, edgeDstSwitch
@@ -622,7 +611,7 @@ def pathfinder_algorithm(reqData):
                             """
                             qosNode = {'switch': srcSwitch, 'port1': srcPort, 'port2': edgeSrcPort}
                             auxPath.append(qosNode)
-                            print auxPath
+                            print "auxPath append", auxPath
 
                             #switch is the source host connected switch
                             """
@@ -645,6 +634,12 @@ def pathfinder_algorithm(reqData):
                             if edgeDstSwitch != dstSwitch:
                                 midSwitches[edgeDstSwitch].append(edgeDstPort)
 
+                            else:
+                                qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeDstPort}
+                                auxPath.append(qosNode)
+                                print "auxPath append", auxPath
+
+
                         elif edgeSrcSwitch == dstSwitch and edgeSrcSwitch not in checkedList:
 
                             # Switch Queues Configuration
@@ -657,7 +652,7 @@ def pathfinder_algorithm(reqData):
 
                             qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeSrcPort}
                             auxPath.append(qosNode)
-                            print auxPath
+                            print "auxPath append", auxPath
 
                             #switch is the destination host connected switch
                             """
@@ -693,7 +688,7 @@ def pathfinder_algorithm(reqData):
 
                             qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeDstPort}
                             auxPath.append(qosNode)
-                            print auxPath
+                            print "auxPath append", auxPath
 
                             #switch is the destination host connected switch
                             """
@@ -728,7 +723,7 @@ def pathfinder_algorithm(reqData):
 
                             qosNode = {'switch': srcSwitch, 'portA': srcPort, 'portB': edgeDstPort}
                             auxPath.append(qosNode)
-                            print auxPath
+                            print "auxPath append", auxPath
 
                             #switch is the destination host connected switch
                             """
@@ -759,7 +754,7 @@ def pathfinder_algorithm(reqData):
                             midSwitches[edgeSrcSwitch].append(edgeSrcPort)
                             midSwitches[edgeDstSwitch].append(edgeDstPort)
 
-        print midSwitches
+        print "midswitches", midSwitches
 
         for midSwitch, midPorts in midSwitches.iteritems():
             if midSwitch not in checkedList:

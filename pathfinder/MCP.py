@@ -292,6 +292,9 @@ def AkSP(grapho, source, target, num_k, weights):
     print "A-costs", A_costs
     print "A-keys", A_keys
 
+    if len(A_keys) == 1:
+        A_keys = [A_keys]
+
     # Initialize heap to store potential Kth shortest path
     B = Queue.PriorityQueue()
 

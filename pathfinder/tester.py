@@ -95,14 +95,24 @@ with open('PFinput3.json', 'wb') as PFtester:
 '''codehere'''
 
 
-
-
-
-command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
+command = ''
 result = os.popen(command).read()
 print command + "\n"
 print "QoS Request:", result
 
+
+command = 'sudo curl -i -H "Content-Type: application/xml" -vX POST -d @circuitRequest.xml http://127.0.0.1:5000/pathfinder/provisioner'
+result = os.popen(command).read()
+print command + "\n"
+print "QoS Request:", result
+
+
+"""
+command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
+result = os.popen(command).read()
+print command + "\n"
+print "QoS Request:", result
+"""
 
 '''GUI'''
 '''codehere'''

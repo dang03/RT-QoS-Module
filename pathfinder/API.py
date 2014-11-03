@@ -197,6 +197,11 @@ def provisioner():
 
         adapted_request = pathfinder.Adapter.adapter('localhost:8080', input_data, topofile)
 
+        with open('pathfinder/PFtest.json', 'wb') as PFtester:
+            json.dump(adapted_request, PFtester, indent=4)
+            PFtester.close()
+
+        print "Adapted request", adapted_request
         #return jsonify(adapted_request), 200
 
         result = Pathfinder.pathfinder_algorithm(adapted_request)

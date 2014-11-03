@@ -959,3 +959,58 @@ Queues not working
         "packet-loss": 8
     }
 ]
+
+-----------------------------------------------------------------------------
+
+# template for "Stopwatch: The Game"
+
+# define global variables
+import simplegui
+message = ""
+
+t = 0
+
+
+# define helper function format that converts time
+# in tenths of seconds into formatted string A:BC.D
+def format(t):
+    res = [None]*4
+    res[3] = t % 10
+
+    res[1] = ((t % 10000) / 10) % 60
+
+    res[2] = res[1] % 1
+
+    res[0] = t / 600
+    #res[0] = ((num % 10000) / 10) / 60
+
+    if res[1] < 10:
+        time = str(res[0])+":"+str(res[2])+str(res[1])+"."+str(res[3])
+        return time
+    else:
+        time = str(res[0])+":"+str(res[1])+"."+str(res[3])
+        return time
+
+# define event handlers for buttons; "Start", "Stop", "Reset"
+
+
+# define event handler for timer with 0.1 sec interval
+def show():
+    global message
+    global t
+    t = t+1
+    message = format(t)
+    return message
+
+# define draw handler
+def draw(canvas):
+    if message:
+        canvas.draw_text(str(message), [45, 105], 45, "Red")
+
+# create frame
+frame = simplegui.create_frame("Stopwatch",200,200)
+
+# register event handlers
+timer = simplegui.create_timer(100, show)
+# frame.add_button("Start",
+frame.set_draw_handler(draw)
