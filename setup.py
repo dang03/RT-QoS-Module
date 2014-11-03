@@ -14,6 +14,7 @@ setup(
         'networkX',
         'collections',
         'flask',
+        'BeautifulSoup',
         'flask_RESTful',
         'simplejson',
         'matplotlib',
