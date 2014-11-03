@@ -256,9 +256,9 @@ def adapter(controller, reqData, topo):
 
 
 
-    input_data = {"requestID": reqID, "src": {"srcSwitch": srcSwitch, "srcPort": srcPort}}
+    input_data = {"requestID": reqID, "src": {"srcSwitch": srcSwitch, "srcPort": srcPort, "srcIp": srcAddress}}
 
-    input_data["dst"] = {"dstSwitch": dstSwitch, "dstPort": dstPort}
+    input_data["dst"] = {"dstSwitch": dstSwitch, "dstPort": dstPort, "dstIp": dstAddress}
 
     input_data["parameters"] = parameters
 

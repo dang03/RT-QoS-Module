@@ -13,7 +13,7 @@ import flask_restful
 import traceback
 import json
 import os
-import Pathfinder, pathfinder.Adapter
+import Pathfinder, Adapter
 from BeautifulSoup import BeautifulSoup
 #from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
@@ -72,8 +72,8 @@ POST            /pathfinder/run_app2    Send a request to summon pathfinder to r
 @app.route('/pathfinder/get_path', methods=['GET'])
 def get_path():
 
-    if os.path.exists('./pathfinder/path.json'):
-        with open('./pathfinder/path.json', 'r') as path:
+    if os.path.exists('./path.json'):
+        with open('./path.json', 'r') as path:
 
             res = json.load(path, encoding='utf8')
             path.close()
@@ -195,7 +195,7 @@ def provisioner():
            topofile = json.load(PFtopo)
            PFtopo.close()
 
-        adapted_request = pathfinder.Adapter.adapter('localhost:8080', input_data, topofile)
+        adapted_request = Adapter.adapter('localhost:8080', input_data, topofile)
 
         with open('pathfinder/PFtest.json', 'wb') as PFtester:
             json.dump(adapted_request, PFtester, indent=4)
@@ -205,6 +205,10 @@ def provisioner():
         #return jsonify(adapted_request), 200
 
         result = Pathfinder.pathfinder_algorithm(adapted_request)
+
+        with open('pathfinder/path.json', 'wb') as PFpath:
+            json.dump(result, PFpath, indent=4)
+            PFpath.close()
 
         #return json.dumps(result, indent=4), 200
         return jsonify(PATH=result), 200

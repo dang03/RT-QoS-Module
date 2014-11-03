@@ -828,7 +828,7 @@ def pathfinder_algorithm(reqData):
             json.dump(lines, path_log)
 
     # requestID is an optional field but must be provided
-    qosPath.append({"requestID": reqID})    # requestID may be provided along with the QoS path list
+    qosPath.append({"requestID": reqID, "srcIP": srcAddress, "dstIP": dstAddress})    # requestID may be provided along with the QoS path list
     pathRes = open('./path.json', 'w')
     to_serial = qosPath
     serial = json.dumps(to_serial)
