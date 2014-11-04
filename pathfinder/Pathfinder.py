@@ -14,7 +14,6 @@ import os
 #import io
 #import subprocess
 #import argparse
-
 import networkx as nx
 #import matplotlib.pyplot as plt
 #import numpy
@@ -23,7 +22,6 @@ import json
 import datetime
 import time
 import sys
-
 #from fractions import Fraction
 from PathDrawer import to_edge_path
 #from pathfinder.PathDrawer import to_edge_path
