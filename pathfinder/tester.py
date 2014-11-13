@@ -30,15 +30,14 @@ class mcolors:
         self.ENDC = ''
 
 
+def request_builder_rnd(controller, rtTopo=None):
 
-def request_builder_rnd(controller):
-
-    # Get all the edges/links
-    command = "curl -s http://%s//wm/topology/links/json" % controller
-    rtTopo = json.loads((os.popen(command).read()))
-    print rtTopo
-    print command+"\n"
-
+    if rtTopo is None:
+        # Get all the edges/links
+        command = "curl -s http://%s//wm/topology/links/json" % controller
+        rtTopo = json.loads((os.popen(command).read()))
+        print rtTopo
+        print command+"\n"
 
     for link_d in rtTopo:
 
@@ -47,11 +46,10 @@ def request_builder_rnd(controller):
                 link_d['jitter'] = random.uniform(0.1, 0.4)
                 link_d['packet-loss'] = random.uniform(0.8, 0.9)
 
-
-
     return rtTopo
 
-def forwarder(path):
+
+def forwarder(path, controllerRestIp):
     """ Given a JSON list of <switch DPID, portA, portB>, installs flowmod rules into network OpenFlow switches"""
     for device in path:
 
@@ -101,75 +99,73 @@ def forwarder(path):
 
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-# parse controller address.
-# Syntax:
-# *FLOODLIGHT* --controller {IP:REST_PORT}
-# Usage from CLI, e.g.: python Adapter.py --input request.json
+    # parse controller address.
+    # *FLOODLIGHT* --controller {IP:REST_PORT}
+    # Usage from CLI, e.g.: python tester.py --controller 127.0.0.1:8080 --api 127.0.0.1:5000 --file topology.json
 
-parser = argparse.ArgumentParser(description='Pathfinder tester script')
-parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
-                    help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
-parser.add_argument('--api', '-a', dest='RestAPIIp', action='store', default='127.0.0.1:5000',
-                    help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
-parser.add_argument('--file', '-f', dest='topoFile', default=None,
-                    help='Optional topology file path, e.g., pathfinder/topoFile.json', metavar='FILE')
-args = parser.parse_args()
-print args, "\n"
-
-global topofile
+    parser = argparse.ArgumentParser(description='Pathfinder tester script')
+    parser.add_argument('--controller', '-c', dest='controllerRestIp', action='store', default='localhost:8080',
+                        help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
+    parser.add_argument('--api', '-a', dest='RestAPIIp', action='store', default='127.0.0.1:5000',
+                        help='controller IP:RESTport, e.g., localhost:8080 or A.B.C.D:8080')
+    parser.add_argument('--file', '-f', dest='topoFile', default=None,
+                        help='Optional topology file path, e.g., pathfinder/topoFile.json', metavar='FILE')
+    args = parser.parse_args()
+    print args, "\n"
 
 
-# INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
-# that will include QoS requirements plus necessary data unavailable from the controller
+    # INPUT: First it checks if a local request source file exists, called request.json for testing purposes,
+    # that will include QoS requirements plus necessary data unavailable from the controller
 
-controllerRestIp = args.controllerRestIp
-restAPIIp = args.RestAPIIp
+    controllerRestIp = args.controllerRestIp
+    restAPIIp = args.RestAPIIp
+    user_topo = args.topoFile
 
-time.sleep(delta_sec)
+    time.sleep(delta_sec)
 
-'''randomize topology QoS stats'''
-topology = request_builder_rnd(controllerRestIp)
+    '''randomize topology QoS stats'''
+    topology = request_builder_rnd(controllerRestIp, user_topo)
 
-"""
-testRequest_body = str({"src": {"srcSwitch": "00:00:00:00:00:00:00:05", "srcPort": 3}, "dst": {"dstSwitch": "00:00:00:00:00:00:00:06", "dstPort": 3}, "requestID": "r3qu357", "parameters": { "delay": 0, "bandwidth": 8, "packet-loss": 0, "jitter": 0},)
-testRequest_topo = {"topology": rtTopo}
-"""
+    """
+    testRequest_body = str({"src": {"srcSwitch": "00:00:00:00:00:00:00:05", "srcPort": 3}, "dst": {"dstSwitch": "00:00:00:00:00:00:00:06", "dstPort": 3}, "requestID": "r3qu357", "parameters": { "delay": 0, "bandwidth": 8, "packet-loss": 0, "jitter": 0},)
+    testRequest_topo = {"topology": rtTopo}
+    """
 
-print "Creating new request file.\n"
-with open('PFinput3.json', 'wb') as PFtester:
-    json.dump(topology, PFtester, indent=4)
-    PFtester.close()
+    print "Creating new request file.\n"
+    with open('PFinput3.json', 'wb') as PFtester:
+        json.dump(topology, PFtester, indent=4)
+        PFtester.close()
 
-"""
-command = 'sudo python API.py'
-result = os.popen(command).read()
-print command + "\n"
-print "QoS Request:", result
-"""
+    """
+    command = 'sudo python API.py'
+    result = os.popen(command).read()
+    print command + "\n"
+    print "QoS Request:", result
+    """
 
-with open('path.json', 'r') as PFpath:
-           pathfile = json.load(PFpath)
-           PFpath.close()
+    with open('path.json', 'r') as PFpath:
+               pathfile = json.load(PFpath)
+               PFpath.close()
 
 
-forwarder(pathfile)
+    forwarder(pathfile, controllerRestIp)
 
-"""
-command = 'sudo curl -i -H "Content-Type: application/xml" -vX POST -d @circuitRequest.xml http://%s/pathfinder/provisioner' % args.RestAPIIp
-result = os.popen(command).read()
-print command + "\n"
-print "QoS Request:", result
-"""
+    """
+    command = 'sudo curl -i -H "Content-Type: application/xml" -vX POST -d @circuitRequest.xml http://%s/pathfinder/provisioner' % args.RestAPIIp
+    result = os.popen(command).read()
+    print command + "\n"
+    print "QoS Request:", result
+    """
 
-"""
-command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
-result = os.popen(command).read()
-print command + "\n"
-print "QoS Request:", result
-"""
+    """
+    command = 'curl -i -H "Content-Type: application/json" -vX POST -d @PFinput2.json http://127.0.0.1:5000/pathfinder/run_app2'
+    result = os.popen(command).read()
+    print command + "\n"
+    print "QoS Request:", result
+    """
 
-'''GUI'''
-'''codehere'''
+    '''GUI'''
+    '''codehere'''
 

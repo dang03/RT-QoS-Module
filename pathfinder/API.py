@@ -8,13 +8,18 @@ __author__ = 'Dani'
 
 # Using Flask micro-framework, since Python doesn't have built-in session management
 
-from flask import Flask, jsonify, make_response, request
-import flask_restful
 import traceback
 import json
 import os
-import Pathfinder, Adapter
+
+from flask import Flask, jsonify, make_response, request
+import flask_restful
 from BeautifulSoup import BeautifulSoup
+
+import Pathfinder
+import Adapter
+import tester
+
 #from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
 app = Flask(__name__)
@@ -61,6 +66,8 @@ GET             /pathfinder/get_path    Retrieve latest found QoS path
 GET             /pathfinder/get_qos_log Retrieve stored QoS paths
 GET, POST       /pathfinder/run_app     Trigger pathfinder to return a QoS path
 POST            /pathfinder/run_app2    Send a request to summon pathfinder to return a QoS path
+POST            /pathfinder/provisioner Send an XML request to summon pathfinder to return a QoS path
+
 ...
 
 
@@ -82,6 +89,12 @@ def get_path():
             return res
     else:
         flask_restful.abort(404)
+
+
+@app.route('/pathfinder/example', methods=['GET'])
+def example():
+    res = str(NotImplemented)
+    return res
 
 
 # Query qos-Db log
@@ -160,9 +173,8 @@ def run_app2():
 def provisioner():
     """
     *NOT DEFINED YET* usage:
-    curl -i -H "Content-Type: application/xml" -X POST -d '{"test":"data"}' http://127.0.0.1:5000/pathfinder/provisioner
-    curl -i -H "Content-Type: application/xml" -X POST --data-binary @/pathfinder/PFinput.json http://127.0.0.1:5000/pathfinder/provisioner
-    curl -i -H "Content-Type: application/xml" -vX POST -d @PFinput.json http://127.0.0.1:5000/pathfinder/provisioner
+    curl -i -H "Content-Type: application/xml" -X POST --data-binary @/pathfinder/circuitRequest.xml http://127.0.0.1:5000/pathfinder/provisioner
+    curl -i -H "Content-Type: application/xml" -vX POST -d @circuitRequest.xml http://127.0.0.1:5000/pathfinder/provisioner
     """
     if request.headers['Content-Type'] == 'application/xml':
 
@@ -191,6 +203,7 @@ def provisioner():
 
         #return jsonify(input_data), 200
 
+        #recover topology file from: manually set or tester.py
         with open('pathfinder/PFinput3.json', 'r') as PFtopo:
            topofile = json.load(PFtopo)
            PFtopo.close()
@@ -209,6 +222,8 @@ def provisioner():
         with open('pathfinder/path.json', 'wb') as PFpath:
             json.dump(result, PFpath, indent=4)
             PFpath.close()
+
+        tester.forwarder(result, 'localhost:8080')
 
         #return json.dumps(result, indent=4), 200
         return jsonify(PATH=result), 200
@@ -241,6 +256,7 @@ def index():
              'get_qos_log': "Query QoS log returned",
              'run_app': "Run Pathfinder for a locally stored QoS request",
              'run_app2': "Mode2 not available through web, only on CLI ",
+             'provisioner': "Mode3 not available through web, only on CLI",
              'example': "More to be implemented"}
         ]
     }}
@@ -252,7 +268,7 @@ def index():
 
 if __name__ == '__main__':
     app.run(
-        #host="84.88.40.146",
+        host="84.88.40.146",
         port=int("5000"),
         debug=False
     )
