@@ -836,13 +836,13 @@ def pathfinder_algorithm(reqData):
 
     ################################################################################
     # store created circuit attributes in local ./qosDb.json
-    """
-    datetime = time.asctime()
-    qosDb = open('./qosDb.json', 'a')
-    circuitParams = {'requestID': reqID, 'ip-src': srcAddress, 'ip-dst': dstAddress, 'bandwidth': reqBand, 'datetime': datetime}
-    str = json.dumps(circuitParams)
-    qosDb.write(str+"\n")
-    """
+
+    date_time = time.asctime()
+    qosDb = open('./pathfinder/qosDb.json', 'a')
+    circuitParams = {'requestID': reqID, 'src': srcAddress, 'dst': dstAddress, 'qos': reqParameters, 'datetime': date_time}
+    crtParams = json.dumps(circuitParams)
+    qosDb.write(crtParams+"\n")
+
     duration = time.time()-startTime
     print("SPG End Time ", duration, " seconds")
 

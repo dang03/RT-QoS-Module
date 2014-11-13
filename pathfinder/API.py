@@ -102,8 +102,8 @@ def example():
 def get_qos_log():
     res = []
 
-    if os.path.exists('./qosDb.json'):
-        qosDb = open('./qosDb.json', 'r')
+    if os.path.exists('./pathfinder/qosDb.json'):
+        qosDb = open('./pathfinder/qosDb.json', 'r')
         for line in qosDb:
             res.append(json.loads(line))
 
