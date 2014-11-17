@@ -40,12 +40,24 @@ def request_builder_rnd(controller, rtTopo=None):
         print command+"\n"
 
     for link_d in rtTopo:
-
-                link_d['bandwidth'] = random.randrange(20, 30)
-                link_d['delay'] = random.uniform(0.2, 0.8)
-                link_d['jitter'] = random.uniform(0.1, 0.4)
-                link_d['packet-loss'] = random.uniform(0.8, 0.9)
-
+        pair1 = link_d['dst-switch']
+        pair2 = link_d['src-switch']
+        for link_e in rtTopo:
+            pair3 = link_e['dst-switch']
+            pair4 = link_e['src-switch']
+            if pair1 == pair4 and pair2 == pair3:
+                bnd = random.randrange(65, 100)
+                link_e['bandwidth'] = bnd
+                link_d['bandwidth'] = bnd
+                dly = random.uniform(0.2, 0.8)
+                link_e['delay'] = dly
+                link_d['delay'] = dly
+                jtt = random.uniform(0.1, 0.4)
+                link_e['jitter'] = jtt
+                link_d['jitter'] = jtt
+                plo = random.uniform(0.8, 0.9)
+                link_e['packet-loss'] = plo
+                link_d['packet-loss'] = plo
     return rtTopo
 
 
@@ -65,11 +77,11 @@ def forwarder(path, controllerRestIp):
             pass
 
     for device in path:
-
+        print "DEVICE INFO", device
         if 'switch' in device:
             switch = device['switch']
-            Iport = device['port1']
-            Eport = device['port2']
+            Iport = device['portA']
+            Eport = device['portB']
 
 
             command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:1\"}' http://%s/wm/staticflowentrypusher/json" % (switch, switch+"-"+Iport+"."+Eport+".f", srcIp, dstIp, "0x800", Iport, Eport, controllerRestIp)

@@ -81,6 +81,7 @@ Returns the total cost of an end-to-end path
 """
 # returns a path length, such as hop count
 def path_length(graph, path, weight=None, algorithm=None):
+    global edgekey
     pathLength = 0
     multiPathLength = []
     keyPath = []
@@ -459,6 +460,7 @@ def AkLP(graph, source, target, num_k, weight):
     A_costs = []
     B = []
     C_keys = []
+    avg_costs = []
 
     # all simple paths from source to destination
     A = list(nx.all_simple_paths(graph, source, target))  # [0]]
@@ -475,8 +477,10 @@ def AkLP(graph, source, target, num_k, weight):
         print "cost", cost
         print "keys", edgeKeys
         avgCost = cost / (len(path) - 1)
+        print "AVG COST!", avgCost
 
         if avgCost > maxAvgAux:
+            avg_costs.append(avgCost)
             maxAux = cost
             maxAvgAux = avgCost
 
@@ -505,6 +509,7 @@ def AkLP(graph, source, target, num_k, weight):
         print "Bfinal", B
         print "Afinal", A_costs
         print "Cfinal", C_keys
+        print "AVG_COSTSfinal", avg_costs
         return B, C_keys, A_costs
 
 
@@ -817,8 +822,9 @@ def stAggregate_test(graph):
 
 #####################
 
-def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
+def plot_path(agGraph, maxPath=None, keyPath=None, e2e=None, eOK=None, eFail=None, qos=None):
     #edgeLabels = {}
+    global edgeLabels
 
     if e2e is None and maxPath is not None:
         e2e = []
@@ -839,13 +845,29 @@ def plot_path(agGraph, maxPath=None, e2e=None, eOK=None, eFail=None, qos=None):
 
         print eFail
 
+        edgeLabels = dict(edgeLabels)
+
         if qos is None:
             edgeLabels = dict([((u, v,), '')
                         for u, v, d in agGraph.edges(data=True)])
+
         else:
             edgeLabels = dict([((u, v,), d[qos])
                         for u, v, d in agGraph.edges(data=True)])
 
+        """
+        else:
+            for e in maxPathList:
+                u, v = e
+                print "NODESEDGES", u, v
+                attr = agGraph.get_edge_data(u, v)
+                print "ATTRIBUTE", attr
+                for k in keyPath:
+                    if k in attr:
+                        print "attrK", attr[k]
+                        edgeLabels.update([((u, v,), str(attr[k][qos]))])
+                        break
+        """
         #print "HERE", edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
         #edgeLabels.update((nx.get_edge_attributes(agGraph, qos)))
 

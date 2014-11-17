@@ -67,7 +67,7 @@ def pathfinder_algorithm(reqData):
     global reqDelay
     global reqJitter
     global reqPacketLoss
-    k_sel = 3            # CUSTOMIZABLE VALUE: selected k path
+    k_sel = 1            # CUSTOMIZABLE VALUE: selected k path
 
     # def startTime
     startTime = time.time()
@@ -270,7 +270,7 @@ def pathfinder_algorithm(reqData):
         hostList = [srcSwitch, dstSwitch]
 
         # plot topology graph structure (optional)
-        plot_path(G, None, hostList, eOK, eFail, 'bandwidth')
+        plot_path(G, None, None, hostList, eOK, eFail, 'bandwidth')
 
 
         # Remove edges - Bottleneck QoS parameters. Links that does not satisfy bandwidth
@@ -290,7 +290,7 @@ def pathfinder_algorithm(reqData):
 
     hostList = [srcSwitch, dstSwitch]
     # plot topology graph structure (optional)
-    plot_path(G, None, hostList, None, None, 'bandwidth')
+    plot_path(G, None, None, hostList, None, None, 'bandwidth')
 
 
     ################################################################################
@@ -353,7 +353,7 @@ def pathfinder_algorithm(reqData):
         return "Failure: No path available (Additive constraints)"
 
     # plot topology graph structure (optional)
-    plot_path(G, None, hostList, None, None, 'bandwidth')
+    plot_path(G, None, None, hostList, None, None, 'bandwidth')
 
     ################################################################################
     # SPG algorithm Step 2: search all suitable paths meeting QoS constraints
@@ -383,23 +383,26 @@ def pathfinder_algorithm(reqData):
             # Calculate path total bandwidth per minimum hop count, selects kth path
             if 'bandwidth' in k:
                 #Use of AkLP algorithm for k-longest paths
+
                 kPaths, kKeys, kCosts = AkLP(M, srcSwitch, dstSwitch, k_sel, 'bandwidth')
                 print "PATH", kPaths
                 print "COST", kCosts
                 print "KEYS", kKeys
 
+
                 #Optional use of ALP algorithm for the longest path
                 """
-                maxPath, length = ALP(M, srcSwitch, dstSwitch, 'bandwidth')
-                print "path", maxPath
-                print "cost", length
+                kPaths, kKeys, kCosts = ALP(M, srcSwitch, dstSwitch, 'bandwidth')
+                print "PATH", kPaths
+                print "COST", kCosts
+                print "KEYS", kKeys
                 """
 
                 maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, len(kPaths))
 
 
             # Calculate minimum delay k paths
-            if 'delay' in k:
+            elif 'delay' in k:
                 #Use of AkSP algorithm for k-shortest paths
                 kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'delay')
                 print "PATH", kPaths
@@ -410,7 +413,7 @@ def pathfinder_algorithm(reqData):
 
 
             # Calculate minimum jitter k paths,
-            if 'jitter' in k:
+            elif 'jitter' in k:
                 #AkSP
                 kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'jitter')
                 print "PATH", kPaths
@@ -421,7 +424,7 @@ def pathfinder_algorithm(reqData):
 
 
             # Calculate minimum packet-loss k paths
-            if 'packet-loss' in k:
+            elif 'packet-loss' in k:
                 #AkSP
                 kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'packetLoss')
                 print "PATH", kPaths
@@ -431,7 +434,7 @@ def pathfinder_algorithm(reqData):
                 maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
             # plot topology graph structure (optional)
-            plot_path(M, maxPath, hostList, None, None, 'bandwidth')
+            plot_path(M, maxPath, keyPath, hostList, None, None, 'bandwidth')
 
             print "QoS path = %s\n" % maxPath
             print "QoS key path = %s\n" % keyPath
@@ -447,7 +450,7 @@ def pathfinder_algorithm(reqData):
                 print "Aggregated Cost", edge
 
             # plot topology graph structure (optional)
-            plot_path(M, None, hostList, None, None, 'total')
+            plot_path(M, None, None, hostList, None, None, 'total')
 
 
             kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
@@ -458,7 +461,7 @@ def pathfinder_algorithm(reqData):
 
             maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
-            plot_path(M, maxPath, hostList, None, None, 'total')
+            plot_path(M, maxPath, keyPath, hostList, None, None, 'total')
 
             print "QoS path = %s\n" % maxPath
             print "QoS key path = %s\n" % keyPath
@@ -607,7 +610,7 @@ def pathfinder_algorithm(reqData):
                             configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, srcPort)
                             configString += " -- set Port %s-eth%s qos=@newqos" % (srcSwitchName, edgeSrcPort)
                             """
-                            qosNode = {'switch': srcSwitch, 'port1': srcPort, 'port2': edgeSrcPort}
+                            qosNode = {'switch': srcSwitch, 'portA': srcPort, 'portB': edgeSrcPort}
                             auxPath.append(qosNode)
                             print "auxPath append", auxPath
 
@@ -633,7 +636,7 @@ def pathfinder_algorithm(reqData):
                                 midSwitches[edgeDstSwitch].append(edgeDstPort)
 
                             else:
-                                qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeDstPort}
+                                qosNode = {'switch': dstSwitch, 'portA': dstPort, 'portB': edgeDstPort}
                                 auxPath.append(qosNode)
                                 print "auxPath append", auxPath
 
@@ -648,7 +651,7 @@ def pathfinder_algorithm(reqData):
                             configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
                             """
 
-                            qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeSrcPort}
+                            qosNode = {'switch': dstSwitch, 'portA': dstPort, 'portB': edgeSrcPort}
                             auxPath.append(qosNode)
                             print "auxPath append", auxPath
 
@@ -684,7 +687,7 @@ def pathfinder_algorithm(reqData):
                             configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, edgeSrcPort)
                             """
 
-                            qosNode = {'switch': dstSwitch, 'port1': dstPort, 'port2': edgeDstPort}
+                            qosNode = {'switch': dstSwitch, 'portA': dstPort, 'portB': edgeDstPort}
                             auxPath.append(qosNode)
                             print "auxPath append", auxPath
 
