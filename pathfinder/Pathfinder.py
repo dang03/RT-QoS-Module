@@ -40,10 +40,10 @@ from collections import defaultdict
 def path_sort(path, aux):
     sortedPath = []
     for i in range(len(path)):
-        print "i", path[i]
+        #print "i", path[i]
         for j in range(len(aux)):
 
-            print aux[j]['switch']
+            #print aux[j]['switch']
             if path[i] == aux[j]['switch']:
 
                 sortedPath.append(aux[j])
@@ -270,7 +270,7 @@ def pathfinder_algorithm(reqData):
         hostList = [srcSwitch, dstSwitch]
 
         # plot topology graph structure (optional)
-        plot_path(G, None, None, hostList, eOK, eFail, 'bandwidth')
+        #plot_path(G, None, None, hostList, eOK, eFail, 'bandwidth')
 
 
         # Remove edges - Bottleneck QoS parameters. Links that does not satisfy bandwidth
@@ -290,7 +290,7 @@ def pathfinder_algorithm(reqData):
 
     hostList = [srcSwitch, dstSwitch]
     # plot topology graph structure (optional)
-    plot_path(G, None, None, hostList, None, None, 'bandwidth')
+    #plot_path(G, None, None, hostList, None, None, 'bandwidth')
 
 
     ################################################################################
@@ -434,7 +434,7 @@ def pathfinder_algorithm(reqData):
                 maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
             # plot topology graph structure (optional)
-            plot_path(M, maxPath, keyPath, hostList, None, None, 'bandwidth')
+            #plot_path(M, maxPath, keyPath, hostList, None, None, 'bandwidth')
 
             print "QoS path = %s\n" % maxPath
             print "QoS key path = %s\n" % keyPath
@@ -450,7 +450,7 @@ def pathfinder_algorithm(reqData):
                 print "Aggregated Cost", edge
 
             # plot topology graph structure (optional)
-            plot_path(M, None, None, hostList, None, None, 'total')
+            #plot_path(M, None, None, hostList, None, None, 'total')
 
 
             kPaths, kKeys, kCosts = AkSP(M, srcSwitch, dstSwitch, k_sel, 'total')
@@ -523,30 +523,30 @@ def pathfinder_algorithm(reqData):
         for idx in range(len(getEdgePath)):
 
             node1, node2 = getEdgePath[idx]
-            print "2nodes", node1, node2
+            #print "2nodes", node1, node2
 
             for idx in range(len(keyPath)):
 
-                print "keypath", keyPath, idx, range(len(keyPath))
+                #print "keypath", keyPath, idx, range(len(keyPath))
 
                 linkKey = keyPath[idx]
                 #linkKey = keyPath
-                print "linkKey", linkKey
+                #print "linkKey", linkKey
 
                 if linkKey in G.get_edge_data(node1, node2):
-                    print "FOUND:", linkKey, "=", node1, node2
+                    #print "FOUND:", linkKey, "=", node1, node2
                     break
             # For the maxPath node and keyPath key matching, next step is to split edge key string to
             # get switch::port data for each edge in its correct order
 
             edgePoints = linkKey.split('-')
-            print "edgePoints", edgePoints
+            #print "edgePoints", edgePoints
 
             edgeSrc = edgePoints[0].split('::')
             edgeDst = edgePoints[1].split('::')
 
-            print "edgeSrc", edgeSrc
-            print "edgeDst", edgeDst
+            #print "edgeSrc", edgeSrc
+            #print "edgeDst", edgeDst
 
 
             # Then the switch::ports items are parsed and added to the final QoS path response

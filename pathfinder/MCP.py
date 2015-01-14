@@ -31,25 +31,25 @@ def multiEdgeKey(path, graph):
     # returns a path in edge-key format
     key_path = []
     edgePath = to_edge_path(path, graph)
-    print "PATH", edgePath
+    #print "PATH", edgePath
 
     for edge in edgePath:
         edge1, edge2 = edge
-        print "nodes", edge1, edge2
+        #print "nodes", edge1, edge2
 
         edgeData = graph.get_edge_data(edge1, edge2)
-        print "edgeData", edgeData
+        #print "edgeData", edgeData
 
-        print "RANGO", range(len(edgeData))
+        #print "RANGO", range(len(edgeData))
         num_edges = len(edgeData) / 2
-        print num_edges
+        #print num_edges
 
         # each node connection has two edge layers or multiple edges, select the edge with higher cost
         max_length = 0
         for i in range(len(edgeData)):
             if i % 2 == 0:
                 kedgeData = edgeData.keys()[i]
-                print "KEDGE", kedgeData
+                #print "KEDGE", kedgeData
                 key_path.append(kedgeData)
 
                 """
@@ -88,19 +88,19 @@ def path_length(graph, path, weight=None, algorithm=None):
 
 
     for i in range(len(path) - 1):
-        print "given_path", path
+        #print "given_path", path
         node1 = path[i]
         node2 = path[i + 1]
-        print "edge1:", path[i]
-        print "edge2:", path[i + 1]
-        print graph.has_edge(path[i], path[i + 1])
+        #print "edge1:", path[i]
+        #print "edge2:", path[i + 1]
+        #print graph.has_edge(path[i], path[i + 1])
         if graph.has_edge(path[i], path[i + 1]) or graph.has_edge(path[i + 1], path[i]):
 
             edge = graph.get_edge_data(path[i], path[i + 1])
-            print "edge:", edge
+            #print "edge:", edge
 
             num_edges = len(edge) / 2
-            print "num_edges", num_edges
+            #print "num_edges", num_edges
 
             if num_edges > 1:
 
@@ -115,13 +115,13 @@ def path_length(graph, path, weight=None, algorithm=None):
                 for i in range(len(edge) / 2):
 
                     edgekey = edge.keys()[i]
-                    print "edge key", edgekey
-                    print weight
+                    #print "edge key", edgekey
+                    #print weight
                     #print "item", graph.edge[node1][node2][edgekey][weight]
                     try:
                         if algorithm == 'AkLP':
                             edge_cost = graph.edge[node1][node2][edgekey][weight]
-                            print "edge's cost", edge_cost
+                            #print "edge's cost", edge_cost
 
                             if selEdge_cost is None:
                                 selEdge_cost = edge_cost
@@ -130,9 +130,9 @@ def path_length(graph, path, weight=None, algorithm=None):
 
                             elif edge_cost > selEdge_cost:
                                 selEdge_cost = edge_cost
-                                print "stored_cost", selEdge_cost
+                                #print "stored_cost", selEdge_cost
                                 selKey = edgekey
-                                print "stored_key", selKey
+                                #print "stored_key", selKey
 
 
                         elif algorithm == 'AkSP':
@@ -144,18 +144,18 @@ def path_length(graph, path, weight=None, algorithm=None):
 
                             elif edge_cost < selEdge_cost:
                                 selEdge_cost = edge_cost
-                                print "stored_cost", selEdge_cost
+                                #print "stored_cost", selEdge_cost
                                 selKey = edgekey
-                                print "stored_key", selKey
+                                #print "stored_key", selKey
 
 
                         else:
                             new_length = graph.edge[node1][node2][edgekey][weight]
                             multiPathLength.append(new_length)
 
-                            print "COSTEe1:", multiPathLength
+                            #print "COSTEe1:", multiPathLength
                             keyPathe.append(edgekey)
-                            print "keyPathe:", keyPathe
+                            #print "keyPathe:", keyPathe
 
 
 
@@ -163,7 +163,7 @@ def path_length(graph, path, weight=None, algorithm=None):
                         # no weight attribute, then edge counter
                         if node1 != nodeback1 and node2 != nodeback2:
                             pathLength += 1
-                            print "COSTEe2:", pathLength
+                            #print "COSTEe2:", pathLength
                             keyPathe.append(edgekey)
                         else:
                             keyPathe.append(edgekey)
@@ -177,30 +177,30 @@ def path_length(graph, path, weight=None, algorithm=None):
                     keyPathe.append(selKey)
 
                 keyPath.append(keyPathe)
-                print "edge ENDED", multiPathLength, keyPathe, keyPath
-                print "ending pathLength", pathLength
+                #print "edge ENDED", multiPathLength, keyPathe, keyPath
+                #print "ending pathLength", pathLength
 
 
             else:
-                print "current pathLength", pathLength
+                #print "current pathLength", pathLength
                 edge = edge.items()[0]
-                print "edge items", edge
+                #print "edge items", edge
                 # print "item", edge[1][weight]
                 try:
                     edgekey = edge[0]
-                    print "edge key", edgekey
+                    #print "edge key", edgekey
                     new_length = edge[1][weight]
                     pathLength += new_length
                     keyPath.append(edgekey)
-                    print "COSTE1:", pathLength
-                    print "keyPath:", keyPath
-                    print "ismultipath..", multiPathLength
+                    #print "COSTE1:", pathLength
+                    #print "keyPath:", keyPath
+                    #print "ismultipath..", multiPathLength
 
                 except:
                     # no weight attribute, then edge counter
                     pathLength += 1
                     keyPath.append(edgekey)
-                    print "COSTE2:", pathLength
+                    #print "COSTE2:", pathLength
 
     if multiPathLength:
 
@@ -210,18 +210,18 @@ def path_length(graph, path, weight=None, algorithm=None):
             for l in range(len(multiPathLength)):
                  multiPathLength[l] += pathLength
 
-            print "return", multiPathLength, keyPath
+            #print "return", multiPathLength, keyPath
             return multiPathLength, keyPath
 
         else:
             for j in range(len(multiPathLength)):
                 pathLength += multiPathLength[j]
-                print "final sum", pathLength
-            print "return", pathLength, keyPath
+                #print "final sum", pathLength
+            #print "return", pathLength, keyPath
             return pathLength, keyPath
 
     else:
-        print "return", pathLength, keyPath
+        #print "return", pathLength, keyPath
         return pathLength, keyPath
 
 
@@ -234,9 +234,9 @@ Function used for loop detection in AKSP and AKLP graph algorithms
 def has_loop(rootPath, spurPath):
     loop = False
     for x in rootPath:
-        print "X", x
+        #print "X", x
         for y in spurPath:
-            print "Y", y
+            #print "Y", y
             if x == y:
                 loop = True
     return loop
@@ -252,11 +252,11 @@ Enables to select custom path item from result list and checks its validity
 def path_select(res, key_res, cos_res, kPath):
     kRange = range(len(res))
     kCheck = len(res)
-    print "rango:", kRange
-    print "check:", kCheck
-    print "k:", kPath
+    #print "rango:", kRange
+    #print "check:", kCheck
+    #print "k:", kPath
     if kPath <= 0 or kPath > kCheck:
-        print "ERROR: Invalid k value"
+        #print "ERROR: Invalid k value"
         path = None
         pathCost = None
         keys = None
@@ -287,11 +287,11 @@ def AkSP(grapho, source, target, num_k, weights):
 
     # shortest path from source to destination
     A = [list(nx.all_shortest_paths(graph, source, target, weight=weights))[0]]
-    print "A", A
+    #print "A", A
     A_costs, A_keys = path_length(graph, A[0], weights, 'AkSP')
     A_costs = [A_costs]
-    print "A-costs", A_costs
-    print "A-keys", A_keys
+    #print "A-costs", A_costs
+    #print "A-keys", A_keys
 
     if len(A_keys) == 1:
         A_keys = [A_keys]
@@ -300,8 +300,8 @@ def AkSP(grapho, source, target, num_k, weights):
     B = Queue.PriorityQueue()
 
     for k in range(1, num_k):
-        print range(1, num_k)
-        print "Kini!!!", k
+        #print range(1, num_k)
+        #print "Kini!!!", k
         # The spur node ranges from first node to next to last node in shortest path
         try:
             for i in range(len(A[k - 1]) - 1):
@@ -309,10 +309,10 @@ def AkSP(grapho, source, target, num_k, weights):
                 loop = False
                 # Spur node is retrieved from previous k-shortest path, k -1
                 spurNode = A[k - 1][i]
-                print "SPURNODE", spurNode
+                #print "SPURNODE", spurNode
                 # Sequence of nodes from source to spur node of previous k-shortest path
                 rootPath = A[k - 1][:i]
-                print "ROOTPATH", rootPath
+                #print "ROOTPATH", rootPath
                 """
                 for u, v, edata in graph.edges(data=True):
                     print u, v, edata
@@ -321,39 +321,41 @@ def AkSP(grapho, source, target, num_k, weights):
                 removedEdges = []
 
                 for path in A:
-                    print "for path in A", A
+                    #print "for path in A", A
                     if len(path) - 1 > i and rootPath == path[:i]:
                         # remove links that are part of the previous shortest path which share the same root path
                         edge = graph.get_edge_data(path[i], path[i + 1])
 
-                        print "EDGE", edge
+                        #print "EDGE", edge
 
-                        print "PATH!", path[i]
-                        print "PATH!+1", path[i + 1]
+                        #print "PATH!", path[i]
+                        #print "PATH!+1", path[i + 1]
 
                         if edge is None or len(edge) == 0:
-                            print "deleted edge"
+                            #print "deleted edge"
                             continue  # deleted edge
 
                         edge = edge.items()  # [0]
-                        print "EDGE-DEL", (path[i], path[i + 1], edge)
+                        #print "EDGE-DEL", (path[i], path[i + 1], edge)
                         removedEdges.append((path[i], path[i + 1], edge))
                         graph.remove_edge(path[i], path[i + 1])
                         try:
                             graph.remove_edge(path[i], path[i + 1])
                         except:
-                            print "REMOVED", graph.get_edge_data(path[i], path[i + 1])
+                            #print "REMOVED", graph.get_edge_data(path[i], path[i + 1])
+                            pass
 
                 # calculate the spur path from spur node to the sink
-                print "removedEdges", removedEdges
-                print "spurnode", spurNode
-                print "target", target
+                #print "removedEdges", removedEdges
+                #print "spurnode", spurNode
+                #print "target", target
+                """
                 for u, v, edata in graph.edges(data=True):
                     print u, v, edata
-
+                """
                 try:
                     spurPath = list(nx.all_shortest_paths(graph, spurNode, target, weight=weights))[0]
-                    print "spur", spurPath
+                    #print "spur", spurPath
                 except:
                     spurPath = []
 
@@ -361,41 +363,42 @@ def AkSP(grapho, source, target, num_k, weights):
                     # Complete path is made up from root path and spur path
                     no_valid = has_loop(rootPath, spurPath)
                     if no_valid:
-                        print "HAS_LOOP"
+                        #print "HAS_LOOP"
                         loop = True
                         continue
                     totalPath = rootPath + spurPath
-                    print "total", totalPath
-                    print "WEIGHT", weights
+                    #print "total", totalPath
+                    #print "WEIGHT", weights
                     totalPathCost, totalPathKeys = path_length(graph, totalPath, weights, 'AkSP')
                     # add the potential k-shortest path to the heap
-                    print "2_costs", totalPathCost
-                    print "2_keys", totalPathKeys
+                    #print "2_costs", totalPathCost
+                    #print "2_keys", totalPathKeys
                     B.put((totalPathCost, totalPathKeys, totalPath))
 
                 # add back the edges that were removed from the graph
+                """
                 for u, v, edata in graph.edges(data=True):
                     print u, v, edata
                 print "printremoved", removedEdges
-
+                """
                 for removedEdge in removedEdges:
-                    print "REMOVE", removedEdge
+                    #print "REMOVE", removedEdge
                     node_start, node_end, data = removedEdge
-                    print "node start", node_start
-                    print "node end", node_end
-                    print "data", data
+                    #print "node start", node_start
+                    #print "node end", node_end
+                    #print "data", data
                     data1, data2 = data
-                    print data1
-                    print data2
+                    #print data1
+                    #print data2
                     key, attributes = data1
-                    print "GRAFO", graph.get_edge_data(node_start, node_end)
+                    #print "GRAFO", graph.get_edge_data(node_start, node_end)
                     graph.add_edge(node_start, node_end, key=key, **attributes)
-                    print "GRAFO2", graph.get_edge_data(node_start, node_end)
+                    #print "GRAFO2", graph.get_edge_data(node_start, node_end)
                     key, attributes = data2
                     graph.add_edge(node_start, node_end, key=key, **attributes)
-                    print "GRAFO3", graph.get_edge_data(node_start, node_end)
-                    print range(1, num_k)
-                    print "added!!!"
+                    #print "GRAFO3", graph.get_edge_data(node_start, node_end)
+                    #print range(1, num_k)
+                    #print "added!!!"
 
         except:
             while True:
@@ -464,20 +467,20 @@ def AkLP(graph, source, target, num_k, weight):
 
     # all simple paths from source to destination
     A = list(nx.all_simple_paths(graph, source, target))  # [0]]
-    print "A", A
+    #print "A", A
 
     i = 0
     for path in A:
-        print "path1", path
+        #print "path1", path
 
         #print "INDEX", [A.index(path)]
-        print "algo", A[A.index(path)]
+        #print "algo", A[A.index(path)]
         #cost = path_length(graph, A[A.index(path)])
         cost, edgeKeys = path_length(graph, A[A.index(path)], weight, 'AkLP')
-        print "cost", cost
-        print "keys", edgeKeys
+        #print "cost", cost
+        #print "keys", edgeKeys
         avgCost = cost / (len(path) - 1)
-        print "AVG COST!", avgCost
+        #print "AVG COST!", avgCost
 
         if avgCost > maxAvgAux:
             avg_costs.append(avgCost)
@@ -485,31 +488,31 @@ def AkLP(graph, source, target, num_k, weight):
             maxAvgAux = avgCost
 
             A_costs.insert(i, maxAux)
-            print "maxAUX", maxAux
+            #print "maxAUX", maxAux
 
             i += 1
-            print i
+            #print i
             B.append(path)
             C_keys.append(edgeKeys)
 
-    print "RANGO", len(B)
+    #print "RANGO", len(B)
     if len(B) <= num_k:
-        print "Bfinal", B
-        print "Afinal", A_costs
-        print "Cfinal", C_keys
+        #print "Bfinal", B
+        #print "Afinal", A_costs
+        #print "Cfinal", C_keys
         return B, C_keys, A_costs
 
     else:
         while len(B) > num_k:
-            print "A-costs", A_costs
-            print "B", B
+            #print "A-costs", A_costs
+            #print "B", B
             B.pop(0)
             A_costs.pop(0)
             C_keys.pop(0)
-        print "Bfinal", B
-        print "Afinal", A_costs
-        print "Cfinal", C_keys
-        print "AVG_COSTSfinal", avg_costs
+        #print "Bfinal", B
+        #print "Afinal", A_costs
+        #print "Cfinal", C_keys
+        #print "AVG_COSTSfinal", avg_costs
         return B, C_keys, A_costs
 
 
@@ -532,38 +535,38 @@ def ALP(graph, source, target, weight):
 
         totalAux = 0
         iteration += 1
-        print "paaath", path
+        #print "paaath", path
 
         edgePath = to_edge_path(path, graph)
-        print "PATH", edgePath
+        #print "PATH", edgePath
 
         for edge in edgePath:
             edge1, edge2 = edge
-            print "nodes", edge1, edge2
+            #print "nodes", edge1, edge2
 
             edgeData = graph.get_edge_data(edge1, edge2)
-            print "edgeData", edgeData
+            #print "edgeData", edgeData
 
-            print "RANGO", range(len(edgeData))
+            #print "RANGO", range(len(edgeData))
             # each node connection has two edge layers or multiple edges, select the edge with higher cost
             max_length = 0
             for i in range(len(edgeData)):
                 if i % 2 == 0:
                     sedgeData = edgeData.items()[i]
-                    print "SEDGE", sedgeData
+                    #print "SEDGE", sedgeData
 
                     edgeKey = edgeData.keys()[i]
                     edgeSrcPort = sedgeData[1]['srcPort']
                     edgeDstPort = sedgeData[1]['dstPort']
-                    print "edgeKey", edgeKey
-                    print "srcPORT", edgeSrcPort
-                    print "dstPORT", edgeDstPort
+                    #print "edgeKey", edgeKey
+                    #print "srcPORT", edgeSrcPort
+                    #print "dstPORT", edgeDstPort
 
                     aux_length = sedgeData[1][weight]
 
                     # if a higher cost found, updates the max value
                     if aux_length > max_length:
-                        print "UPDATES max_length"
+                        #print "UPDATES max_length"
                         max_length = aux_length
                         """
                         maxPath.append({"switch": edge1})
@@ -576,39 +579,39 @@ def ALP(graph, source, target, weight):
                 new_length = max_length
                 totalAux += new_length
 
-                print "UPDATE KEY LIST"
+                #print "UPDATE KEY LIST"
                 keyPath.append(edgeKey)
 
-                print "hop-count", (len(path) - 1)
-                print "TOTALAUX", totalAux
-                print "preMAXCOST", maxCost
-                print "EDGEPATH", edgePath
+                #print "hop-count", (len(path) - 1)
+                #print "TOTALAUX", totalAux
+                #print "preMAXCOST", maxCost
+                #print "EDGEPATH", edgePath
 
-                print edge, "==", edgePath[(len(edgePath) - 1)], "?"
+                #print edge, "==", edgePath[(len(edgePath) - 1)], "?"
 
                 if edge == edgePath[(len(edgePath) - 1)]:
                     avgAux = totalAux / (len(path) - 1)
-                    print "avgAux", avgAux
-                    print "maxAvgCost", maxAvgCost
+                    #print "avgAux", avgAux
+                    #print "maxAvgCost", maxAvgCost
 
                     if avgAux > maxAvgCost:
-                        print "UPDATES costs"
+                        #print "UPDATES costs"
                         maxCost = totalAux
                         maxAvgCost = avgAux
                         maxPath = edgePath
-                        print "UPDATE maxKey"
+                        #print "UPDATE maxKey"
                         maxKey = keyPath
 
             except:
                 print "ERROR!"
 
-    print "ITERATION", iteration
-    print "TOTAL", maxCost
-    print "AVGTOTAL", maxAvgCost
+    #print "ITERATION", iteration
+    #print "TOTAL", maxCost
+    #print "AVGTOTAL", maxAvgCost
     # uncomment to enable path result as a node path
     maxPath = to_node_path(maxPath)
-    print "PATH", maxPath
-    print "maxkeyPath", maxKey
+    #print "PATH", maxPath
+    #print "maxkeyPath", maxKey
     return maxPath, maxKey, maxCost
 
 
@@ -619,16 +622,16 @@ def maxLength_path(graph, path, weight):
     totalCost = 0
     maximumPath = None
     for i in range(len(path)):
-        print "paths:", path[i]
+        #print "paths:", path[i]
         parsed_path = path[i]
-        print "pathPARSE:", parsed_path
+        #print "pathPARSE:", parsed_path
 
-        print "-------------------"
+        #print "-------------------"
         Cost = path_length(graph, parsed_path, weight)
-        print "-------------------"
+        #print "-------------------"
         if Cost > totalCost:
             totalCost = Cost
-            print "Total:", totalCost
+            #print "Total:", totalCost
             maximumPath = path[i]
     return maximumPath, totalCost
 
@@ -645,36 +648,36 @@ def longestPath(graph, source, target, weight, visited=None):
 
     print source
     if not visited:
-        print "vacia"
+        #print "vacia"
         visited = []
         visited.append(source)
-        print visited
+        #print visited
 
     else:
         visited.append(source)
-        print "visited", visited
-        print "stops"
+        #print "visited", visited
+        #print "stops"
 
-    print "visitaos", visited
-    print "NODE DATA", graph.nodes(data=True)
+    #print "visitaos", visited
+    #print "NODE DATA", graph.nodes(data=True)
     node_edges = graph.edges(source, data=True)
-    print "NODE EDGES", node_edges
+    #print "NODE EDGES", node_edges
     for edge in node_edges:
-        print edge
+        #print edge
         endNode = edge[1]
-        print "endNode", endNode
+        #print "endNode", endNode
 
         if endNode not in visited:
-            print "no visitao"
+            #print "no visitao"
 
-            print "entra!", edge[2][weight]
+            #print "entra!", edge[2][weight]
             dist = edge[2][weight] + longestPath(graph, endNode, target, weight, visited)
-            print "dist", dist
+            #print "dist", dist
             if dist > maxa:
                 maxa = dist
 
     visited.remove(source)
-    print "MAXA IS=", maxa
+    #print "MAXA IS=", maxa
     return maxa
 
 #####################
@@ -689,7 +692,7 @@ def stAggregate(graph):
     newGraph = nx.MultiGraph()
 
     for edge1, edge2, key, data in graph.edges_iter(data=True, keys=True):
-        print 'EDGE', edge1, "-", edge2, ":", key, data
+        #print 'EDGE', edge1, "-", edge2, ":", key, data
 
         total = 1
 
@@ -703,7 +706,7 @@ def stAggregate(graph):
             delay = edgeData.keys()[0]['delay']
             """
 
-            print 'delay', delay
+            #print 'delay', delay
             if delay == 0:
                 delay = 1
 
@@ -714,7 +717,7 @@ def stAggregate(graph):
 
         try:
             jitter = graph[edge1][edge2][key]['jitter']
-            print 'jitter', jitter
+            #print 'jitter', jitter
             if jitter == 0:
                 jitter = 1
 
@@ -724,7 +727,7 @@ def stAggregate(graph):
 
         try:
             ploss = graph[edge1][edge2][key]['packet-loss']
-            print 'packet-loss', ploss
+            #print 'packet-loss', ploss
             if ploss == 0:
                 ploss = 1
 
@@ -734,7 +737,7 @@ def stAggregate(graph):
 
         try:
             bandwidth = graph[edge1][edge2][key]['bandwidth']
-            print 'bandwidth', bandwidth
+            #print 'bandwidth', bandwidth
             if bandwidth == 0:
                 bandwidth = 1
 
@@ -742,15 +745,15 @@ def stAggregate(graph):
         except:
             pass
 
-        print "Total", total
+        #print "Total", total
         newGraph.add_edge(edge1, edge2, key=key, total=total)
-
+    """
     for link in newGraph.edges_iter(data=True, keys=True):
         print "newGraph.edge", link
 
     for node in newGraph.nodes_iter(data=True):
         print "newGraph.node", node
-
+    """
     return newGraph
 
 
@@ -834,16 +837,17 @@ def plot_path(agGraph, maxPath=None, keyPath=None, e2e=None, eOK=None, eFail=Non
         e2e.append(destination)
 
     if maxPath is not None:
+        """
         for i in range(len(maxPath) - 1):
             print "is there path from", maxPath[i], maxPath[i + 1], "?", agGraph.has_edge(maxPath[i], maxPath[i + 1])
-
+        """
         maxPathList = to_edge_path(maxPath)
-        print maxPathList
+        #print maxPathList
 
         if eFail is None:
             eFail = [(u, v) for (u, v, d) in agGraph.edges(data=True)]
 
-        print eFail
+        #print eFail
 
         edgeLabels = dict(edgeLabels)
 
