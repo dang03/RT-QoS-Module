@@ -4,7 +4,7 @@
 __author__ = 'Dani'
 
 
-# This REST API is a proof of concept and restful capabilites test for Pathfinder
+# This REST API is an interface with restful capabilities to trigger Pathfinder computation
 
 # Using Flask micro-framework, since Python doesn't have built-in session management
 
