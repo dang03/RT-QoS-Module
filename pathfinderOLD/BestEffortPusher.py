@@ -4,6 +4,7 @@
 __author__ = 'Daniel'
 
 import os
+import random
 from collections import defaultdict
 
 
@@ -19,7 +20,7 @@ def flow_pusher(srcAddress, dstAddress, controllerRestIp, path, midSwitches):
         print "%s - %s, %s" % (str(midSwitch), str(midPorts[0]), str(midPorts[1]))
 
         #push midSwitches flowmods
-        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:0\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".f", srcAddress, dstAddress, "0x800", (str(midPorts[0])), (str(midPorts[1])), controllerRestIp)
+        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".f", srcAddress, dstAddress, "0x800", (str(midPorts[0])), (str(midPorts[1])), controllerRestIp)
         result = os.popen(command).read()
         print command
 
@@ -28,7 +29,7 @@ def flow_pusher(srcAddress, dstAddress, controllerRestIp, path, midSwitches):
         print command
 
 
-        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:0\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".r", dstAddress, srcAddress, "0x800", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
+        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".r", dstAddress, srcAddress, "0x800", (str(midPorts[1])), (str(midPorts[0])), controllerRestIp)
         result = os.popen(command).read()
         print command
 
@@ -52,28 +53,40 @@ def flow_pusher_q(srcAddress, dstAddress, controllerRestIp, path, midSwitches, q
         print "%s - %s, %s" % (str(midSwitch), str(midPorts[0]), str(midPorts[1]))
 
         #push midSwitches flowmods
-        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".f00", srcAddress, dstAddress, "0x800", (str(midPorts[0])), (str(midPorts[1])), (str(queue)), controllerRestIp)
+        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), str(random.randrange(0, 1000))+(str(midSwitch))+".f", srcAddress, dstAddress, "0x800", (str(midPorts[0])), (str(midPorts[1])), (str(queue)), controllerRestIp)
         result = os.popen(command).read()
         print command
 
-        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".f00arp", srcAddress, "0x806", (str(midPorts[0])), (str("all")), controllerRestIp)
+        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), str(random.randrange(0, 1000))+(str(midSwitch))+".farp", srcAddress, "0x806", (str(midPorts[0])), (str("all")), controllerRestIp)
         result = os.popen(command).read()
         print command
 
-        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".r00", dstAddress, srcAddress, "0x800", (str(midPorts[1])), (str(midPorts[0])), (str(queue)), controllerRestIp)
+        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"dst-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"enqueue=%s:%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), str(random.randrange(0, 1000))+(str(midSwitch))+".r", dstAddress, srcAddress, "0x800", (str(midPorts[1])), (str(midPorts[0])), (str(queue)), controllerRestIp)
         result = os.popen(command).read()
         print command
 
-        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), (str(midSwitch))+".r00arp", dstAddress, "0x806", (str(midPorts[1])), (str("all")), controllerRestIp)
+        command = "curl -s -d '{\"switch\": \"%s\", \"name\":\"%s\", \"src-ip\":\"%s\", \"ether-type\":\"%s\", \"cookie\":\"0\", \"priority\":\"32768\", \"ingress-port\":\"%s\",\"active\":\"true\", \"actions\":\"output=%s\"}' http://%s/wm/staticflowentrypusher/json" % ((str(midSwitch)), str(random.randrange(0, 1000))+(str(midSwitch))+".rarp", dstAddress, "0x806", (str(midPorts[1])), (str("all")), controllerRestIp)
         result = os.popen(command).read()
         print command
 
     return
 
+def set_queues():
+    # OVS switch Queues Configuration
+
+    queueString = "sudo ovs-vsctl -- set Port s1-eth25 qos=@newqos -- set Port s1-eth26 qos=@newqos -- set Port s1-eth2 qos=@newqos -- set Port s1-eth3 qos=@newqos -- set Port s2-eth1 qos=@newqos -- set Port s2-eth12 qos=@newqos -- set Port s2-eth3 qos=@newqos -- set Port s1-eth3 qos=@newqos -- set Port s3-eth1 qos=@newqos -- set Port s3-eth2 qos=@newqos -- set Port s3-eth10 qos=@newqos" \
+                  " -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=0=@q0,1=@q1,2=@q2 -- --id=@q0 create Queue other-config:max-rate=100000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=50000000 other-config:priority=8 -- --id=@q2 create Queue other-config:min-rate=20000000 other-config:priority=8"
+    qResult = os.popen(queueString).read()
+    print queueString
+    print qResult
+
+    return
+
+
 def set_queue_0():
     # OVS switch Queues Configuration
 
-    queueString = "sudo ovs-vsctl -- set Port s1-eth25 qos=@newqos -- set Port s1-eth26 qos=@newqos -- set Port s1-eth2 qos=@newqos -- set Port s1-eth3 qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=0=@q0 -- --id=@q0 create Queue other-config:max-rate=100000000"
+    queueString = "sudo ovs-vsctl -- set Port s1-eth25 qos=@newqos -- set Port s1-eth26 qos=@newqos -- set Port s1-eth2 qos=@newqos -- set Port s1-eth3 qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=0=@q0 -- --id=@q0 create Queue other-config:max-rate=100000000 other-config:priority=1"
     qResult = os.popen(queueString).read()
     print queueString
     print qResult
@@ -83,7 +96,7 @@ def set_queue_0():
 def set_queue_1():
     # OVS switch Queues Configuration
 
-    queueString = "sudo ovs-vsctl -- set Port s2-eth1 qos=@newqos -- set Port s2-eth12 qos=@newqos -- set Port s2-eth3 qos=@newqos -- set Port s1-eth25 qos=@newqos -- set Port s1-eth26 qos=@newqos -- set Port s1-eth2 qos=@newqos -- set Port s1-eth3 qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=1=@q1 -- --id=@q1 create Queue other-config:min-rate=80000000"
+    queueString = "sudo ovs-vsctl -- set Port s2-eth1 qos=@newqos -- set Port s2-eth12 qos=@newqos -- set Port s2-eth3 qos=@newqos -- set Port s1-eth25 qos=@newqos -- set Port s1-eth26 qos=@newqos -- set Port s1-eth2 qos=@newqos -- set Port s1-eth3 qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=1=@q1 -- --id=@q1 create Queue other-config:min-rate=50000000 other-config:priority=8"
     qResult = os.popen(queueString).read()
     print queueString
     print qResult
@@ -93,7 +106,7 @@ def set_queue_1():
 def set_queue_2():
     # OVS switch Queues Configuration
 
-    queueString = "sudo ovs-vsctl -- -- set Port s1-eth25 qos=@newqos -- set Port s1-eth26 qos=@newqos -- set Port s1-eth2 qos=@newqos -- set Port s1-eth3 qos=@newqos -- set Port s3-eth1 qos=@newqos -- set Port s3-eth2 qos=@newqos -- set Port s3-eth10 qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=2=@q2 -- --id=@q2 create Queue other-config:min-rate=20000000"
+    queueString = "sudo ovs-vsctl -- -- set Port s1-eth25 qos=@newqos -- set Port s1-eth26 qos=@newqos -- set Port s1-eth2 qos=@newqos -- set Port s1-eth3 qos=@newqos -- set Port s3-eth1 qos=@newqos -- set Port s3-eth2 qos=@newqos -- set Port s3-eth10 qos=@newqos -- --id=@newqos create QoS type=linux-htb other-config:max-rate=100000000 queues=2=@q2 -- --id=@q2 create Queue other-config:min-rate=20000000 other-config:priority=8"
     qResult = os.popen(queueString).read()
     print queueString
     print qResult
@@ -112,7 +125,8 @@ if __name__ == '__main__':
     path_h3_h2 = [("00:00:00:00:00:00:00:02", 3), ("00:00:00:00:00:00:00:02", 1), ("00:00:00:00:00:00:00:01", 1), ("00:00:00:00:00:00:00:01", 4)]
     path_h4_h2 = [("00:00:00:00:00:00:00:03", 3), ("00:00:00:00:00:00:00:03", 1), ("00:00:00:00:00:00:00:01", 2), ("00:00:00:00:00:00:00:01", 4)]
 
-    """
+    set_queues()
+
     midSwitches = defaultdict(list)
 
     srcAddress = "10.0.0.2"
@@ -131,12 +145,12 @@ if __name__ == '__main__':
     #set_queue_1()
 
     flow_pusher_q(srcAddress, dstAddress, controllerRestIp, path_h3_h2, midSwitches, 1)
-    """
+
     midSwitches = defaultdict(list)
 
     srcAddress = "10.0.0.5"
     dstAddress = "10.0.0.3"
 
-    set_queue_2()
+    #set_queue_2()
 
     flow_pusher_q(srcAddress, dstAddress, controllerRestIp, path_h4_h2, midSwitches, 2)
