@@ -53,7 +53,7 @@ def path_sort(path, aux):
     return sortedPath
 
 def pathfinder_algorithm_from_file():
-    with open("pathfinder/PFinput.json", 'r') as PFinput:
+    with open("PFinput.json", 'r') as PFinput:
 
         reqData = json.load(PFinput)
 
@@ -353,7 +353,7 @@ def pathfinder_algorithm(reqData):
         return "Failure: No path available (Additive constraints)"
 
     # plot topology graph structure (optional)
-    plot_path(G, None, None, hostList, None, None, 'bandwidth')
+    #plot_path(G, None, None, hostList, None, None, 'bandwidth')
 
     ################################################################################
     # SPG algorithm Step 2: search all suitable paths meeting QoS constraints
@@ -562,7 +562,7 @@ def pathfinder_algorithm(reqData):
             print "edgeDstPort", edgeDstPort
             #print key, "\n"
 
-            #configString = ""
+            configString = ""
             checkedList = []    #the check list is unused
 
 
@@ -591,6 +591,7 @@ def pathfinder_algorithm(reqData):
             qosNode2 = ({'switch': edgeSrcSwitch, 'port': edgeSrcPort}, {'switch': edgeDstSwitch, 'port': edgeDstPort})
             auxPath2.append(qosNode2)
             print "auxPath2 append", auxPath2
+
             """
             qosNode2 = {'switch': edgeDstSwitch, 'port': edgeDstPort}
             auxPath2.append(qosNode2)
@@ -601,9 +602,8 @@ def pathfinder_algorithm(reqData):
                         print edgeSrcSwitch, edgeDstSwitch
                         print edgeSrcPort, edgeDstPort
                         if edgeSrcSwitch == srcSwitch:
-
-                            # Switch Queues Configuration
                             """
+                            # Switch Queues Configuration
                             srcSwitchName = G.node[srcSwitch]['name']
                             print srcSwitchName
 
@@ -642,9 +642,8 @@ def pathfinder_algorithm(reqData):
 
 
                         elif edgeSrcSwitch == dstSwitch and edgeSrcSwitch not in checkedList:
-
-                            # Switch Queues Configuration
                             """
+                            # Switch Queues Configuration
                             dstSwitchName = G.node[dstSwitch]['name']
                             print dstSwitchName
                             configString += " -- set Port %s-eth%s qos=@newqos" % (dstSwitchName, dstPort)
@@ -793,7 +792,7 @@ def pathfinder_algorithm(reqData):
                 print command
                 """
         """
-        queueDb = open('./queueDb.txt', 'a')
+        #queueDb = open('./queueDb.txt', 'a')
         print "config string:", configString
         queueString = "sudo ovs-vsctl%s -- --id=@newqos create QoS type=linux-htb other-config:max-rate=30000000 queues=0=@q0,1=@q1 -- --id=@q0 create Queue other-config:max-rate=30000000 other-config:priority=1 -- --id=@q1 create Queue other-config:min-rate=20000000 other-config:priority=8" % configString
         qResult = os.popen(queueString).read()
@@ -801,6 +800,7 @@ def pathfinder_algorithm(reqData):
         print "qResult:", qResult
         queueDb.write(qResult+"\n")
         """
+
 
         qosPath = path_sort(maxPath, auxPath)
         print "\n" + mcolors.OKGREEN + "QOS PATH: %s\n" % qosPath, mcolors.ENDC
@@ -841,10 +841,10 @@ def pathfinder_algorithm(reqData):
     # store created circuit attributes in local ./qosDb.json
 
     date_time = time.asctime()
-    qosDb = open('./pathfinder/qosDb.json', 'a')
-    circuitParams = {'requestID': reqID, 'src': srcAddress, 'dst': dstAddress, 'qos': reqParameters, 'datetime': date_time}
-    crtParams = json.dumps(circuitParams)
-    qosDb.write(crtParams+"\n")
+    #qosDb = open('./pathfinder/qosDb.json', 'a')
+    #circuitParams = {'requestID': reqID, 'src': srcAddress, 'dst': dstAddress, 'qos': reqParameters, 'datetime': date_time}
+    #crtParams = json.dumps(circuitParams)
+    #qosDb.write(crtParams+"\n")
 
     duration = time.time()-startTime
     print("SPG End Time ", duration, " seconds")
