@@ -104,31 +104,31 @@ def set_queues_all(controllerIp):
         if x == 0:
             configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, max_rate, priority)
         elif x == 1:
-            configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate1, priority1)
+            configString += " -- --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate1, priority1)
             key = "q%s" % x
             queuesDict[key] = "%s" % min_rate1
         elif x == 2:
-            configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate2, priority2)
+            configString += " -- --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate2, priority2)
             key = "q%s" % x
             queuesDict[key] = "%s" % min_rate2
         elif x == 3:
-            configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate3, priority3)
+            configString += " -- --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate3, priority3)
             key = "q%s" % x
             queuesDict[key] = "%s" % min_rate3
         elif x == 4:
-            configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate4, priority4)
+            configString += " -- --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate4, priority4)
             key = "q%s" % x
             queuesDict[key] = "%s" % min_rate4
         elif x == 5:
-            configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate5, priority5)
+            configString += " -- --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate5, priority5)
             key = "q%s" % x
             queuesDict[key] = "%s" % min_rate5
         elif x == 6:
-            configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate6, priority6)
+            configString += " -- --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate6, priority6)
             key = "q%s" % x
             queuesDict[key] = "%s" % min_rate6
         elif x == 7:
-            configString += " --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate7, priority7)
+            configString += " -- --id=@q%s create Queue other-config:min-rate=%s other-config:priority=%s" % (x, min_rate7, priority7)
             key = "q%s" % x
             queuesDict[key] = "%s" % min_rate7
         else:
@@ -137,9 +137,9 @@ def set_queues_all(controllerIp):
     print "config string:", configString
 
     queueString = "sudo ovs-vsctl%s" % configString
-    #qResult = os.popen(queueString).read()
+    qResult = os.popen(queueString).read()
     print "queue string:", queueString
-    #print "qResult:", qResult
+    print "qResult:", qResult
     return queuesDict
 
 def queue_selector(request, queueDict):
