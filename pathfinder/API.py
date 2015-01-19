@@ -204,13 +204,13 @@ def provisioner():
         #return jsonify(input_data), 200
 
         #recover topology file from: manually set or tester.py
-        with open('PFinput3.json', 'r') as PFtopo:
+        with open('PFinput_stats.json', 'r') as PFtopo:
            topofile = json.load(PFtopo)
            PFtopo.close()
 
         adapted_request = Adapter.adapter('localhost:8080', input_data, topofile)
 
-        with open('PFtest.json', 'wb') as PFtester:
+        with open('PFinput_stats.json', 'wb') as PFtester:
             json.dump(adapted_request, PFtester, indent=4)
             PFtester.close()
 

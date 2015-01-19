@@ -146,7 +146,7 @@ if __name__ == '__main__':
     """
 
     print "Creating new request file.\n"
-    with open('PFinput3.json', 'wb') as PFtester:
+    with open('PFinput_stats.json', 'wb') as PFtester:
         json.dump(topology, PFtester, indent=4)
         PFtester.close()
 
