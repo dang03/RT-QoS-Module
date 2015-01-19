@@ -40,7 +40,6 @@ def flow_pusher(srcAddress, dstAddress, controllerRestIp, path, midSwitches):
 
     return
 
-
 def flow_pusher_q(srcAddress, dstAddress, controllerRestIp, path, midSwitches, queue):
 
     for k, v in path:
@@ -214,7 +213,6 @@ def set_queues_all(controllerIp):
     #print "qResult:", qResult
     return queuesDict
 
-
 def queue_selector(request, queueDict):
     chosen = None
     aux = 0
@@ -233,9 +231,6 @@ def queue_selector(request, queueDict):
             continue
     print "Queue, aux", chosen, aux, ":", request
     return chosen
-
-
-
 
 def smart_flow_pusher(srcAddress, dstAddress, controllerRestIp, path, midSwitches, request, queueDict):
 
@@ -269,7 +264,6 @@ def smart_flow_pusher(srcAddress, dstAddress, controllerRestIp, path, midSwitche
 
     return
 
-
 def set_queue_0():
     # OVS switch Queues Configuration
 
@@ -301,10 +295,12 @@ def set_queue_2():
     return
 
 
-#################################################
+########################################################################################
 
 
 if __name__ == '__main__':
+
+    # curl -i -H "Content-Type: application/xml" -vX POST-d @circuitRequest.xml http://84.88.40.146:5000/pathfinder/provisioner
 
     controllerIp = "127.0.0.1:8080"
 

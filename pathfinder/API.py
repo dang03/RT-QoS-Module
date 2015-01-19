@@ -172,7 +172,7 @@ def run_app2():
 @app.route('/pathfinder/provisioner', methods=['POST'])
 def provisioner():
     """
-    *NOT DEFINED YET* usage:
+    *NOT DEFINED YET* usage: IP address needed (localhost not valid)
     curl -i -H "Content-Type: application/xml" -X POST --data-binary @/pathfinder/circuitRequest.xml http://127.0.0.1:5000/pathfinder/provisioner
     curl -i -H "Content-Type: application/xml" -vX POST -d @circuitRequest.xml http://127.0.0.1:5000/pathfinder/provisioner
     """
@@ -204,13 +204,13 @@ def provisioner():
         #return jsonify(input_data), 200
 
         #recover topology file from: manually set or tester.py
-        with open('pathfinder/PFinput3.json', 'r') as PFtopo:
+        with open('PFinput3.json', 'r') as PFtopo:
            topofile = json.load(PFtopo)
            PFtopo.close()
 
         adapted_request = Adapter.adapter('localhost:8080', input_data, topofile)
 
-        with open('pathfinder/PFtest.json', 'wb') as PFtester:
+        with open('PFtest.json', 'wb') as PFtester:
             json.dump(adapted_request, PFtester, indent=4)
             PFtester.close()
 
@@ -219,11 +219,11 @@ def provisioner():
 
         result = Pathfinder.pathfinder_algorithm(adapted_request)
 
-        with open('pathfinder/path.json', 'wb') as PFpath:
+        with open('path.json', 'wb') as PFpath:
             json.dump(result, PFpath, indent=4)
             PFpath.close()
 
-        tester.forwarder(result, 'localhost:8080')
+        #tester.forwarder(result, 'localhost:8080')
 
         #return json.dumps(result, indent=4), 200
         return jsonify(PATH=result), 200

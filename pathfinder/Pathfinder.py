@@ -461,7 +461,7 @@ def pathfinder_algorithm(reqData):
 
             maxPath, keyPath, length = path_select(kPaths, kKeys, kCosts, 1)
 
-            plot_path(M, maxPath, keyPath, hostList, None, None, 'total')
+            #plot_path(M, maxPath, keyPath, hostList, None, None, 'total')
 
             print "QoS path = %s\n" % maxPath
             print "QoS key path = %s\n" % keyPath
