@@ -15,10 +15,11 @@ import os
 from flask import Flask, jsonify, make_response, request
 import flask_restful
 from BeautifulSoup import BeautifulSoup
+from collections import defaultdict
 
 import Pathfinder
 import Adapter
-import tester
+import Forwarding
 
 #from pathfinder.Pathfinder import pathfinder_algorithm, pathfinder_algorithm_from_file
 
@@ -116,18 +117,6 @@ def get_qos_log():
         flask_restful.abort(404)
 
 
-"""
-if os.path.exists('./path.json'):
-        with open('./path.json', 'r') as path:
-            # r = pathRes.readlines()
-            res = json.load(path, encoding='utf8')
-            path.close()
-
-            res = json_renderer(data=res)
-            return res
-"""
-
-#@app.route('/pathfinder/run_app', methods=['POST'])
 @app.route('/pathfinder/run_app', methods=['GET', 'POST'])
 def run_app():
     """
@@ -176,6 +165,9 @@ def provisioner():
     curl -i -H "Content-Type: application/xml" -X POST --data-binary @/pathfinder/circuitRequest.xml http://127.0.0.1:5000/pathfinder/provisioner
     curl -i -H "Content-Type: application/xml" -vX POST -d @circuitRequest.xml http://127.0.0.1:5000/pathfinder/provisioner
     """
+    controllerIp = "127.0.0.1:8080"
+    midSwitches = defaultdict(list)
+
     if request.headers['Content-Type'] == 'application/xml':
 
         #parse data from XML input to python
@@ -201,48 +193,34 @@ def provisioner():
         #request input data
         input_data = {"requestID": req_id, "ip-src": src_ip, "ip-dst": dst_ip, "src-port": src_port, "dst-port": dst_port, "bandwidth": min_band, "delay": max_delay, "packet-loss": max_pLoss, "jitter": max_jitter}
 
-        #return jsonify(input_data), 200
-
         #recover topology file from: manually set or tester.py
         with open('PFinput_stats.json', 'r') as PFtopo:
            topofile = json.load(PFtopo)
            PFtopo.close()
 
-        adapted_request = Adapter.adapter('localhost:8080', input_data, topofile)
+        adapted_request = Adapter.adapter(controllerIp, input_data, topofile)
 
-        with open('PFinput_stats.json', 'wb') as PFtester:
+        with open('PFrequest.json', 'wb') as PFtester:
             json.dump(adapted_request, PFtester, indent=4)
             PFtester.close()
 
         print "Adapted request", adapted_request
-        #return jsonify(adapted_request), 200
 
         result = Pathfinder.pathfinder_algorithm(adapted_request)
+
+        print result
 
         with open('path.json', 'wb') as PFpath:
             json.dump(result, PFpath, indent=4)
             PFpath.close()
 
-        #tester.forwarder(result, 'localhost:8080')
+        queues = Forwarding.set_queues_all(controllerIp)
+        Forwarding.smart_flow_pusher(src_ip, dst_ip, controllerIp, result, min_band, queues)
 
-        #return json.dumps(result, indent=4), 200
         return jsonify(PATH=result), 200
-
-
-
-        #return str(src_ip+"\n"+dst_ip+"\n"+src_port+"\n"+dst_port+"\n"+label+"\n"+max_delay+"\n")
-
 
     else:
         flask_restful.abort(400)
-
-    #PFinput = circuitRequest.xml
-
-    #result = Pathfinder.pathfinder_algorithm(PFinput)
-
-    #return json.dumps(result, indent=4), 200
-    #return jsonify(PATH=result), 200
-
 
 
 # Define a route for the webserver
@@ -264,7 +242,7 @@ def index():
     return jsonify(json_index)
 
 
-
+########################################################################################
 
 if __name__ == '__main__':
     app.run(
@@ -272,10 +250,3 @@ if __name__ == '__main__':
         port=int("5000"),
         debug=False
     )
-
-"""
-# testing REST requests
-r = requests.get("http://weather.yahooapis.com/forecastrss", params = {"w":"753692", "u":"c"})
-if r.status_code == 200:
-    print r.text
-"""
