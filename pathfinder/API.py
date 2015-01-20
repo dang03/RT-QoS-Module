@@ -176,8 +176,8 @@ def provisioner():
         #E2E ip addresses and ports
         src_ip = parsed_data.source.address.string
         dst_ip = parsed_data.destination.address.string
-        src_port = parsed_data.source.linkport.string #considering
-        dst_port = parsed_data.destination.linkport.string #considering
+        #src_port = parsed_data.source.linkport.string #considering
+        #dst_port = parsed_data.destination.linkport.string #considering
 
         #label = parsed_data.label.string
 
@@ -191,7 +191,9 @@ def provisioner():
         req_id = "FIBRE-test"
 
         #request input data
-        input_data = {"requestID": req_id, "ip-src": src_ip, "ip-dst": dst_ip, "src-port": src_port, "dst-port": dst_port, "bandwidth": min_band, "delay": max_delay, "packet-loss": max_pLoss, "jitter": max_jitter}
+        #input_data = {"requestID": req_id, "ip-src": src_ip, "ip-dst": dst_ip, "src-port": src_port, "dst-port": dst_port, "bandwidth": min_band, "delay": max_delay, "packet-loss": max_pLoss, "jitter": max_jitter}
+        input_data = {"requestID": req_id, "ip-src": src_ip, "ip-dst": dst_ip, "bandwidth": min_band, "delay": max_delay, "packet-loss": max_pLoss, "jitter": max_jitter}
+
 
         #recover topology file from: manually set or tester.py
         with open('PFinput_stats.json', 'r') as PFtopo:
@@ -214,7 +216,6 @@ def provisioner():
             json.dump(result, PFpath, indent=4)
             PFpath.close()
 
-        queues = Forwarding.set_queues_all(controllerIp)
         Forwarding.smart_flow_pusher(src_ip, dst_ip, controllerIp, result, min_band, queues)
 
         return jsonify(PATH=result), 200
@@ -243,8 +244,11 @@ def index():
 
 
 ########################################################################################
+global queues
+controllerIp = "127.0.0.1:8080"
 
 if __name__ == '__main__':
+    queues = Forwarding.set_queues_all(controllerIp)
     app.run(
         host="84.88.40.146",
         port=int("5000"),

@@ -46,7 +46,7 @@ def request_builder_rnd(controller, rtTopo=None):
             pair3 = link_e['dst-switch']
             pair4 = link_e['src-switch']
             if pair1 == pair4 and pair2 == pair3:
-                bnd = random.randrange(65, 100)
+                bnd = random.randrange(90, 120)
                 link_e['bandwidth'] = bnd
                 link_d['bandwidth'] = bnd
                 dly = random.uniform(0.2, 0.8)
@@ -156,14 +156,14 @@ if __name__ == '__main__':
     print command + "\n"
     print "QoS Request:", result
     """
-
+    """
     with open('path.json', 'r') as PFpath:
                pathfile = json.load(PFpath)
                PFpath.close()
 
 
     forwarder(pathfile, controllerRestIp)
-
+    """
     """
     command = 'sudo curl -i -H "Content-Type: application/xml" -vX POST -d @circuitRequest.xml http://%s/pathfinder/provisioner' % args.RestAPIIp
     result = os.popen(command).read()
