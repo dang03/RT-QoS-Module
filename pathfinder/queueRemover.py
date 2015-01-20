@@ -146,9 +146,10 @@ delete_queue(to_delete)
 
 print "Waiting to clear... "
 #delete_queues()
-
-wipe_queues()
-
+cap = 8
+for x in xrange(cap):
+    wipe_queues()
+    x += 1
 
 print "Flow rules... "
 command = "sudo curl -s http://127.0.0.1:8080/wm/staticflowentrypusher/clear/all/json"
