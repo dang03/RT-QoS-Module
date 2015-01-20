@@ -2,11 +2,11 @@
     "src": {
         "srcIp": "192.168.10.10", 
         "srcSwitch": "00:00:00:00:00:00:00:01", 
-        "srcPort": 2
+        "srcPort": "2"
     }, 
     "dst": {
         "dstSwitch": "00:00:00:00:00:00:00:05", 
-        "dstPort": 2, 
+        "dstPort": "2", 
         "dstIp": "192.168.10.50"
     }, 
     "requestID": "FIBRE-test", 
@@ -20,53 +20,14 @@
         {
             "src-port-state": 0, 
             "dst-port-state": 0, 
-            "packet-loss": 0.8754931417286664, 
-            "src-port": 3, 
-            "delay": 0.612417209176702, 
-            "bandwidth": 97, 
-            "dst-switch": "00:00:00:00:00:00:00:06", 
-            "src-switch": "00:00:00:00:00:00:00:04", 
-            "dst-port": 2, 
-            "jitter": 0.36268632044201, 
-            "type": "internal"
-        }, 
-        {
-            "src-port-state": 0, 
-            "dst-port-state": 0, 
-            "packet-loss": 0.8925662954991176, 
-            "src-port": 3, 
-            "delay": 0.6437081934143838, 
-            "bandwidth": 103, 
-            "dst-switch": "00:00:00:00:00:00:00:03", 
-            "src-switch": "00:00:00:00:00:00:00:02", 
-            "dst-port": 2, 
-            "jitter": 0.23943393671863686, 
-            "type": "internal"
-        }, 
-        {
-            "src-port-state": 0, 
-            "dst-port-state": 0, 
-            "packet-loss": 0.8353600859943782, 
+            "packet-loss": 0.8309108087789708, 
             "src-port": 1, 
-            "delay": 0.4413205744748897, 
-            "bandwidth": 118, 
-            "dst-switch": "00:00:00:00:00:00:00:02", 
-            "src-switch": "00:00:00:00:00:00:00:01", 
-            "dst-port": 1, 
-            "jitter": 0.17059047280160947, 
-            "type": "internal"
-        }, 
-        {
-            "src-port-state": 0, 
-            "dst-port-state": 0, 
-            "packet-loss": 0.8754931417286664, 
-            "src-port": 2, 
-            "delay": 0.612417209176702, 
-            "bandwidth": 97, 
-            "dst-switch": "00:00:00:00:00:00:00:04", 
+            "delay": 0.36257295997068195, 
+            "bandwidth": 108, 
+            "dst-switch": "00:00:00:00:00:00:00:03", 
             "src-switch": "00:00:00:00:00:00:00:06", 
-            "dst-port": 3, 
-            "jitter": 0.36268632044201, 
+            "dst-port": 1, 
+            "jitter": 0.12247894707877652, 
             "type": "internal"
         }, 
         {
@@ -98,6 +59,19 @@
         {
             "src-port-state": 0, 
             "dst-port-state": 0, 
+            "packet-loss": 0.8754931417286664, 
+            "src-port": 3, 
+            "delay": 0.612417209176702, 
+            "bandwidth": 97, 
+            "dst-switch": "00:00:00:00:00:00:00:06", 
+            "src-switch": "00:00:00:00:00:00:00:04", 
+            "dst-port": 2, 
+            "jitter": 0.36268632044201, 
+            "type": "internal"
+        }, 
+        {
+            "src-port-state": 0, 
+            "dst-port-state": 0, 
             "packet-loss": 0.8309108087789708, 
             "src-port": 1, 
             "delay": 0.36257295997068195, 
@@ -111,14 +85,14 @@
         {
             "src-port-state": 0, 
             "dst-port-state": 0, 
-            "packet-loss": 0.8888890770813032, 
-            "src-port": 1, 
-            "delay": 0.7935003333890516, 
-            "bandwidth": 107, 
-            "dst-switch": "00:00:00:00:00:00:00:04", 
-            "src-switch": "00:00:00:00:00:00:00:05", 
-            "dst-port": 1, 
-            "jitter": 0.11172168352480455, 
+            "packet-loss": 0.8925662954991176, 
+            "src-port": 3, 
+            "delay": 0.6437081934143838, 
+            "bandwidth": 103, 
+            "dst-switch": "00:00:00:00:00:00:00:03", 
+            "src-switch": "00:00:00:00:00:00:00:02", 
+            "dst-port": 2, 
+            "jitter": 0.23943393671863686, 
             "type": "internal"
         }, 
         {
@@ -137,6 +111,19 @@
         {
             "src-port-state": 0, 
             "dst-port-state": 0, 
+            "packet-loss": 0.8353600859943782, 
+            "src-port": 1, 
+            "delay": 0.4413205744748897, 
+            "bandwidth": 118, 
+            "dst-switch": "00:00:00:00:00:00:00:02", 
+            "src-switch": "00:00:00:00:00:00:00:01", 
+            "dst-port": 1, 
+            "jitter": 0.17059047280160947, 
+            "type": "internal"
+        }, 
+        {
+            "src-port-state": 0, 
+            "dst-port-state": 0, 
             "packet-loss": 0.8888890770813032, 
             "src-port": 1, 
             "delay": 0.7935003333890516, 
@@ -150,14 +137,14 @@
         {
             "src-port-state": 0, 
             "dst-port-state": 0, 
-            "packet-loss": 0.8309108087789708, 
-            "src-port": 1, 
-            "delay": 0.36257295997068195, 
-            "bandwidth": 108, 
-            "dst-switch": "00:00:00:00:00:00:00:03", 
+            "packet-loss": 0.8754931417286664, 
+            "src-port": 2, 
+            "delay": 0.612417209176702, 
+            "bandwidth": 97, 
+            "dst-switch": "00:00:00:00:00:00:00:04", 
             "src-switch": "00:00:00:00:00:00:00:06", 
-            "dst-port": 1, 
-            "jitter": 0.12247894707877652, 
+            "dst-port": 3, 
+            "jitter": 0.36268632044201, 
             "type": "internal"
         }, 
         {
@@ -171,6 +158,19 @@
             "src-switch": "00:00:00:00:00:00:00:02", 
             "dst-port": 2, 
             "jitter": 0.3230240662028011, 
+            "type": "internal"
+        }, 
+        {
+            "src-port-state": 0, 
+            "dst-port-state": 0, 
+            "packet-loss": 0.8888890770813032, 
+            "src-port": 1, 
+            "delay": 0.7935003333890516, 
+            "bandwidth": 107, 
+            "dst-switch": "00:00:00:00:00:00:00:04", 
+            "src-switch": "00:00:00:00:00:00:00:05", 
+            "dst-port": 1, 
+            "jitter": 0.11172168352480455, 
             "type": "internal"
         }
     ]

@@ -141,7 +141,7 @@ def adapter(controller, reqData, topo):
         if 'src-port' in reqData:
             srcPort = reqData['src-port']
         else:
-            srcPort = parsedResult[0]['attachmentPoint'][0]['port']
+            srcPort = str(parsedResult[0]['attachmentPoint'][0]['port'])
 
     except:
         print mcolors.FAIL + "Error: Controller could not find SRC attachment point!" + mcolors.ENDC
@@ -157,7 +157,7 @@ def adapter(controller, reqData, topo):
         if 'dst-port' in reqData:
             dstPort = reqData['dst-port']
         else:
-            dstPort = parsedResult[0]['attachmentPoint'][0]['port']
+            dstPort = str(parsedResult[0]['attachmentPoint'][0]['port'])
 
     except:
         print mcolors.FAIL + "Error: Controller could not find DST attachment point!" + mcolors.ENDC
